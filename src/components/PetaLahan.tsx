@@ -19,6 +19,29 @@ const getMarkerIcon = () => {
   });
 };
 
+// Map Resizer component to fix Leaflet size container glitches
+function MapResizer() {
+  const map = useMap();
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      map.invalidateSize();
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [map]);
+  return null;
+}
+
+// Map Click Handler Component
+function MapClickHandler({ setPoints }: { setPoints: React.Dispatch<React.SetStateAction<[number, number][]>> }) {
+  useMapEvents({
+    click(e) {
+      const newPoint: [number, number] = [e.latlng.lat, e.latlng.lng];
+      setPoints(prev => [...prev, newPoint]);
+    }
+  });
+  return null;
+}
+
 interface PetaLahanProps {
   onSaveLahan: (lahanData: Omit<Lahan, 'id' | 'status'>) => void;
   savedLahans: Lahan[];
@@ -27,7 +50,6 @@ interface PetaLahanProps {
 
 export default function PetaLahan({ onSaveLahan, savedLahans, onClose }: PetaLahanProps) {
   const [points, setPoints] = useState<[number, number][]>([]);
-  const [tempMarker, setTempMarker] = useState<[number, number] | null>(null);
   const [landName, setLandName] = useState('');
   const [soilType, setSoilType] = useState<Lahan['jenisTanah']>('Lempung');
   const [drainage, setDrainage] = useState<Lahan['tipeDrainase']>('Baik');
@@ -40,30 +62,6 @@ export default function PetaLahan({ onSaveLahan, savedLahans, onClose }: PetaLah
     suhu: number;
     luas: number;
   } | null>(null);
-
-  // Map Resizer component to fix Leaflet size container glitches
-  function MapResizer() {
-    const map = useMap();
-    useEffect(() => {
-      const timer = setTimeout(() => {
-        map.invalidateSize();
-      }, 300);
-      return () => clearTimeout(timer);
-    }, [map]);
-    return null;
-  }
-
-  // Map Click Handler Component
-  function MapClickHandler() {
-    useMapEvents({
-      click(e) {
-        const newPoint: [number, number] = [e.latlng.lat, e.latlng.lng];
-        setPoints(prev => [...prev, newPoint]);
-        setTempMarker(newPoint);
-      }
-    });
-    return null;
-  }
 
   // Calculate polygon area (using simplified flat earth math for small agricultural plots)
   const calculateArea = (coords: [number, number][]) => {
@@ -115,6 +113,7 @@ export default function PetaLahan({ onSaveLahan, savedLahans, onClose }: PetaLah
       // Rainfall simulation: higher in wet volcanic soils
       const curahHujan = Math.round(140 + (ketinggian / 10) + (Math.sin(lng * 5) * 40));
 
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setStats({
         ketinggian: Math.min(2200, Math.max(5, ketinggian)),
         curahHujan: Math.min(400, Math.max(40, curahHujan)),
@@ -128,7 +127,6 @@ export default function PetaLahan({ onSaveLahan, savedLahans, onClose }: PetaLah
 
   const handleReset = () => {
     setPoints([]);
-    setTempMarker(null);
   };
 
   const handleSave = () => {
@@ -180,7 +178,7 @@ export default function PetaLahan({ onSaveLahan, savedLahans, onClose }: PetaLah
             url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
           />
           <MapResizer />
-          <MapClickHandler />
+          <MapClickHandler setPoints={setPoints} />
 
           {/* Render markers for currently being drawn points */}
           {points.map((pt, idx) => (

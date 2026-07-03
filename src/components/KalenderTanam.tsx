@@ -25,6 +25,7 @@ export default function KalenderTanam({ savedLahans }: KalenderTanamProps) {
 
   useEffect(() => {
     if (savedLahans.length > 0 && !selectedLahanId) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setSelectedLahanId(savedLahans[0].id);
     }
   }, [savedLahans, selectedLahanId]);

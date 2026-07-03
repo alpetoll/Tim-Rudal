@@ -173,7 +173,7 @@ export function cariAlternatif(lahan: Lahan): { tanaman: Tanaman; evaluasi: Hasi
 }
 
 // Fitur Kalender Tanam: Evaluasi skor tanam harian berdasarkan curah hujan dan suhu
-export function evaluasiTanggalTanam(tanamanId: string, forecast14Hari: any[]) {
+export function evaluasiTanggalTanam(tanamanId: string, forecast14Hari: { date: string, suhu: number, curahHujan: number }[]) {
   const tanaman = TANAMAN_DATABASE.find(t => t.id === tanamanId) || TANAMAN_DATABASE[0];
 
   return forecast14Hari.map(day => {
