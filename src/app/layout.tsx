@@ -7,8 +7,8 @@ export const metadata: Metadata = {
   description: "EcoTani menghadirkan platform pemetaan sawah berbasis data geospasial dan satelit real-time untuk mendeteksi anomali cuaca, cek kelayakan lahan, dan mengamankan panen Anda.",
   manifest: "/manifest.json",
   icons: {
-    icon: "/assets/logo.svg",
-    apple: "/assets/logo.svg",
+    icon: "/assets/logo.webp",
+    apple: "/assets/logo.webp",
   }
 };
 
@@ -17,7 +17,6 @@ export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
   maximumScale: 1,
-  userScalable: false,
 };
 
 export default function RootLayout({

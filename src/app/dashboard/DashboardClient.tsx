@@ -42,8 +42,6 @@ import {
   Edit2,
   Trash2,
   Settings,
-  Moon,
-  Sun,
   ThermometerSun,
   ChevronRight,
   Eye,
@@ -77,24 +75,12 @@ export default function DashboardClient({ initialUser }: DashboardClientProps) {
   // 'dashboard' | 'add-lahan' | 'edit-lahan' | 'suitability' | 'monitoring' | 'panen' | 'profile'
   const [currentView, setCurrentView] = useState<'dashboard' | 'add-lahan' | 'edit-lahan' | 'suitability' | 'monitoring' | 'panen' | 'profile'>('dashboard');
   
-  // Theme state
-  const [theme, setTheme] = useState<'light' | 'dark'>('dark');
-
+  // Theme state removed - app is strictly dark mode
+  
   useEffect(() => {
-    const savedTheme = localStorage.getItem('ecotani_theme');
-    if (savedTheme === 'light') {
-      setTheme('light');
-    }
+    document.documentElement.classList.add('dark');
+    localStorage.setItem('ecotani_theme', 'dark');
   }, []);
-
-  useEffect(() => {
-    if (theme === 'dark') {
-      document.documentElement.classList.add('dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-    }
-    localStorage.setItem('ecotani_theme', theme);
-  }, [theme]);
   
   // Selected entities for drill-down
   const [selectedLahan, setSelectedLahan] = useState<Lahan | null>(null);
@@ -1004,28 +990,6 @@ export default function DashboardClient({ initialUser }: DashboardClientProps) {
               />
             </div>
             
-            <div className="pt-4 pb-2 border-t border-border-light mt-6">
-              <label className="block text-xs font-semibold text-text-muted uppercase tracking-wider mb-4">Pengaturan Tema</label>
-              <div className="flex gap-4">
-                <button 
-                  type="button"
-                  onClick={() => setTheme('light')}
-                  className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl border transition-all ${theme === 'light' ? 'bg-primary/10 border-primary text-primary-dark font-bold' : 'border-border-medium text-text-muted hover:bg-border-light'}`}
-                >
-                  <Sun className="w-4 h-4" />
-                  <span>Terang</span>
-                </button>
-                <button 
-                  type="button"
-                  onClick={() => setTheme('dark')}
-                  className={`flex-1 flex items-center justify-center gap-2 py-3 rounded-xl border transition-all ${theme === 'dark' ? 'bg-primary/10 border-primary text-primary-light font-bold' : 'border-border-medium text-text-muted hover:bg-border-light'}`}
-                >
-                  <Moon className="w-4 h-4" />
-                  <span>Gelap</span>
-                </button>
-              </div>
-            </div>
-
             <div className="flex gap-3 pt-6">
               <button 
                 type="button"
@@ -1062,7 +1026,7 @@ export default function DashboardClient({ initialUser }: DashboardClientProps) {
       <div className="fixed top-4 left-4 right-4 z-50 flex justify-center">
         <header className="w-full max-w-6xl bg-white/5 backdrop-blur-xl rounded-full shadow-2xl border border-white/10 px-4 md:px-6 py-2 flex items-center justify-between h-16 transition-all duration-300">
           <div className="flex items-center gap-2 md:gap-3 pl-1 md:pl-2">
-            <img src="/assets/logo.svg" alt="EcoTani" className="h-8 w-8 drop-shadow-[0_0_8px_rgba(0,168,89,0.5)]" />
+            <img src="/assets/logo.webp" alt="EcoTani" className="h-8 w-8 drop-shadow-[0_0_8px_rgba(0,168,89,0.5)]" />
             <span className="font-extrabold text-lg text-white tracking-tight">EcoTani</span>
           </div>
 
@@ -1095,48 +1059,48 @@ export default function DashboardClient({ initialUser }: DashboardClientProps) {
       <main className="flex-grow pt-24 pb-12 max-w-6xl w-full mx-auto px-4 relative z-10">
         
         {/* Summary Stats grid (Premium Glassmorphism) */}
-        <div className="grid grid-cols-1 sm:grid-cols-4 gap-4 mb-8">
-          <div className="bg-white/5 backdrop-blur-md border border-white/10 p-5 rounded-2xl flex items-center gap-4 hover:bg-white/10 transition-colors shadow-lg shadow-black/20">
-            <div className="p-3 bg-emerald-500/10 text-emerald-400 rounded-xl border border-emerald-500/20 shadow-[0_0_15px_rgba(16,185,129,0.15)]">
-              <Map className="w-6 h-6" />
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 mb-6 md:mb-8">
+          <div className="bg-white/5 backdrop-blur-md border border-white/10 p-3 md:p-5 rounded-xl md:rounded-2xl flex flex-col md:flex-row items-start md:items-center gap-2 md:gap-4 hover:bg-white/10 transition-colors shadow-lg shadow-black/20">
+            <div className="p-2 md:p-3 bg-emerald-500/10 text-emerald-400 rounded-lg md:rounded-xl border border-emerald-500/20 shadow-[0_0_15px_rgba(16,185,129,0.15)]">
+              <Map className="w-5 h-5 md:w-6 md:h-6" />
             </div>
             <div>
-              <span className="text-xs text-gray-400 block mb-0.5">Jumlah Lahan</span>
-              <strong className="text-xl text-white block">{lahans.length} Bidang</strong>
+              <span className="text-[10px] md:text-xs text-gray-400 block mb-0.5 leading-tight">Jumlah Lahan</span>
+              <strong className="text-sm md:text-xl text-white block truncate">{lahans.length} Bidang</strong>
             </div>
           </div>
 
-          <div className="bg-white/5 backdrop-blur-md border border-white/10 p-5 rounded-2xl flex items-center gap-4 hover:bg-white/10 transition-colors shadow-lg shadow-black/20">
-            <div className="p-3 bg-blue-500/10 text-blue-400 rounded-xl border border-blue-500/20 shadow-[0_0_15px_rgba(59,130,246,0.15)]">
-              <Activity className="w-6 h-6" />
+          <div className="bg-white/5 backdrop-blur-md border border-white/10 p-3 md:p-5 rounded-xl md:rounded-2xl flex flex-col md:flex-row items-start md:items-center gap-2 md:gap-4 hover:bg-white/10 transition-colors shadow-lg shadow-black/20">
+            <div className="p-2 md:p-3 bg-blue-500/10 text-blue-400 rounded-lg md:rounded-xl border border-blue-500/20 shadow-[0_0_15px_rgba(59,130,246,0.15)]">
+              <Activity className="w-5 h-5 md:w-6 md:h-6" />
             </div>
             <div>
-              <span className="text-xs text-gray-400 block mb-0.5">Total Luas Lahan</span>
-              <strong className="text-xl text-white block">
+              <span className="text-[10px] md:text-xs text-gray-400 block mb-0.5 leading-tight">Total Luas</span>
+              <strong className="text-sm md:text-xl text-white block truncate">
                 {lahans.reduce((sum, l) => sum + l.luas, 0).toLocaleString('id-ID')} m²
               </strong>
             </div>
           </div>
 
-          <div className="bg-white/5 backdrop-blur-md border border-white/10 p-5 rounded-2xl flex items-center gap-4 hover:bg-white/10 transition-colors shadow-lg shadow-black/20">
-            <div className="p-3 bg-amber-500/10 text-amber-400 rounded-xl border border-amber-500/20 shadow-[0_0_15px_rgba(245,158,11,0.15)]">
-              <TrendingUp className="w-6 h-6" />
+          <div className="bg-white/5 backdrop-blur-md border border-white/10 p-3 md:p-5 rounded-xl md:rounded-2xl flex flex-col md:flex-row items-start md:items-center gap-2 md:gap-4 hover:bg-white/10 transition-colors shadow-lg shadow-black/20">
+            <div className="p-2 md:p-3 bg-amber-500/10 text-amber-400 rounded-lg md:rounded-xl border border-amber-500/20 shadow-[0_0_15px_rgba(245,158,11,0.15)]">
+              <TrendingUp className="w-5 h-5 md:w-6 md:h-6" />
             </div>
             <div>
-              <span className="text-xs text-gray-400 block mb-0.5">Panen Sukses</span>
-              <strong className="text-xl text-white block">
+              <span className="text-[10px] md:text-xs text-gray-400 block mb-0.5 leading-tight">Panen Sukses</span>
+              <strong className="text-sm md:text-xl text-white block truncate">
                 {panens.filter(p => p.statusHasil === 'sukses').length} Kali
               </strong>
             </div>
           </div>
 
-          <div className="bg-white/5 backdrop-blur-md border border-white/10 p-5 rounded-2xl flex items-center gap-4 hover:bg-white/10 transition-colors shadow-lg shadow-black/20">
-            <div className="p-3 bg-red-500/10 text-red-400 rounded-xl border border-red-500/20 shadow-[0_0_15px_rgba(239,68,68,0.15)] animate-pulse">
-              <AlertTriangle className="w-6 h-6" />
+          <div className="bg-white/5 backdrop-blur-md border border-white/10 p-3 md:p-5 rounded-xl md:rounded-2xl flex flex-col md:flex-row items-start md:items-center gap-2 md:gap-4 hover:bg-white/10 transition-colors shadow-lg shadow-black/20">
+            <div className="p-2 md:p-3 bg-red-500/10 text-red-400 rounded-lg md:rounded-xl border border-red-500/20 shadow-[0_0_15px_rgba(239,68,68,0.15)] animate-pulse">
+              <AlertTriangle className="w-5 h-5 md:w-6 md:h-6" />
             </div>
             <div>
-              <span className="text-xs text-gray-400 block mb-0.5">Peringatan Aktif</span>
-              <strong className="text-xl text-white block">{activeAlerts.length} Bahaya</strong>
+              <span className="text-[10px] md:text-xs text-gray-400 block mb-0.5 leading-tight">Peringatan</span>
+              <strong className="text-sm md:text-xl text-white block truncate">{activeAlerts.length} Bahaya</strong>
             </div>
           </div>
         </div>

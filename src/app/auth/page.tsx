@@ -84,7 +84,7 @@ export default function AuthPage() {
           transition={{ duration: 0.5 }}
         >
           <Link href="/" className="flex items-center gap-2 group w-fit">
-            <Sprout className="w-8 h-8 text-primary group-hover:rotate-12 transition-transform duration-300" />
+            <img src="/assets/logo.webp" alt="EcoTani" className="w-8 h-8 group-hover:rotate-12 transition-transform duration-300" />
             <span className="font-extrabold text-2xl text-gray-900 dark:text-white tracking-tight">EcoTani</span>
           </Link>
         </motion.div>
@@ -110,7 +110,7 @@ export default function AuthPage() {
             </div>
           )}
 
-          <form onSubmit={handleAuthSubmit} className="space-y-5">
+          <form onSubmit={handleAuthSubmit} className="space-y-5 relative z-50">
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -122,7 +122,7 @@ export default function AuthPage() {
                 value={authEmail}
                 onChange={(e) => setAuthEmail(e.target.value)}
                 required
-                className="w-full px-5 py-4 rounded-xl bg-gray-200/80 dark:bg-white border border-transparent focus:border-primary focus:bg-white outline-none transition-all duration-300 text-gray-900 font-medium placeholder:text-gray-400"
+                className="w-full px-5 py-4 rounded-xl bg-gray-200/80 dark:bg-white border border-transparent focus:border-primary focus:bg-white outline-none transition-all duration-300 text-gray-900 font-medium text-base placeholder:text-gray-400"
               />
             </motion.div>
             
@@ -138,7 +138,7 @@ export default function AuthPage() {
                 value={authPassword}
                 onChange={(e) => setAuthPassword(e.target.value)}
                 required
-                className="w-full pl-5 pr-12 py-4 rounded-xl bg-gray-200/80 dark:bg-white border border-transparent focus:border-primary focus:bg-white outline-none transition-all duration-300 text-gray-900 font-medium placeholder:text-gray-400"
+                className="w-full pl-5 pr-12 py-4 rounded-xl bg-gray-200/80 dark:bg-white border border-transparent focus:border-primary focus:bg-white outline-none transition-all duration-300 text-gray-900 font-medium text-base placeholder:text-gray-400"
               />
               <button
                 type="button"
@@ -162,7 +162,7 @@ export default function AuthPage() {
                   value={authConfirmPassword}
                   onChange={(e) => setAuthConfirmPassword(e.target.value)}
                   required
-                  className="w-full pl-5 pr-12 py-4 rounded-xl bg-gray-200/80 dark:bg-white border border-transparent focus:border-primary focus:bg-white outline-none transition-all duration-300 text-gray-900 font-medium placeholder:text-gray-400"
+                  className="w-full pl-5 pr-12 py-4 rounded-xl bg-gray-200/80 dark:bg-white border border-transparent focus:border-primary focus:bg-white outline-none transition-all duration-300 text-gray-900 font-medium text-base placeholder:text-gray-400"
                 />
                 <button
                   type="button"

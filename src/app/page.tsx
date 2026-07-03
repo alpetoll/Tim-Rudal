@@ -12,44 +12,81 @@ import {
   TrendingUp, 
   AlertTriangle,
   Menu,
-  X,
-  Sun,
-  Moon
+  X
 } from 'lucide-react';
+const EcoTaniAnimatedLogo = () => {
+  return (
+    <div className="w-full h-full relative flex items-center justify-center">
+      <motion.img
+        src="/assets/logo.webp"
+        alt="EcoTani Loading"
+        className="w-full h-full object-contain drop-shadow-[0_0_30px_rgba(46,125,50,0.4)]"
+        initial={{ scale: 0, opacity: 0, rotate: -30 }}
+        animate={{ scale: 1, opacity: 1, rotate: 0 }}
+        transition={{ duration: 1.2, type: "spring", bounce: 0.5 }}
+      />
+    </div>
+  );
+};
 
 export default function LandingPage() {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [theme, setTheme] = useState<'light' | 'dark'>('dark'); // Default dark
+  const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // Read from localStorage on mount
-    const savedTheme = localStorage.getItem('ecotani_theme');
-    if (savedTheme === 'light') {
-      setTheme('light');
-      document.documentElement.classList.remove('dark');
-    } else {
-      setTheme('dark');
-      document.documentElement.classList.add('dark');
-    }
-  }, []);
+    // Ensure dark mode is strictly enforced globally
+    document.documentElement.classList.add('dark');
+    localStorage.setItem('ecotani_theme', 'dark');
 
-  const toggleTheme = () => {
-    const newTheme = theme === 'dark' ? 'light' : 'dark';
-    setTheme(newTheme);
-    localStorage.setItem('ecotani_theme', newTheme);
-    if (newTheme === 'dark') {
-      document.documentElement.classList.add('dark');
-    } else {
-      document.documentElement.classList.remove('dark');
-    }
-  };
+    // Loading screen timer
+    const timer = setTimeout(() => {
+      setIsLoading(false);
+    }, 3500); // 3.5 detik agar animasi beres
+    return () => clearTimeout(timer);
+  }, []);
 
   const toggleMobileMenu = () => {
     setMobileMenuOpen(!mobileMenuOpen);
   };
 
   return (
-    <div className="bg-bg-dark text-text-main font-sans overflow-x-hidden min-h-screen">
+    <>
+      {/* LOADING SCREEN */}
+      <AnimatePresence>
+        {isLoading && (
+          <motion.div
+            key="loading-screen"
+            initial={{ opacity: 1 }}
+            exit={{ opacity: 0, scale: 1.1, filter: "blur(10px)" }}
+            transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
+            className="fixed inset-0 z-[9999] bg-[#0a0a0a] flex flex-col items-center justify-center"
+          >
+            <motion.div
+              initial={{ opacity: 1 }}
+              className="relative w-40 h-40 md:w-56 md:h-56 mb-8"
+            >
+              <EcoTaniAnimatedLogo />
+              
+            </motion.div>
+            
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.4, duration: 0.5 }}
+              className="text-center"
+            >
+              <h1 className="text-3xl md:text-4xl font-extrabold text-white tracking-widest mb-3 uppercase">EcoTani</h1>
+              <div className="flex items-center justify-center gap-2">
+                <motion.div animate={{ scale: [1, 1.5, 1], opacity: [0.3, 1, 0.3] }} transition={{ duration: 1, repeat: Infinity, delay: 0 }} className="w-2 h-2 rounded-full bg-[#8bc34a]" />
+                <motion.div animate={{ scale: [1, 1.5, 1], opacity: [0.3, 1, 0.3] }} transition={{ duration: 1, repeat: Infinity, delay: 0.2 }} className="w-2 h-2 rounded-full bg-[#8bc34a]" />
+                <motion.div animate={{ scale: [1, 1.5, 1], opacity: [0.3, 1, 0.3] }} transition={{ duration: 1, repeat: Infinity, delay: 0.4 }} className="w-2 h-2 rounded-full bg-[#8bc34a]" />
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      <div className="bg-bg-dark text-text-main font-sans overflow-x-hidden min-h-screen">
       
       {/* NAVBAR CONTAINER (FLOATING OVAL) */}
       <div className="fixed top-4 left-4 right-4 z-50 flex justify-center">
@@ -57,7 +94,7 @@ export default function LandingPage() {
           
           {/* Logo */}
           <Link href="/" className="flex items-center gap-3 pl-2">
-            <img src="/assets/logo.svg" alt="Logo EcoTani" className="h-9 w-9 drop-shadow-[0_0_8px_rgba(0,168,89,0.5)]" />
+            <img src="/assets/logo.webp" alt="Logo EcoTani" className="h-9 w-9 drop-shadow-[0_0_8px_rgba(0,168,89,0.5)]" />
             <span className="font-extrabold text-xl text-white tracking-tight">EcoTani</span>
           </Link>
           
@@ -71,13 +108,7 @@ export default function LandingPage() {
           
           {/* Actions (Desktop) */}
           <div className="hidden md:flex items-center gap-3 pr-2">
-            <button
-              onClick={toggleTheme}
-              className="p-2 rounded-full hover:bg-white/10 text-gray-300 transition-colors"
-              title="Ganti Tema"
-            >
-              {theme === 'dark' ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
-            </button>
+
             <Link href="/dashboard" className="px-5 py-2 rounded-full font-semibold text-sm text-white bg-primary-dark hover:bg-emerald-800 hover:shadow-md transition-all duration-300 flex items-center gap-2 hover:translate-x-0.5">
               <span>Login</span>
               <ArrowRight className="w-4 h-4" />
@@ -443,7 +474,7 @@ export default function LandingPage() {
           {/* Brand & Info */}
           <div className="flex flex-col items-start">
             <a href="#" className="flex items-center gap-3 mb-4">
-              <img src="/assets/logo.svg" alt="EcoTani Logo" className="h-9 w-9" />
+              <img src="/assets/logo.webp" alt="EcoTani Logo" className="h-9 w-9" />
               <span className="text-text-main font-extrabold text-xl tracking-tight">EcoTani</span>
             </a>
             <p className="text-text-muted text-sm md:text-base leading-relaxed mb-6 max-w-sm">Platform cerdas pemetaan sawah untuk mitigasi risiko gagal panen akibat perubahan iklim pertanian Indonesia.</p>
@@ -490,7 +521,8 @@ export default function LandingPage() {
         </div>
       </footer>
 
-    </div>
+      </div>
+    </>
   );
 }
 

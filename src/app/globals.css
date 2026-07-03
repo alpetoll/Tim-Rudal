@@ -2,15 +2,15 @@
 @import "tailwindcss";
 
 @theme {
-  --color-primary: #00a859;
-  --color-primary-dark: #0f763e;
-  --color-primary-light: #22c55e;
+  --color-primary: #2e7d32;
+  --color-primary-dark: #1b5e20;
+  --color-primary-light: #8bc34a;
   
   /* Dynamic Backgrounds */
   --color-bg-dark: var(--bg-main);
   --color-bg-card: var(--bg-card);
   --color-bg-elevated: var(--bg-elevated);
-  
+
   /* Dynamic Text */
   --color-text-main: var(--text-main);
   --color-text-muted: var(--text-muted);
