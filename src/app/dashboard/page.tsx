@@ -93,13 +93,20 @@ export default function DashboardPage() {
   // Monitor auth state changes
   useEffect(() => {
     // 1. Get current session
-    supabase.auth.getUser().then(({ data: { user } }) => {
+    supabase.auth.getUser().then(({ data: { user }, error }) => {
+      if (error) {
+        console.error('Auth getUser error:', error);
+      }
       setUser(user);
       if (user) {
         checkPetaniProfile(user.id);
       } else {
         setAuthLoading(false);
       }
+    }).catch((err) => {
+      console.error('Network or unexpected error during getUser:', err);
+      setAuthLoading(false);
+      setAuthError('Gagal terhubung ke server autentikasi. Periksa koneksi internet Anda.');
     });
 
     // 2. Listen for auth changes
