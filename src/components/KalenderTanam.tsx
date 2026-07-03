@@ -279,7 +279,7 @@ export default function KalenderTanam({ savedLahans }: KalenderTanamProps) {
               <span>Prediksi 14 Hari Kedepan</span>
             </h3>
             
-            <div className="calendar-wrapper custom-calendar bg-bg-dark p-4 rounded-xl border border-border-light inline-block">
+            <div className="calendar-wrapper custom-calendar bg-bg-dark p-4 rounded-xl border border-border-light w-full max-w-full overflow-x-auto flex justify-center md:inline-block">
               <DayPicker 
                 mode="single"
                 selected={selectedDate}
@@ -288,7 +288,7 @@ export default function KalenderTanam({ savedLahans }: KalenderTanamProps) {
                 modifiers={modifiers}
                 modifiersClassNames={modifiersClassNames}
                 disabled={[{ before: new Date() }]}
-                className="text-text-main"
+                className="text-text-main min-w-[280px]"
               />
             </div>
           </div>

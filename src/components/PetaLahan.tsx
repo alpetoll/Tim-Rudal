@@ -55,6 +55,10 @@ export default function PetaLahan({ onSaveLahan, savedLahans, onClose, initialLa
   const [soilType, setSoilType] = useState<Lahan['jenisTanah']>(initialLahan?.jenisTanah || 'Lempung');
   const [drainage, setDrainage] = useState<Lahan['tipeDrainase']>(initialLahan?.tipeDrainase || 'Baik');
   const [pestHistory, setPestHistory] = useState<Lahan['riwayatHama']>(initialLahan?.riwayatHama || 'Tidak');
+  const [pHLevel, setPHLevel] = useState<string>(initialLahan?.pH || 'Netral (6.5 - 7.5)');
+  
+  // Custom Map Layer Toggle State
+  const [isSatellite, setIsSatellite] = useState(false);
 
   // Simulated geospasial stats calculated from drawn points
   const [stats, setStats] = useState<{
@@ -157,6 +161,7 @@ export default function PetaLahan({ onSaveLahan, savedLahans, onClose, initialLa
         tipeDrainase: drainage,
         jenisTanah: soilType,
         riwayatHama: pestHistory,
+        pH: pHLevel,
       });
       handleReset();
       setLandName('');
@@ -164,14 +169,17 @@ export default function PetaLahan({ onSaveLahan, savedLahans, onClose, initialLa
   };
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 h-[calc(100vh-12rem)] min-h-[500px]">
+    <div className="flex flex-col lg:grid lg:grid-cols-3 gap-6 h-auto lg:h-[calc(100vh-12rem)] lg:min-h-[500px]">
       
       {/* Peta Geospatial (Leaflet) */}
-      <div className="lg:col-span-2 relative border border-white/10 rounded-2xl overflow-hidden h-[300px] lg:h-full">
-        <div className="absolute top-3 left-3 z-[400] bg-bg-card/90 backdrop-blur-md px-3 py-1.5 rounded-full border border-white/10 flex items-center gap-2 text-xs font-semibold text-primary-light">
-          <Layers className="w-3.5 h-3.5" />
-          <span>Mode Satelit Geospatial</span>
-        </div>
+      <div className="lg:col-span-2 relative border border-white/10 rounded-2xl overflow-hidden h-[400px] lg:h-full shrink-0">
+        <button 
+          onClick={() => setIsSatellite(!isSatellite)}
+          className="absolute top-3 right-3 z-[400] bg-bg-card/90 hover:bg-bg-card backdrop-blur-md px-3 py-2 rounded-xl border border-white/20 shadow-lg flex items-center gap-2 text-xs font-semibold text-primary-light transition-all cursor-pointer"
+        >
+          <Layers className="w-4 h-4" />
+          <span>{isSatellite ? 'Ubah ke Peta Jalan' : 'Ubah ke Satelit'}</span>
+        </button>
 
         <MapContainer 
           center={initialLahan ? initialLahan.centroid : [-7.150, 110.140]} 
@@ -180,8 +188,15 @@ export default function PetaLahan({ onSaveLahan, savedLahans, onClose, initialLa
           style={{ width: '100%', height: '100%' }}
         >
           <TileLayer
-            attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-            url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
+            key={isSatellite ? 'sat' : 'osm'}
+            attribution={isSatellite 
+              ? 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community'
+              : '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+            }
+            url={isSatellite 
+              ? 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'
+              : 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'
+            }
           />
           <MapResizer />
           <MapClickHandler setPoints={setPoints} />
@@ -310,12 +325,26 @@ export default function PetaLahan({ onSaveLahan, savedLahans, onClose, initialLa
               <select 
                 value={soilType}
                 onChange={(e) => setSoilType(e.target.value as Lahan['jenisTanah'])}
-                className="w-full bg-bg-dark border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-primary transition-all text-sm"
+                className="w-full bg-bg-dark border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-primary transition-all text-sm mb-4"
               >
                 <option value="Humus">Tanah Humus (Subur/Organik)</option>
                 <option value="Lempung">Tanah Lempung (Baik Tahan Air)</option>
                 <option value="Pasir">Tanah Pasir (Sarang Air/Poros)</option>
                 <option value="Gambut">Tanah Gambut (Asam/Rawa)</option>
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">Tingkat Keasaman (pH)</label>
+              <select 
+                value={pHLevel}
+                onChange={(e) => setPHLevel(e.target.value)}
+                className="w-full bg-bg-dark border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-primary transition-all text-sm"
+              >
+                <option value="Sangat Asam (< 5.5)">Sangat Asam (&lt; 5.5)</option>
+                <option value="Asam (5.5 - 6.5)">Asam (5.5 - 6.5)</option>
+                <option value="Netral (6.5 - 7.5)">Netral (6.5 - 7.5) - Optimal</option>
+                <option value="Basa (> 7.5)">Basa (&gt; 7.5)</option>
               </select>
             </div>
 

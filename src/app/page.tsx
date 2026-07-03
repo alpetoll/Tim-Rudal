@@ -53,27 +53,27 @@ export default function LandingPage() {
       
       {/* NAVBAR CONTAINER (FLOATING OVAL) */}
       <div className="fixed top-4 left-4 right-4 z-50 flex justify-center">
-        <header className="w-full max-w-6xl bg-white/95 backdrop-blur-md rounded-full shadow-xl border border-black/5 px-6 py-2 flex items-center justify-between h-16 transition-all duration-300">
+        <header className="w-full max-w-6xl bg-white/5 backdrop-blur-xl rounded-full shadow-2xl border border-white/10 px-6 py-2 flex items-center justify-between h-16 transition-all duration-300">
           
           {/* Logo */}
           <Link href="/" className="flex items-center gap-3 pl-2">
-            <img src="/assets/logo.svg" alt="Logo EcoTani" className="h-9 w-9" />
-            <span className="font-extrabold text-xl text-gray-900 tracking-tight">EcoTani</span>
+            <img src="/assets/logo.svg" alt="Logo EcoTani" className="h-9 w-9 drop-shadow-[0_0_8px_rgba(0,168,89,0.5)]" />
+            <span className="font-extrabold text-xl text-white tracking-tight">EcoTani</span>
           </Link>
           
           {/* Nav Menu (Desktop) */}
           <nav className="hidden md:flex items-center gap-8">
-            <a href="#hero" className="text-gray-600 hover:text-primary-dark font-medium text-sm transition-colors py-1 relative after:absolute after:bottom-0 after:left-0 after:w-0 after:h-0.5 after:bg-primary-dark hover:after:w-full after:transition-all after:duration-300">Beranda</a>
-            <a href="#masalah" className="text-gray-600 hover:text-primary-dark font-medium text-sm transition-colors py-1 relative after:absolute after:bottom-0 after:left-0 after:w-0 after:h-0.5 after:bg-primary-dark hover:after:w-full after:transition-all after:duration-300">Tentang</a>
-            <a href="#fitur" className="text-gray-600 hover:text-primary-dark font-medium text-sm transition-colors py-1 relative after:absolute after:bottom-0 after:left-0 after:w-0 after:h-0.5 after:bg-primary-dark hover:after:w-full after:transition-all after:duration-300">Solusi</a>
-            <a href="#cara-kerja" className="text-gray-600 hover:text-primary-dark font-medium text-sm transition-colors py-1 relative after:absolute after:bottom-0 after:left-0 after:w-0 after:h-0.5 after:bg-primary-dark hover:after:w-full after:transition-all after:duration-300">Cara Kerja</a>
+            <a href="#hero" className="text-gray-300 hover:text-primary-light font-medium text-sm transition-colors py-1 relative after:absolute after:bottom-0 after:left-0 after:w-0 after:h-0.5 after:bg-primary-light hover:after:w-full after:transition-all after:duration-300">Beranda</a>
+            <a href="#masalah" className="text-gray-300 hover:text-primary-light font-medium text-sm transition-colors py-1 relative after:absolute after:bottom-0 after:left-0 after:w-0 after:h-0.5 after:bg-primary-light hover:after:w-full after:transition-all after:duration-300">Tentang</a>
+            <a href="#fitur" className="text-gray-300 hover:text-primary-light font-medium text-sm transition-colors py-1 relative after:absolute after:bottom-0 after:left-0 after:w-0 after:h-0.5 after:bg-primary-light hover:after:w-full after:transition-all after:duration-300">Solusi</a>
+            <a href="#cara-kerja" className="text-gray-300 hover:text-primary-light font-medium text-sm transition-colors py-1 relative after:absolute after:bottom-0 after:left-0 after:w-0 after:h-0.5 after:bg-primary-light hover:after:w-full after:transition-all after:duration-300">Cara Kerja</a>
           </nav>
           
           {/* Actions (Desktop) */}
           <div className="hidden md:flex items-center gap-3 pr-2">
             <button
               onClick={toggleTheme}
-              className="p-2 rounded-full hover:bg-gray-100 text-gray-600 transition-colors"
+              className="p-2 rounded-full hover:bg-white/10 text-gray-300 transition-colors"
               title="Ganti Tema"
             >
               {theme === 'dark' ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
@@ -91,61 +91,195 @@ export default function LandingPage() {
           {/* Hamburger Menu for Mobile */}
           <button 
             onClick={toggleMobileMenu}
-            className="md:hidden flex items-center justify-center p-2 rounded-full hover:bg-gray-100 text-gray-900 transition-colors"
+            className="md:hidden flex items-center justify-center p-2 rounded-full hover:bg-white/10 text-white transition-colors"
             aria-label="Buka menu navigasi"
           >
             {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
           </button>
         </header>
 
-        {/* Mobile Dropdown Menu (Floating Panel matching the Navbar) */}
-        <div className={`absolute top-20 left-4 right-4 bg-white/98 backdrop-blur-md rounded-3xl shadow-2xl border border-black/5 p-6 flex flex-col items-center gap-4 transition-all duration-300 transform z-40 md:hidden ${
-          mobileMenuOpen ? 'scale-100 opacity-100 pointer-events-auto' : 'scale-95 opacity-0 pointer-events-none'
-        }`}>
-          <nav className="flex flex-col items-center gap-5 w-full">
-            <a href="#hero" onClick={() => setMobileMenuOpen(false)} className="text-gray-800 font-semibold text-base py-2 w-full text-center border-b border-gray-100">Beranda</a>
-            <a href="#masalah" onClick={() => setMobileMenuOpen(false)} className="text-gray-800 font-semibold text-base py-2 w-full text-center border-b border-gray-100">Tentang</a>
-            <a href="#fitur" onClick={() => setMobileMenuOpen(false)} className="text-gray-800 font-semibold text-base py-2 w-full text-center border-b border-gray-100">Solusi</a>
-            <a href="#cara-kerja" onClick={() => setMobileMenuOpen(false)} className="text-gray-800 font-semibold text-base py-2 w-full text-center border-b border-gray-100">Cara Kerja</a>
-          </nav>
-          <div className="flex flex-col gap-3 w-full mt-4">
-            <Link href="/dashboard" className="w-full py-3 rounded-full font-bold text-sm text-center text-white bg-primary-dark hover:bg-emerald-800 transition-colors">Login</Link>
-            <Link href="/dashboard" className="w-full py-3 rounded-full font-bold text-sm text-center text-white bg-primary hover:bg-emerald-600 transition-colors">Sign Up</Link>
-          </div>
-        </div>
+        {/* Mobile Dropdown Menu (Full Screen Overlay with Crazy Animation) */}
+        <AnimatePresence>
+          {mobileMenuOpen && (
+            <motion.div
+              initial={{ opacity: 0, clipPath: 'circle(0% at 90% 10%)' }}
+              animate={{ opacity: 1, clipPath: 'circle(150% at 90% 10%)' }}
+              exit={{ opacity: 0, clipPath: 'circle(0% at 90% 10%)' }}
+              transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
+              className="fixed inset-0 z-[100] bg-[#050505]/95 backdrop-blur-3xl flex flex-col items-center justify-center p-6 md:hidden overflow-hidden"
+            >
+              {/* Crazy Background Grid for Menu */}
+              <div className="absolute inset-0 z-0 opacity-30 pointer-events-none bg-[linear-gradient(to_right,#00a85920_1px,transparent_1px),linear-gradient(to_bottom,#00a85920_1px,transparent_1px)] bg-[size:4rem_4rem]"></div>
+              
+              <button 
+                onClick={() => setMobileMenuOpen(false)}
+                className="absolute top-6 right-6 p-3 rounded-full bg-white/5 border border-white/10 text-white hover:bg-red-500/20 hover:text-red-400 hover:border-red-500/30 transition-all z-50"
+              >
+                <X className="w-8 h-8" />
+              </button>
+
+              <nav className="flex flex-col items-center gap-8 w-full relative z-10">
+                {['Beranda', 'Tentang', 'Solusi', 'Cara Kerja'].map((item, i) => {
+                  const hrefs = ['#hero', '#masalah', '#fitur', '#cara-kerja'];
+                  return (
+                    <motion.a 
+                      key={item}
+                      href={hrefs[i]} 
+                      onClick={() => setMobileMenuOpen(false)} 
+                      initial={{ y: 50, opacity: 0, scale: 0.9 }}
+                      animate={{ y: 0, opacity: 1, scale: 1 }}
+                      transition={{ delay: 0.2 + (i * 0.1), duration: 0.5, type: 'spring', bounce: 0.4 }}
+                      className="text-white font-extrabold text-4xl uppercase tracking-widest hover:text-emerald-400 hover:scale-110 transition-all cursor-pointer"
+                    >
+                      {item}
+                    </motion.a>
+                  );
+                })}
+              </nav>
+              
+              <motion.div 
+                initial={{ y: 50, opacity: 0 }}
+                animate={{ y: 0, opacity: 1 }}
+                transition={{ delay: 0.6, duration: 0.5 }}
+                className="flex flex-col gap-4 w-full max-w-xs mt-12 relative z-10"
+              >
+                <Link href="/dashboard" onClick={() => setMobileMenuOpen(false)} className="w-full py-4 rounded-full font-bold text-lg text-center text-emerald-400 bg-emerald-500/10 border border-emerald-500/30 hover:bg-emerald-500 hover:text-white hover:shadow-[0_0_20px_rgba(16,185,129,0.5)] transition-all cursor-pointer">Login</Link>
+                <Link href="/dashboard" onClick={() => setMobileMenuOpen(false)} className="w-full py-4 rounded-full font-bold text-lg text-center text-[#050505] bg-emerald-400 hover:bg-emerald-300 transition-colors shadow-[0_0_20px_rgba(52,211,153,0.3)] cursor-pointer">Sign Up</Link>
+              </motion.div>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
 
-      {/* HERO SECTION */}
-      <section className="pt-32 pb-16 md:pt-48 md:pb-24 bg-bg-dark relative overflow-hidden bg-[radial-gradient(circle_at_top_right,rgba(0,168,89,0.08),transparent_45%)]" id="hero">
-        <div className="max-w-6xl mx-auto px-4 grid grid-cols-1 md:grid-cols-2 items-center gap-12 md:gap-8">
+      {/* HERO SECTION - GEOSPATIAL THEME */}
+      <section className="min-h-screen flex flex-col justify-center pt-24 pb-12 bg-[#050505] relative overflow-hidden" id="hero">
+        
+        {/* GeoSpatial Background Grid & Radar */}
+        <div className="absolute inset-0 z-0">
+          {/* Animated Grid */}
+          <div className="absolute inset-0 bg-[linear-gradient(to_right,#00a85915_1px,transparent_1px),linear-gradient(to_bottom,#00a85915_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_60%_60%_at_50%_50%,#000_70%,transparent_100%)]"></div>
           
-          {/* Hero Content */}
+          {/* Radar Circles */}
+          <div className="absolute top-1/2 left-3/4 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] border border-[#00a85920] rounded-full hidden md:block"></div>
+          <div className="absolute top-1/2 left-3/4 -translate-x-1/2 -translate-y-1/2 w-[400px] h-[400px] border border-[#00a85930] rounded-full hidden md:block"></div>
+          <div className="absolute top-1/2 left-3/4 -translate-x-1/2 -translate-y-1/2 w-[200px] h-[200px] border border-[#00a85940] rounded-full hidden md:block"></div>
+          
+          {/* Radar Sweep Element */}
+          <div className="absolute top-1/2 left-3/4 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] radar-sweep opacity-50 hidden md:block"></div>
+        </div>
+
+        <div className="max-w-7xl mx-auto px-4 grid grid-cols-1 lg:grid-cols-2 items-center gap-12 lg:gap-8 relative z-10">
+          
+          {/* Hero Content (Left) */}
           <motion.div 
             initial={{ opacity: 0, x: -50 }}
             animate={{ opacity: 1, x: 0 }}
             transition={{ duration: 0.8, ease: "easeOut" }}
             className="flex flex-col items-start text-left"
           >
-            <span className="text-primary-light font-extrabold text-sm tracking-widest uppercase mb-3 animate-pulse-soft">EcoTani</span>
-            <h1 className="text-text-main font-extrabold text-4xl md:text-5xl lg:text-[3.25rem] leading-[1.15] tracking-tight mb-5">Sawah Terlindungi, Panen Terjaga dari Ketidakpastian Iklim.</h1>
-            <p className="text-text-muted text-sm md:text-base lg:text-lg mb-8 max-w-lg leading-relaxed">Pantau kesehatan lahan dan dapatkan peringatan dini cuaca ekstrem langsung dari satelit di seluruh pelosok Indonesia.</p>
+            <div className="inline-flex items-center gap-2 px-3 py-1 bg-emerald-950/50 border border-emerald-500/30 rounded-full mb-6">
+              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+              <span className="text-emerald-400 font-mono text-xs tracking-widest uppercase">ECOTANI SAT-SYNC ONLINE</span>
+            </div>
             
-            <Link href="/dashboard" className="inline-flex items-center gap-2.5 px-7 py-3.5 bg-primary text-white font-bold rounded-full text-sm md:text-base hover:bg-emerald-600 hover:shadow-lg hover:shadow-primary/30 transition-all hover:-translate-y-1 group">
-              <span>Mulai Plotting Lahan</span>
-              <ArrowRight className="w-4 h-4 md:w-5 md:h-5 transition-transform duration-300 group-hover:translate-x-1" />
+            <h1 className="text-white font-extrabold text-4xl md:text-5xl lg:text-6xl leading-[1.1] tracking-tight mb-6">
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-green-600 drop-shadow-[0_0_15px_rgba(0,168,89,0.5)]">
+                EcoTani:
+              </span><br/>Sawah Terlindungi,<br/>
+              Panen Terjaga
+            </h1>
+            
+            <p className="text-gray-400 text-sm md:text-base lg:text-lg mb-10 max-w-lg leading-relaxed font-mono">
+              &gt; Menginisialisasi pemetaan geospatial...<br/>
+              &gt; Menganalisis ketidakpastian iklim...<br/>
+              Platform pemantauan lahan dan peringatan dini cuaca berbasis data satelit waktu nyata.
+            </p>
+            
+            <Link href="/dashboard" className="inline-flex items-center gap-3 px-8 py-4 bg-emerald-500/10 border border-emerald-500/50 text-emerald-400 font-mono font-bold rounded-none hover:bg-emerald-500 hover:text-white transition-all duration-300 group overflow-hidden relative">
+              <div className="absolute inset-0 w-0 bg-emerald-500 transition-all duration-500 ease-out group-hover:w-full z-0"></div>
+              <span className="relative z-10 flex items-center gap-2 tracking-widest">
+                [ INISIALISASI PLOTTING ]
+                <ArrowRight className="w-4 h-4 md:w-5 md:h-5 transition-transform duration-300 group-hover:translate-x-1" />
+              </span>
             </Link>
           </motion.div>
           
-          {/* Hero Image */}
-          <motion.div 
-            initial={{ opacity: 0, scale: 0.8 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 1, ease: "easeOut", delay: 0.2 }}
-            className="flex justify-center items-center w-full animate-float"
-          >
-            <img src="/assets/hero-phones.jpg" alt="Aplikasi EcoTani di Smartphone" className="w-full max-w-[440px] h-auto object-contain drop-shadow-[0_20px_40px_rgba(0,0,0,0.6)]" />
-          </motion.div>
-          
+          {/* Hero HUD / Map Visuals (Right) */}
+          <div className="hidden lg:flex relative h-[400px] md:h-[500px] w-full justify-center items-center">
+            
+            {/* Center Map Box */}
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 1, delay: 0.2 }}
+              className="absolute w-[80%] md:w-[350px] h-[350px] border border-emerald-500/30 bg-[#0a0a0a]/80 backdrop-blur-md rounded-2xl overflow-hidden shadow-[0_0_40px_rgba(0,168,89,0.15)] flex justify-center items-center"
+            >
+              <div className="absolute inset-0 opacity-20 bg-[url('https://upload.wikimedia.org/wikipedia/commons/e/ec/Topographic_map_example.png')] bg-cover bg-center mix-blend-screen grayscale"></div>
+              <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-black"></div>
+              
+              {/* Scanning Line */}
+              <motion.div 
+                animate={{ y: [-175, 175] }}
+                transition={{ duration: 2.5, repeat: Infinity, ease: "linear" }}
+                className="absolute top-1/2 left-0 w-full h-[2px] bg-emerald-500 shadow-[0_0_10px_#00a859]"
+              />
+
+              <Sprout className="w-16 h-16 text-emerald-500 z-10 animate-pulse-soft opacity-80" />
+            </motion.div>
+
+            {/* Floating Data Card 1 */}
+            <motion.div
+              initial={{ opacity: 0, x: 50, y: -20 }}
+              animate={{ opacity: 1, x: 0, y: 0 }}
+              transition={{ duration: 0.8, delay: 0.6 }}
+              style={{ animation: 'float 6s ease-in-out infinite' }}
+              className="absolute top-10 right-0 md:-right-10 bg-black/60 backdrop-blur-md border border-emerald-500/40 p-3 rounded-lg font-mono text-xs text-emerald-400 shadow-[0_0_15px_rgba(0,168,89,0.2)]"
+            >
+              <div className="flex items-center gap-2 mb-1 border-b border-emerald-500/30 pb-1">
+                <MapPin className="w-3 h-3" />
+                <span className="font-bold">COORDINATES</span>
+              </div>
+              <div style={{ animation: 'data-glitch 4s infinite' }}>
+                LAT: -6.2088<br/>LON: 106.8456
+              </div>
+            </motion.div>
+
+            {/* Floating Data Card 2 */}
+            <motion.div
+              initial={{ opacity: 0, x: -50, y: 20 }}
+              animate={{ opacity: 1, x: 0, y: 0 }}
+              transition={{ duration: 0.8, delay: 0.8 }}
+              style={{ animation: 'float 5s ease-in-out infinite reverse' }}
+              className="absolute bottom-20 left-0 md:-left-10 bg-black/60 backdrop-blur-md border border-emerald-500/40 p-3 rounded-lg font-mono text-xs text-emerald-400 shadow-[0_0_15px_rgba(0,168,89,0.2)]"
+            >
+              <div className="flex items-center gap-2 mb-1 border-b border-emerald-500/30 pb-1">
+                <Activity className="w-3 h-3" />
+                <span className="font-bold">SURFACE DATA</span>
+              </div>
+              <div style={{ animation: 'data-glitch 3s infinite 1s' }}>
+                TEMP: 32°C [NORMAL]<br/>
+                NDVI: 0.78 [HEALTHY]
+              </div>
+            </motion.div>
+
+            {/* Floating Data Card 3 */}
+            <motion.div
+              initial={{ opacity: 0, y: 50 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 1 }}
+              style={{ animation: 'float 7s ease-in-out infinite' }}
+              className="absolute -bottom-10 right-10 md:right-0 bg-black/60 backdrop-blur-md border border-emerald-500/40 p-3 rounded-lg font-mono text-xs text-emerald-400 shadow-[0_0_15px_rgba(0,168,89,0.2)]"
+            >
+              <div className="flex items-center gap-2 mb-1 border-b border-emerald-500/30 pb-1">
+                <AlertTriangle className="w-3 h-3" />
+                <span className="font-bold">WEATHER ALERT</span>
+              </div>
+              <div className="text-emerald-500">
+                CLEAR SKIES<br/>PRECIPITATION: 0%
+              </div>
+            </motion.div>
+
+          </div>
         </div>
       </section>
 
@@ -261,38 +395,41 @@ export default function LandingPage() {
           </div>
 
           {/* Timeline Container */}
-          <div className="steps-timeline relative flex flex-col md:flex-row md:justify-between md:items-start md:gap-12 mt-12 md:mt-20">
+          <div className="steps-timeline relative flex flex-col md:flex-row md:justify-between md:items-start gap-12 md:gap-8 lg:gap-12 mt-12 md:mt-20">
             
             {/* Step 1 */}
-            <div className="group flex flex-row md:flex-col items-start md:items-center text-left md:text-center w-full gap-4 md:gap-0 relative z-10">
+            <div className="group flex flex-row md:flex-col items-start md:items-center text-left md:text-center w-full gap-6 md:gap-0 relative z-10">
               <div className="shrink-0 md:mb-8">
                 <div className="w-[70px] h-[70px] rounded-full bg-bg-dark border-2 border-border-medium text-primary-light font-bold text-xl flex items-center justify-center shadow-lg shadow-black/80 group-hover:border-primary-light group-hover:bg-primary-dark group-hover:text-text-main transition-all duration-300">01</div>
               </div>
-              <div className="flex-grow">
+              <div className="flex-grow pt-2 md:pt-0">
                 <h3 className="text-text-main font-bold text-lg md:text-xl mb-2">Buat Akun & Cari Lokasi</h3>
-                <p className="text-text-muted text-xs md:text-[0.95rem] leading-relaxed max-w-[280px] md:mx-auto">Daftar gratis di platform kami, cari lokasi sawah Anda secara presisi di peta digital.</p>
+                <p className="text-text-muted text-sm leading-relaxed max-w-[280px] md:mx-auto">Daftar gratis di platform kami, cari lokasi sawah Anda secara presisi di peta digital.</p>
               </div>
             </div>
 
             {/* Step 2 */}
-            <div className="group flex flex-row md:flex-col items-start md:items-center text-left md:text-center w-full gap-4 md:gap-0 relative z-10">
+            <div className="group flex flex-row md:flex-col items-start md:items-center text-left md:text-center w-full gap-6 md:gap-0 relative z-10">
               <div className="shrink-0 md:mb-8">
                 <div className="w-[70px] h-[70px] rounded-full bg-bg-dark border-2 border-border-medium text-primary-light font-bold text-xl flex items-center justify-center shadow-lg shadow-black/80 group-hover:border-primary-light group-hover:bg-primary-dark group-hover:text-text-main transition-all duration-300">02</div>
               </div>
-              <div className="flex-grow">
+              <div className="flex-grow pt-2 md:pt-0">
                 <h3 className="text-text-main font-bold text-lg md:text-xl mb-2">Gambar Batas Lahan Anda</h3>
-                <p className="text-text-muted text-xs md:text-[0.95rem] leading-relaxed max-w-[280px] md:mx-auto">Gunakan alat bantu gambar peta untuk menggaris sudut-sudut sawah Anda. Cukup klik dan hubungkan titiknya untuk membentuk polygon.</p>
+                <p className="text-text-muted text-sm leading-relaxed max-w-[280px] md:mx-auto">Gunakan alat bantu gambar peta untuk menggaris sudut-sudut sawah Anda. Cukup klik dan hubungkan titiknya untuk membentuk polygon.</p>
               </div>
             </div>
 
             {/* Step 3 */}
-            <div className="group flex flex-row md:flex-col items-start md:items-center text-left md:text-center w-full gap-4 md:gap-0 relative z-10">
+            <div className="group flex flex-row md:flex-col items-start md:items-center text-left md:text-center w-full gap-6 md:gap-0 relative z-10">
               <div className="shrink-0 md:mb-8">
                 <div className="w-[70px] h-[70px] rounded-full bg-bg-dark border-2 border-border-medium text-primary-light font-bold text-xl flex items-center justify-center shadow-lg shadow-black/80 group-hover:border-primary-light group-hover:bg-primary-dark group-hover:text-text-main transition-all duration-300">03</div>
               </div>
-              <div className="flex-grow">
-                <h3 className="text-text-main font-bold text-lg md:text-xl mb-2">Pantau Dashboard & Terima Notifikasi</h3>
-                <p className="text-text-muted text-xs md:text-[0.95rem] leading-relaxed max-w-[280px] md:mx-auto">Cek kondisi tanah secara real-time di dashboard dan aktifkan notifikasi whatsapp/email agar langsung mendapat peringatan jika cuaca buruk mendekat.</p>
+              <div className="flex-grow pt-2 md:pt-0">
+                <h3 className="text-text-main font-bold text-lg md:text-xl mb-2 flex flex-col md:block">
+                  <span>Pantau Dashboard &</span>
+                  <span>Terima Notifikasi</span>
+                </h3>
+                <p className="text-text-muted text-sm leading-relaxed max-w-[280px] md:mx-auto">Cek kondisi tanah secara real-time di dashboard dan aktifkan notifikasi agar langsung mendapat peringatan jika cuaca buruk mendekat.</p>
               </div>
             </div>
           </div>
@@ -343,9 +480,12 @@ export default function LandingPage() {
         
         {/* Footer Bottom Copyright & Credits */}
         <div className="border-t border-border-light pt-8">
-          <div className="max-w-6xl mx-auto px-4 flex flex-col md:flex-row justify-between items-center gap-4 text-xs md:text-sm text-text-muted">
+          <div className="max-w-6xl mx-auto px-4 flex flex-col md:flex-row justify-between items-center gap-4 text-xs md:text-sm text-text-muted text-center md:text-left">
             <p>&copy; 2026 EcoTani. Hak Cipta Dilindungi Undang-Undang.</p>
-            <p>Developed by <a href="#" className="text-primary-light hover:underline font-semibold">Tim EcoTani Indonesia</a> - Universitas Dian Nuswantoro</p>
+            <p className="md:text-right leading-relaxed">
+              Developed by <a href="#" className="text-primary-light hover:underline font-semibold">Tim EcoTani Indonesia</a> <br className="md:hidden" />
+              <span className="hidden md:inline"> - </span>Telkom University Purwokerto <span className="text-emerald-500 font-bold mx-1">X</span> Universitas Jendral Soedirman
+            </p>
           </div>
         </div>
       </footer>

@@ -10,6 +10,7 @@ export interface Lahan {
   tipeDrainase: 'Baik' | 'Buruk';
   jenisTanah: 'Humus' | 'Lempung' | 'Pasir' | 'Gambut';
   riwayatHama: 'Ada' | 'Tidak';
+  pH?: string;
   status: 'kosong' | 'sedang-ditanam' | 'siap-panen';
   varietasDitanam?: string;
   tanggalTanam?: string;

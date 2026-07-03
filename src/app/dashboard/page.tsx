@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import dynamic from 'next/dynamic';
+import Link from 'next/link';
 import { Lahan, RiwayatPanen } from '@/types';
 import { cekKelayakan, cariAlternatif, TANAMAN_DATABASE } from '@/utils/suitability';
 import { supabase } from '@/utils/supabaseClient';
@@ -491,81 +492,137 @@ export default function DashboardPage() {
   // ==========================================================================
   if (!user) {
     return (
-      <div className="min-h-screen bg-bg-dark flex flex-col justify-center items-center px-4 relative overflow-hidden bg-[radial-gradient(circle_at_center,rgba(0,168,89,0.06),transparent_50%)]">
-        <div className="w-full max-w-md bg-bg-card border border-border-medium rounded-3xl p-8 shadow-2xl relative z-10">
+      <div className="min-h-screen flex w-full bg-white dark:bg-[#111111] transition-colors duration-300">
+        
+        {/* LEFT FORM SIDE */}
+        <div className="w-full lg:w-1/2 flex flex-col justify-between p-6 md:p-16 lg:px-24">
           
-          <div className="flex items-center gap-3 justify-center mb-6">
-            <div className="h-10 w-10 bg-primary/10 rounded-xl flex items-center justify-center border border-primary/20">
-              <Sprout className="h-6 w-6 text-primary" />
-            </div>
-            <span className="text-2xl font-extrabold tracking-tight text-text-main">EcoTani</span>
-          </div>
+          {/* Logo */}
+          <motion.div 
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5 }}
+          >
+            <Link href="/" className="flex items-center gap-2 group w-fit">
+              <Sprout className="w-8 h-8 text-primary group-hover:rotate-12 transition-transform duration-300" />
+              <span className="font-extrabold text-2xl text-gray-900 dark:text-white tracking-tight">EcoTani</span>
+            </Link>
+          </motion.div>
 
-          <h2 className="text-xl font-bold text-center text-text-main mb-1">
-            {isRegisterMode ? 'Buat Akun Petani' : 'Masuk ke Platform'}
-          </h2>
-          <p className="text-sm text-text-muted text-center mb-6">
-            {isRegisterMode ? 'Mulai mengelola mitigasi pertanian dengan cloud database.' : 'Akses pemetaan geospatial sawah Anda.'}
-          </p>
+          {/* Form Container */}
+          <div className="flex-grow flex flex-col justify-center max-w-md w-full mx-auto">
+            <motion.div
+              initial={{ opacity: 0, x: -30 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ duration: 0.6, delay: 0.1 }}
+            >
+              <p className="text-gray-600 dark:text-gray-400 text-sm md:text-base font-medium mb-1">
+                {isRegisterMode ? 'Start Your Farm' : 'Welcome Back'}
+              </p>
+              <h1 className="text-3xl md:text-4xl font-extrabold text-gray-900 dark:text-white mb-8 tracking-tight">
+                {isRegisterMode ? 'Sign Up to' : 'Sign In to'} <span className="text-primary">EcoTani</span>
+              </h1>
+            </motion.div>
 
-          {authError && (
-            <div className="bg-red-500/10 border border-red-500/20 text-red-500 p-3.5 rounded-xl text-xs font-semibold mb-4 leading-relaxed">
-              âš ï¸ {authError}
-            </div>
-          )}
+            {authError && (
+              <div className="bg-red-500/10 border border-red-500/20 text-red-500 p-3.5 rounded-xl text-xs font-semibold mb-4 leading-relaxed">
+                ⚠️ {authError}
+              </div>
+            )}
 
-          <form onSubmit={handleAuthSubmit} className="space-y-4">
-            <div>
-              <label className="block text-xs font-semibold text-text-muted uppercase tracking-wider mb-2">Alamat Email</label>
-              <div className="relative">
-                <Mail className="w-4.5 h-4.5 text-text-muted absolute left-4 top-3.5" />
-                <input 
-                  type="email" 
-                  required
-                  placeholder="nama@email.com" 
+            <form onSubmit={handleAuthSubmit} className="space-y-5">
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.4, delay: 0.2 }}
+              >
+                <input
+                  type="email"
+                  placeholder="Email"
                   value={authEmail}
                   onChange={(e) => setAuthEmail(e.target.value)}
-                  className="w-full bg-bg-dark border border-border-medium rounded-xl pl-11 pr-4 py-3 text-text-main focus:outline-none focus:border-primary transition-all text-sm"
-                />
-              </div>
-            </div>
-
-            <div>
-              <label className="block text-xs font-semibold text-text-muted uppercase tracking-wider mb-2">Kata Sandi</label>
-              <div className="relative">
-                <Lock className="w-4.5 h-4.5 text-text-muted absolute left-4 top-3.5" />
-                <input 
-                  type="password" 
                   required
-                  placeholder="Min. 6 Karakter" 
+                  className="w-full px-5 py-4 rounded-xl bg-gray-200/80 dark:bg-white border border-transparent focus:border-primary focus:bg-white outline-none transition-all duration-300 text-gray-900 font-medium placeholder:text-gray-400"
+                />
+              </motion.div>
+              
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.4, delay: 0.3 }}
+              >
+                <input
+                  type="password"
+                  placeholder="Password"
                   value={authPassword}
                   onChange={(e) => setAuthPassword(e.target.value)}
-                  className="w-full bg-bg-dark border border-border-medium rounded-xl pl-11 pr-4 py-3 text-text-main focus:outline-none focus:border-primary transition-all text-sm"
+                  required
+                  className="w-full px-5 py-4 rounded-xl bg-gray-200/80 dark:bg-white border border-transparent focus:border-primary focus:bg-white outline-none transition-all duration-300 text-gray-900 font-medium placeholder:text-gray-400"
                 />
-              </div>
-            </div>
+              </motion.div>
 
-            <button 
-              type="submit"
-              className="w-full bg-primary hover:bg-emerald-600 text-text-main font-bold py-3 rounded-xl transition-all shadow-lg shadow-primary/20 mt-6 flex items-center justify-center gap-2"
-            >
-              <span>{isRegisterMode ? 'Daftar Sekarang' : 'Masuk Dashboard'}</span>
-              <ArrowRight className="w-4 h-4" />
-            </button>
-          </form>
-
-          <div className="border-t border-border-light mt-6 pt-4 text-center">
-            <button
-              onClick={() => {
-                setIsRegisterMode(!isRegisterMode);
-                setAuthError('');
-              }}
-              className="text-xs text-primary-light hover:underline font-semibold"
-            >
-              {isRegisterMode ? 'Sudah punya akun? Masuk di sini' : 'Belum punya akun? Daftar gratis'}
-            </button>
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.4, delay: 0.4 }}
+                className="pt-4"
+              >
+                <button
+                  type="submit"
+                  disabled={authLoading}
+                  className="w-full bg-primary hover:bg-emerald-600 text-white font-bold py-4 rounded-xl transition-all duration-300 hover:shadow-lg hover:shadow-primary/30 flex justify-center items-center gap-2"
+                >
+                  {authLoading ? (
+                    <span className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                  ) : (
+                    isRegisterMode ? 'Sign Up' : 'Sign In'
+                  )}
+                </button>
+              </motion.div>
+            </form>
           </div>
+
+          {/* Footer Link */}
+          <motion.div 
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            transition={{ duration: 0.5, delay: 0.6 }}
+            className="mt-8"
+          >
+            <p className="text-gray-500 dark:text-gray-400 text-sm font-medium">
+              {isRegisterMode ? 'Have an account?' : "Don't have an account?"}
+              <button 
+                onClick={() => {
+                  setIsRegisterMode(!isRegisterMode);
+                  setAuthError('');
+                }}
+                className="ml-2 text-primary font-bold hover:underline bg-transparent border-none cursor-pointer"
+              >
+                {isRegisterMode ? 'Sign In' : 'Sign Up'}
+              </button>
+            </p>
+          </motion.div>
+          
         </div>
+
+        {/* RIGHT IMAGE SIDE */}
+        <div className="hidden lg:block w-1/2 relative overflow-hidden">
+          <motion.div 
+            initial={{ scale: 1.1, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            transition={{ duration: 1.2, ease: "easeOut" }}
+            className="w-full h-full"
+          >
+            <img 
+              src="/assets/plotting-lahan.jpg" 
+              alt="Pemandangan Sawah EcoTani" 
+              className="w-full h-full object-cover"
+            />
+            {/* Subtle gradient overlay to make it look premium */}
+            <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent pointer-events-none" />
+          </motion.div>
+        </div>
+
       </div>
     );
   }
@@ -575,8 +632,8 @@ export default function DashboardPage() {
   // ==========================================================================
   if (needProfileSetup) {
     return (
-      <div className="min-h-screen bg-bg-dark flex flex-col justify-center items-center px-4 relative overflow-hidden bg-[radial-gradient(circle_at_center,rgba(0,168,89,0.06),transparent_50%)]">
-        <div className="w-full max-w-md bg-bg-card border border-border-medium rounded-3xl p-8 shadow-2xl relative z-10">
+      <div className="min-h-screen bg-bg-dark flex flex-col justify-center items-center px-4 py-8 relative overflow-hidden bg-[radial-gradient(circle_at_center,rgba(0,168,89,0.06),transparent_50%)]">
+        <div className="w-full max-w-md bg-bg-card border border-border-medium rounded-3xl p-6 md:p-8 shadow-2xl relative z-10 max-h-[90vh] overflow-y-auto no-scrollbar">
           <h2 className="text-xl font-bold text-center text-text-main mb-2">Lengkapi Profil Petani</h2>
           <p className="text-sm text-text-muted text-center mb-6">Silakan lengkapi profil pertanian Anda untuk menginisialisasi dashboard geospatial.</p>
 
@@ -636,7 +693,7 @@ export default function DashboardPage() {
           <span className="text-xs text-text-muted">Teknologi Geospatial EcoTani</span>
         </header>
 
-        <main className="flex-grow p-4 md:p-6 overflow-hidden">
+        <main className="flex-grow p-4 md:p-6 md:overflow-hidden overflow-y-auto">
           <PetaLahan 
             onSaveLahan={handleAddLahan}
             savedLahans={lahans}
@@ -669,7 +726,7 @@ export default function DashboardPage() {
           <span className="text-xs text-text-muted">Teknologi Geospatial EcoTani</span>
         </header>
 
-        <main className="flex-grow p-4 md:p-6 overflow-hidden">
+        <main className="flex-grow p-4 md:p-6 md:overflow-hidden overflow-y-auto">
           <PetaLahan 
             onSaveLahan={handleUpdateLahan}
             savedLahans={lahans.filter(l => l.id !== selectedLahan.id)} // Exclude self from saved lahans rendering to avoid overlap confusion
@@ -1029,8 +1086,8 @@ export default function DashboardPage() {
     // Default values are now set in the onClick handler when entering this view.
 
     return (
-      <div className="min-h-screen bg-bg-dark flex flex-col justify-center items-center px-4">
-        <div className="w-full max-w-md bg-bg-card border border-border-medium rounded-3xl p-8 shadow-2xl">
+      <div className="min-h-screen bg-bg-dark flex flex-col justify-center items-center px-4 py-8">
+        <div className="w-full max-w-md bg-bg-card border border-border-medium rounded-3xl p-6 md:p-8 shadow-2xl max-h-[90vh] overflow-y-auto no-scrollbar">
           <h2 className="text-xl font-bold text-text-main mb-2">Catat Hasil Panen</h2>
           <p className="text-sm text-text-muted mb-6">
             Masukkan total kuantitas panen dari lahan <strong className="text-text-main">{selectedLahan.nama}</strong> untuk komoditas <strong className="text-text-main">{selectedLahan.varietasDitanam}</strong>.
@@ -1121,8 +1178,8 @@ export default function DashboardPage() {
   // ==========================================================================
   if (currentView === 'profile') {
     return (
-      <div className="min-h-screen bg-bg-dark flex flex-col justify-center items-center px-4">
-        <div className="w-full max-w-md bg-bg-card border border-border-light rounded-3xl p-8 shadow-2xl">
+      <div className="min-h-screen bg-bg-dark flex flex-col justify-center items-center px-4 py-8">
+        <div className="w-full max-w-md bg-bg-card border border-border-light rounded-3xl p-6 md:p-8 shadow-2xl max-h-[90vh] overflow-y-auto no-scrollbar">
           <div className="flex items-center gap-3 mb-6">
             <Settings className="w-6 h-6 text-primary-light" />
             <h2 className="text-xl font-bold text-text-main">Pengaturan Profil</h2>
@@ -1199,25 +1256,29 @@ export default function DashboardPage() {
   // VIEW: MAIN DASHBOARD
   // ==========================================================================
   return (
-    <div className="min-h-screen bg-bg-dark flex flex-col">
+    <div className="min-h-screen bg-[#050505] flex flex-col relative overflow-hidden">
+      {/* GeoSpatial Background Grid */}
+      <div className="absolute inset-0 z-0 pointer-events-none">
+        <div className="absolute inset-0 bg-[linear-gradient(to_right,#00a85908_1px,transparent_1px),linear-gradient(to_bottom,#00a85908_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_80%_80%_at_50%_0%,#000_40%,transparent_100%)]"></div>
+      </div>
       
-      {/* Navbar (Oval Floating) */}
+      {/* Navbar (Oval Floating - Premium Dark Glass) */}
       <div className="fixed top-4 left-4 right-4 z-50 flex justify-center">
-        <header className="w-full max-w-6xl bg-white/95 backdrop-blur-md rounded-full shadow-xl border border-black/5 px-6 py-2 flex items-center justify-between h-16 transition-all duration-300">
-          <div className="flex items-center gap-3 pl-2">
-            <img src="/assets/logo.svg" alt="EcoTani" className="h-8 w-8" />
-            <span className="font-extrabold text-lg text-gray-900 tracking-tight">EcoTani</span>
+        <header className="w-full max-w-6xl bg-white/5 backdrop-blur-xl rounded-full shadow-2xl border border-white/10 px-4 md:px-6 py-2 flex items-center justify-between h-16 transition-all duration-300">
+          <div className="flex items-center gap-2 md:gap-3 pl-1 md:pl-2">
+            <img src="/assets/logo.svg" alt="EcoTani" className="h-8 w-8 drop-shadow-[0_0_8px_rgba(0,168,89,0.5)]" />
+            <span className="font-extrabold text-lg text-white tracking-tight">EcoTani</span>
           </div>
 
-          <div className="flex items-center gap-4 text-gray-600 text-sm font-semibold">
-            <div className="hidden sm:flex items-center gap-1 bg-gray-100 rounded-full px-3 py-1 text-xs">
-              <User className="w-3.5 h-3.5 text-primary" />
+          <div className="flex items-center gap-4 text-gray-300 text-sm font-semibold">
+            <div className="hidden sm:flex items-center gap-1 bg-white/10 rounded-full px-3 py-1 text-xs border border-white/5">
+              <User className="w-3.5 h-3.5 text-primary-light" />
               <span>{petaniName} {petaniKomoditas && `| ${petaniKomoditas}`}</span>
             </div>
             
             <button 
               onClick={() => setCurrentView('profile')}
-              className="p-1.5 text-gray-500 hover:text-primary transition-colors bg-gray-50 hover:bg-gray-100 rounded-full"
+              className="p-1.5 text-gray-400 hover:text-primary-light transition-colors bg-white/5 hover:bg-white/10 border border-white/5 rounded-full"
               title="Pengaturan Profil"
             >
               <Settings className="w-4 h-4" />
@@ -1225,7 +1286,7 @@ export default function DashboardPage() {
 
             <button 
               onClick={handleLogout}
-              className="flex items-center gap-1 text-red-600 hover:text-red-700 font-semibold text-xs border border-red-200 bg-red-50 hover:bg-red-100 px-3 py-1.5 rounded-full transition-all"
+              className="flex items-center gap-1 text-red-400 hover:text-red-300 font-semibold text-xs border border-red-500/30 bg-red-500/10 hover:bg-red-500/20 px-3 py-1.5 rounded-full transition-all"
             >
               <LogOut className="w-3.5 h-3.5" />
               <span className="hidden sm:inline">Keluar</span>
@@ -1235,51 +1296,51 @@ export default function DashboardPage() {
       </div>
 
       {/* Main Dashboard Content */}
-      <main className="flex-grow pt-28 pb-12 max-w-6xl w-full mx-auto px-4">
+      <main className="flex-grow pt-24 pb-12 max-w-6xl w-full mx-auto px-4 relative z-10">
         
-        {/* Summary Stats grid */}
+        {/* Summary Stats grid (Premium Glassmorphism) */}
         <div className="grid grid-cols-1 sm:grid-cols-4 gap-4 mb-8">
-          <div className="bg-bg-card border border-border-light p-5 rounded-2xl flex items-center gap-4">
-            <div className="p-3 bg-primary/10 text-primary-light rounded-xl border border-primary/20">
+          <div className="bg-white/5 backdrop-blur-md border border-white/10 p-5 rounded-2xl flex items-center gap-4 hover:bg-white/10 transition-colors shadow-lg shadow-black/20">
+            <div className="p-3 bg-emerald-500/10 text-emerald-400 rounded-xl border border-emerald-500/20 shadow-[0_0_15px_rgba(16,185,129,0.15)]">
               <Map className="w-6 h-6" />
             </div>
             <div>
-              <span className="text-xs text-text-muted block mb-0.5">Jumlah Lahan</span>
-              <strong className="text-xl text-text-main block">{lahans.length} Bidang</strong>
+              <span className="text-xs text-gray-400 block mb-0.5">Jumlah Lahan</span>
+              <strong className="text-xl text-white block">{lahans.length} Bidang</strong>
             </div>
           </div>
 
-          <div className="bg-bg-card border border-border-light p-5 rounded-2xl flex items-center gap-4">
-            <div className="p-3 bg-primary/10 text-primary-light rounded-xl border border-primary/20">
+          <div className="bg-white/5 backdrop-blur-md border border-white/10 p-5 rounded-2xl flex items-center gap-4 hover:bg-white/10 transition-colors shadow-lg shadow-black/20">
+            <div className="p-3 bg-blue-500/10 text-blue-400 rounded-xl border border-blue-500/20 shadow-[0_0_15px_rgba(59,130,246,0.15)]">
               <Activity className="w-6 h-6" />
             </div>
             <div>
-              <span className="text-xs text-text-muted block mb-0.5">Total Luas Lahan</span>
-              <strong className="text-xl text-text-main block">
+              <span className="text-xs text-gray-400 block mb-0.5">Total Luas Lahan</span>
+              <strong className="text-xl text-white block">
                 {lahans.reduce((sum, l) => sum + l.luas, 0).toLocaleString('id-ID')} m²
               </strong>
             </div>
           </div>
 
-          <div className="bg-bg-card border border-border-light p-5 rounded-2xl flex items-center gap-4">
-            <div className="p-3 bg-primary/10 text-primary-light rounded-xl border border-primary/20">
+          <div className="bg-white/5 backdrop-blur-md border border-white/10 p-5 rounded-2xl flex items-center gap-4 hover:bg-white/10 transition-colors shadow-lg shadow-black/20">
+            <div className="p-3 bg-amber-500/10 text-amber-400 rounded-xl border border-amber-500/20 shadow-[0_0_15px_rgba(245,158,11,0.15)]">
               <TrendingUp className="w-6 h-6" />
             </div>
             <div>
-              <span className="text-xs text-text-muted block mb-0.5">Panen Sukses</span>
-              <strong className="text-xl text-text-main block">
+              <span className="text-xs text-gray-400 block mb-0.5">Panen Sukses</span>
+              <strong className="text-xl text-white block">
                 {panens.filter(p => p.statusHasil === 'sukses').length} Kali
               </strong>
             </div>
           </div>
 
-          <div className="bg-bg-card border border-border-light p-5 rounded-2xl flex items-center gap-4">
-            <div className="p-3 bg-red-500/10 text-red-500 rounded-xl border border-red-500/20">
+          <div className="bg-white/5 backdrop-blur-md border border-white/10 p-5 rounded-2xl flex items-center gap-4 hover:bg-white/10 transition-colors shadow-lg shadow-black/20">
+            <div className="p-3 bg-red-500/10 text-red-400 rounded-xl border border-red-500/20 shadow-[0_0_15px_rgba(239,68,68,0.15)] animate-pulse">
               <AlertTriangle className="w-6 h-6" />
             </div>
             <div>
-              <span className="text-xs text-text-muted block mb-0.5">Peringatan Aktif</span>
-              <strong className="text-xl text-text-main block">{activeAlerts.length} Bahaya</strong>
+              <span className="text-xs text-gray-400 block mb-0.5">Peringatan Aktif</span>
+              <strong className="text-xl text-white block">{activeAlerts.length} Bahaya</strong>
             </div>
           </div>
         </div>
@@ -1298,41 +1359,41 @@ export default function DashboardPage() {
         )}
 
         {/* TABS (Lahan Sawah vs Riwayat Panen) */}
-        <div className="border-b border-border-medium flex items-center justify-between mb-6">
-          <div className="flex gap-6 overflow-x-auto no-scrollbar pb-1">
+        <div className="border-b border-white/10 flex flex-col md:flex-row md:items-center justify-between mb-6 pb-2 gap-4">
+          <div className="flex gap-6 overflow-x-auto no-scrollbar w-full md:w-auto pb-2 md:pb-0">
             <button 
               onClick={() => setActiveTab('lahan')}
-              className={`py-3 text-sm font-bold relative transition-all whitespace-nowrap ${
-                activeTab === 'lahan' ? 'text-primary-light' : 'text-text-muted hover:text-text-main'
+              className={`py-2 px-1 text-sm font-bold relative transition-all whitespace-nowrap ${
+                activeTab === 'lahan' ? 'text-emerald-400' : 'text-gray-500 hover:text-gray-300'
               }`}
             >
-              <span>Daftar Lahan Sawah</span>
-              {activeTab === 'lahan' && <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary-light"></span>}
+              <span className="flex items-center gap-2"><Map className="w-4 h-4"/> Daftar Lahan Sawah</span>
+              {activeTab === 'lahan' && <span className="absolute -bottom-2.5 left-0 right-0 h-0.5 bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.8)]"></span>}
             </button>
             <button 
               onClick={() => setActiveTab('kalender')}
-              className={`py-3 text-sm font-bold relative transition-all whitespace-nowrap ${
-                activeTab === 'kalender' ? 'text-primary-light' : 'text-text-muted hover:text-text-main'
+              className={`py-2 px-1 text-sm font-bold relative transition-all whitespace-nowrap ${
+                activeTab === 'kalender' ? 'text-emerald-400' : 'text-gray-500 hover:text-gray-300'
               }`}
             >
-              <span>Kalender & Cuaca</span>
-              {activeTab === 'kalender' && <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary-light"></span>}
+              <span className="flex items-center gap-2"><Calendar className="w-4 h-4"/> Kalender & Cuaca</span>
+              {activeTab === 'kalender' && <span className="absolute -bottom-2.5 left-0 right-0 h-0.5 bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.8)]"></span>}
             </button>
             <button 
               onClick={() => setActiveTab('panen')}
-              className={`py-3 text-sm font-bold relative transition-all whitespace-nowrap ${
-                activeTab === 'panen' ? 'text-primary-light' : 'text-text-muted hover:text-text-main'
+              className={`py-2 px-1 text-sm font-bold relative transition-all whitespace-nowrap ${
+                activeTab === 'panen' ? 'text-emerald-400' : 'text-gray-500 hover:text-gray-300'
               }`}
             >
-              <span>Riwayat Hasil Panen</span>
-              {activeTab === 'panen' && <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary-light"></span>}
+              <span className="flex items-center gap-2"><FileSpreadsheet className="w-4 h-4"/> Riwayat Panen</span>
+              {activeTab === 'panen' && <span className="absolute -bottom-2.5 left-0 right-0 h-0.5 bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.8)]"></span>}
             </button>
           </div>
 
           {activeTab === 'lahan' && (
             <button 
               onClick={() => setCurrentView('add-lahan')}
-              className="bg-primary hover:bg-emerald-600 text-text-main font-bold py-2 px-4 rounded-full text-xs transition-all flex items-center gap-1.5 shadow-lg shadow-primary/10"
+              className="bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 font-bold py-3 md:py-2 px-5 rounded-xl md:rounded-full text-xs transition-all flex justify-center items-center gap-1.5 shadow-[0_0_15px_rgba(16,185,129,0.1)] w-full md:w-auto"
             >
               <Plus className="w-4 h-4" />
               <span>Tambah Lahan</span>
@@ -1357,13 +1418,14 @@ export default function DashboardPage() {
               return (
                 <div 
                   key={lahan.id}
-                  className="bg-bg-card border border-border-light rounded-2xl p-6 hover:border-primary/25 hover:shadow-2xl transition-all duration-300 flex flex-col justify-between"
+                  className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-6 hover:border-emerald-500/30 hover:bg-white/10 hover:shadow-[0_0_25px_rgba(16,185,129,0.1)] transition-all duration-300 flex flex-col justify-between group relative overflow-hidden"
                 >
-                  <div>
+                  <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-500/5 rounded-full blur-3xl -mr-10 -mt-10 pointer-events-none group-hover:bg-emerald-500/10 transition-colors"></div>
+                  <div className="relative z-10">
                     <div className="flex justify-between items-start mb-4">
                       <div>
-                        <h3 className="text-text-main font-bold text-base leading-tight">{lahan.nama}</h3>
-                        <span className="text-xs text-text-muted mt-1 block">Luas: {lahan.luas.toLocaleString('id-ID')} m²</span>
+                        <h3 className="text-white font-bold text-base leading-tight group-hover:text-emerald-300 transition-colors">{lahan.nama}</h3>
+                        <span className="text-xs text-gray-400 mt-1 block">Luas: {lahan.luas.toLocaleString('id-ID')} m²</span>
                       </div>
                       
                       {lahan.status === 'kosong' ? (
@@ -1374,14 +1436,14 @@ export default function DashboardPage() {
                               setSelectedLahan(lahan);
                               setCurrentView('edit-lahan');
                             }}
-                            className="p-1 hover:bg-border-medium text-text-muted hover:text-text-main rounded transition-colors"
+                            className="p-1.5 hover:bg-white/10 text-gray-400 hover:text-white rounded-lg transition-colors"
                             title="Edit Lahan"
                           >
                             <Edit2 className="w-3.5 h-3.5" />
                           </button>
                           <button 
                             onClick={() => handleDeleteLahan(lahan.id)}
-                            className="p-1 hover:bg-red-500/20 text-text-muted hover:text-red-400 rounded transition-colors"
+                            className="p-1.5 hover:bg-red-500/20 text-gray-400 hover:text-red-400 rounded-lg transition-colors"
                             title="Hapus Lahan"
                           >
                             <Trash2 className="w-3.5 h-3.5" />
@@ -1412,6 +1474,10 @@ export default function DashboardPage() {
                         <span className="text-text-muted block mb-0.5">Jenis Tanah</span>
                         <strong className="text-text-main">{lahan.jenisTanah}</strong>
                       </div>
+                      <div className="mt-1">
+                        <span className="text-text-muted block mb-0.5">pH Tanah</span>
+                        <strong className="text-text-main">{lahan.pH || 'Tidak disetel'}</strong>
+                      </div>
                     </div>
 
                     {/* Plant Status detail */}
@@ -1436,17 +1502,16 @@ export default function DashboardPage() {
                   </div>
 
                   {/* Actions by Status */}
-                  <div className="flex gap-2 border-t border-border-light pt-4 mt-auto">
+                  <div className="mt-5 pt-4 border-t border-white/10 flex gap-2 relative z-10">
                     {lahan.status === 'kosong' ? (
                       <button 
                         onClick={() => {
                           setSelectedLahan(lahan);
                           setCurrentView('suitability');
                         }}
-                        className="w-full bg-primary hover:bg-emerald-600 text-text-main font-bold py-2.5 rounded-xl text-xs transition-all flex items-center justify-center gap-1.5"
+                        className="flex-1 text-xs font-bold py-2.5 rounded-xl border border-emerald-500/30 text-emerald-400 hover:bg-emerald-500/10 transition-colors text-center"
                       >
-                        <Sprout className="w-3.5 h-3.5" />
-                        <span>Mulai Tanam (Cek Kelayakan)</span>
+                        Cek Kelayakan
                       </button>
                     ) : (
                       <>
@@ -1455,7 +1520,7 @@ export default function DashboardPage() {
                             setSelectedLahan(lahan);
                             setCurrentView('monitoring');
                           }}
-                          className="flex-1 bg-border-medium hover:bg-white/20 text-text-main font-bold py-2.5 rounded-xl text-xs transition-all flex items-center justify-center gap-1"
+                          className="flex-1 text-xs font-bold py-2.5 rounded-xl bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 transition-colors text-center flex items-center justify-center gap-1"
                         >
                           <Activity className="w-3.5 h-3.5" />
                           <span>Pantau Lahan</span>
@@ -1555,9 +1620,9 @@ export default function DashboardPage() {
               </div>
             )}
 
-            <div className="bg-bg-card border border-border-light rounded-2xl p-6 overflow-x-auto">
+            <div className="bg-bg-card border border-border-light rounded-2xl p-4 md:p-6 overflow-x-auto no-scrollbar">
               {panens.length > 0 ? (
-                <table className="w-full text-left text-xs border-collapse">
+                <table className="w-full text-left text-xs border-collapse min-w-[700px]">
                 <thead>
                   <tr className="border-b border-border-medium text-text-muted">
                     <th className="pb-3 font-semibold uppercase tracking-wider">Lahan</th>
@@ -1630,10 +1695,12 @@ export default function DashboardPage() {
 
       </main>
 
-      {/* Footer */}
-      <footer className="border-t border-border-light py-6 bg-bg-card/50 text-center text-xs text-text-muted">
+      <footer className="border-t border-white/10 py-6 bg-black/40 text-center text-xs text-text-muted">
         <p>&copy; 2026 EcoTani. Hak Cipta Dilindungi Undang-Undang.</p>
-        <p className="mt-1">Developed by Tim EcoTani Indonesia - Universitas Dian Nuswantoro</p>
+        <p className="mt-1">
+          Developed by Tim EcoTani Indonesia <br className="md:hidden" />
+          <span className="hidden md:inline"> - </span>Telkom University Purwokerto <span className="text-emerald-500 font-bold mx-1">X</span> Universitas Jendral Soedirman
+        </p>
       </footer>
 
     </div>
