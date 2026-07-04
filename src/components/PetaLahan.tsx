@@ -461,6 +461,7 @@ export default function PetaLahan({ onSaveLahan, savedLahans, onClose, initialLa
           maxZoom={22}
           scrollWheelZoom={true}
           style={{ width: '100%', height: '100%' }}
+          className={isSatellite ? "satellite-mode" : "osm-mode"}
         >
           <TileLayer
             key={isSatellite ? 'sat' : 'osm'}

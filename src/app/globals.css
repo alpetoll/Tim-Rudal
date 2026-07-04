@@ -201,8 +201,8 @@ body {
   z-index: 10;
 }
 
-/* Dark mode override for Leaflet map tiles */
-.leaflet-tile-pane {
+/* Dark mode override for Leaflet map tiles (OSM only) */
+.osm-mode .leaflet-tile-pane {
   filter: invert(100%) hue-rotate(180deg) brightness(95%) contrast(90%);
 }
 
