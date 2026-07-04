@@ -525,7 +525,7 @@ export default function DashboardClient({ initialUser }: DashboardClientProps) {
 
             <button 
               type="submit"
-              className="w-full bg-primary hover:bg-emerald-600 text-text-main font-bold py-3 rounded-xl transition-all shadow-lg shadow-primary/20 mt-4 flex items-center justify-center gap-2"
+              className="w-full bg-primary hover:bg-primary-dark text-text-main font-bold py-3 rounded-xl transition-all shadow-lg shadow-primary/20 mt-4 flex items-center justify-center gap-2"
             >
               <span>Simpan & Buka Dashboard</span>
               <CheckCircle2 className="w-4 h-4" />
@@ -552,7 +552,7 @@ export default function DashboardClient({ initialUser }: DashboardClientProps) {
             </button>
             <h1 className="text-lg font-bold text-text-main">Tandai Batas Wilayah Lahan Sawah</h1>
           </div>
-          <span className="text-xs text-text-muted">Teknologi Geospatial EcoTani</span>
+          <span className="hidden md:inline text-xs text-text-muted">Teknologi Geospatial EcoTani</span>
         </header>
 
         <main className="flex-grow p-4 md:p-6 md:overflow-hidden overflow-y-auto">
@@ -585,7 +585,7 @@ export default function DashboardClient({ initialUser }: DashboardClientProps) {
             </button>
             <h1 className="text-lg font-bold text-text-main">Edit Lahan Sawah</h1>
           </div>
-          <span className="text-xs text-text-muted">Teknologi Geospatial EcoTani</span>
+          <span className="hidden md:inline text-xs text-text-muted">Teknologi Geospatial EcoTani</span>
         </header>
 
         <main className="flex-grow p-4 md:p-6 md:overflow-hidden overflow-y-auto">
@@ -635,7 +635,7 @@ export default function DashboardClient({ initialUser }: DashboardClientProps) {
           <h2 className="text-2xl font-bold text-text-main mb-1">Cek Kelayakan Lahan Tanam</h2>
           <p className="text-sm text-text-muted mb-6">
             Menilai kesesuaian lahan <strong className="text-text-main">{selectedLahan.nama}</strong> berdasarkan parameter geospasial tanah dan iklim.
-            {liveWeather && <span className="block mt-1 text-primary-light flex items-center gap-1"><CloudRain className="w-3.5 h-3.5" /> Terhubung dengan data cuaca live ({liveWeather.suhu}°C, {liveWeather.curahHujan} mm/bln)</span>}
+            {liveWeather && <span className="block mt-1 text-primary flex items-center gap-1"><CloudRain className="w-3.5 h-3.5" /> Terhubung dengan data cuaca live ({liveWeather.suhu}°C, {liveWeather.curahHujan} mm/bln)</span>}
           </p>
 
           {/* Pilihan Jenis Tanaman */}
@@ -717,13 +717,13 @@ export default function DashboardClient({ initialUser }: DashboardClientProps) {
                   <div className="flex items-center gap-2">
                     <span className="text-xs text-text-muted">Skor Kecocokan:</span>
                     <span className={`px-2.5 py-0.5 rounded-full text-xs font-semibold border ${
-                      (evalResult.skorPotensial || evalResult.skor) >= 75 ? 'bg-emerald-950/20 text-emerald-400 border-emerald-500/10' :
+                      (evalResult.skorPotensial || evalResult.skor) >= 75 ? 'bg-primary-dark/20 text-primary border-primary/10' :
                       (evalResult.skorPotensial || evalResult.skor) >= 50 ? 'bg-amber-950/20 text-amber-400 border-amber-500/10' :
                       'bg-red-950/20 text-red-400 border-red-500/10'
                     }`}>
                       {evalResult.skor}%
                       {evalResult.skorPotensial && evalResult.skorPotensial > evalResult.skor && (
-                        <span className="text-text-muted font-normal"> → <strong className="text-emerald-400/90 font-bold">{evalResult.skorPotensial}% setelah Mitigasi</strong></span>
+                        <span className="text-text-muted font-normal"> → <strong className="text-primary/90 font-bold">{evalResult.skorPotensial}% setelah Mitigasi</strong></span>
                       )}
                     </span>
                   </div>
@@ -735,7 +735,7 @@ export default function DashboardClient({ initialUser }: DashboardClientProps) {
                   {evalResult.skorPotensial && evalResult.skorPotensial > evalResult.skor && (
                     <div 
                       className={`absolute top-0 bottom-0 left-0 rounded-full opacity-35 transition-all duration-500 ${
-                        evalResult.skorPotensial >= 75 ? 'bg-emerald-500' :
+                        evalResult.skorPotensial >= 75 ? 'bg-primary' :
                         evalResult.skorPotensial >= 50 ? 'bg-amber-500' :
                         'bg-red-500'
                       }`}
@@ -745,7 +745,7 @@ export default function DashboardClient({ initialUser }: DashboardClientProps) {
                   {/* Current score bar */}
                   <div 
                     className={`h-full rounded-full transition-all duration-500 relative z-10 ${
-                      evalResult.skor >= 75 ? 'bg-gradient-to-r from-emerald-600 to-emerald-500' :
+                      evalResult.skor >= 75 ? 'bg-gradient-to-r from-primary-dark to-primary' :
                       evalResult.skor >= 50 ? 'bg-gradient-to-r from-amber-600 to-amber-500' :
                       'bg-gradient-to-r from-red-600 to-red-500'
                     }`}
@@ -770,7 +770,7 @@ export default function DashboardClient({ initialUser }: DashboardClientProps) {
             {evalResult.details && evalResult.details.length > 0 && (
               <div className="bg-bg-dark border border-border-light rounded-2xl p-5 shadow-inner">
                 <h4 className="font-bold text-text-main text-sm mb-4 flex items-center gap-2">
-                  <Activity className="w-4.5 h-4.5 text-primary-light" />
+                  <Activity className="w-4.5 h-4.5 text-primary" />
                   <span>Detail Perbandingan Parameter</span>
                 </h4>
                 <div className="overflow-x-auto">
@@ -821,7 +821,7 @@ export default function DashboardClient({ initialUser }: DashboardClientProps) {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div className="p-5 rounded-2xl bg-bg-dark border border-border-light space-y-4">
                   <h4 className="font-bold text-text-main flex items-center gap-2 border-b border-border-light pb-2">
-                    <Calendar className="w-4.5 h-4.5 text-primary-light" />
+                    <Calendar className="w-4.5 h-4.5 text-primary" />
                     <span>Rencana Perawatan</span>
                   </h4>
                   <ul className="text-xs text-text-muted space-y-3">
@@ -836,7 +836,7 @@ export default function DashboardClient({ initialUser }: DashboardClientProps) {
 
                 <div className="p-5 rounded-2xl bg-bg-dark border border-border-light space-y-3">
                   <h4 className="font-bold text-text-main flex items-center gap-2 border-b border-border-light pb-2">
-                    <Droplet className="w-4.5 h-4.5 text-primary-light" />
+                    <Droplet className="w-4.5 h-4.5 text-primary" />
                     <span>Kebutuhan Sumber Daya</span>
                   </h4>
                   <div className="grid grid-cols-2 gap-3 text-xs">
@@ -926,7 +926,7 @@ export default function DashboardClient({ initialUser }: DashboardClientProps) {
             {evalResult.skor < 90 && alternatifList.filter(a => a.tanaman.id !== selectedCropId).length > 0 && (
               <div className="p-5 rounded-2xl bg-bg-dark border border-border-light space-y-4 shadow-md">
                 <h4 className="font-bold text-text-main text-sm flex items-center gap-2 border-b border-border-light/40 pb-2">
-                  <TrendingUp className="w-4.5 h-4.5 text-primary-light" />
+                  <TrendingUp className="w-4.5 h-4.5 text-primary" />
                   <span>Rekomendasi Tanaman Alternatif Terdekat</span>
                 </h4>
                 <div className="space-y-3">
@@ -937,7 +937,7 @@ export default function DashboardClient({ initialUser }: DashboardClientProps) {
                         <span className="text-text-muted block text-[10px]">Estimasi panen: {alt.tanaman.siklus_tanam_days || 120} hari</span>
                       </div>
                       <div className="flex items-center gap-4">
-                        <span className="text-emerald-400/90 font-semibold bg-emerald-950/20 px-2 py-0.5 rounded border border-emerald-500/10">Kecocokan: {alt.evaluasi.skor}%</span>
+                        <span className="text-primary/90 font-semibold bg-primary-dark/20 px-2 py-0.5 rounded border border-primary/10">Kecocokan: {alt.evaluasi.skor}%</span>
                         <button
                           onClick={() => setSelectedCropId(alt.tanaman.id)}
                           className="bg-border-medium hover:bg-white/10 text-text-main font-bold py-2 px-4 rounded-xl transition-all text-[11px] cursor-pointer"
@@ -967,7 +967,7 @@ export default function DashboardClient({ initialUser }: DashboardClientProps) {
                 onClick={() => handleConfirmTanam(selectedCropId, evalResult.saranMitigasi)}
                 className={`flex-1 py-3.5 px-4 rounded-xl font-bold text-sm transition-all text-center ${
                   evalResult.layak 
-                    ? 'bg-primary hover:bg-emerald-600 text-text-main shadow-lg shadow-primary/20' 
+                    ? 'bg-primary hover:bg-primary-dark text-text-main shadow-lg shadow-primary/20' 
                     : 'bg-orange-600 hover:bg-orange-700 text-text-main shadow-lg shadow-orange-600/20'
                 }`}
               >
@@ -1015,7 +1015,7 @@ export default function DashboardClient({ initialUser }: DashboardClientProps) {
 
           <div className="flex justify-between items-start mb-6 border-b border-border-light pb-4">
             <div>
-              <span className="text-xs bg-primary-dark/30 text-primary-light font-bold px-2.5 py-1 rounded-full uppercase tracking-wider">Sedang Ditanam</span>
+              <span className="text-xs bg-primary-dark/30 text-primary font-bold px-2.5 py-1 rounded-full uppercase tracking-wider">Sedang Ditanam</span>
               <h2 className="text-2xl font-bold text-text-main mt-2">{selectedLahan.nama}</h2>
               <p className="text-sm text-text-muted mt-1">Varietas: <strong className="text-text-main">{selectedLahan.varietasDitanam}</strong></p>
             </div>
@@ -1033,7 +1033,7 @@ export default function DashboardClient({ initialUser }: DashboardClientProps) {
               <span className="text-text-muted text-[11px] block mb-1 uppercase tracking-wider font-semibold">Sensor Kelembapan</span>
               <div className="flex items-baseline gap-1 mt-1">
                 <strong className="text-2xl font-bold text-text-main">78%</strong>
-                <span className="text-[10px] text-emerald-400 font-semibold bg-emerald-955/20 px-1.5 py-0.5 rounded border border-emerald-500/10">Optimal</span>
+                <span className="text-[10px] text-primary font-semibold bg-emerald-955/20 px-1.5 py-0.5 rounded border border-primary/10">Optimal</span>
               </div>
               <p className="text-[10px] text-text-muted mt-2">Kondisi media tanam optimal untuk perakaran.</p>
             </div>
@@ -1064,7 +1064,7 @@ export default function DashboardClient({ initialUser }: DashboardClientProps) {
           {/* HISTORICAL TREND CHARTS */}
           <div className="bg-bg-dark border border-border-light rounded-3xl p-5 mb-6">
             <h3 className="font-bold text-text-main text-sm mb-4 flex items-center gap-2 border-b border-border-light/40 pb-2">
-              <Activity className="w-4.5 h-4.5 text-primary-light" />
+              <Activity className="w-4.5 h-4.5 text-primary" />
               <span>Tren Sensor Lahan (7 Hari Terakhir)</span>
             </h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -1134,13 +1134,13 @@ export default function DashboardClient({ initialUser }: DashboardClientProps) {
               <div className="bg-bg-dark border border-border-light rounded-3xl p-5 mb-6">
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-3 pb-2 border-b border-border-light/40">
                   <h3 className="font-bold text-text-main text-sm flex items-center gap-2">
-                    <CheckCircle2 className={`w-4.5 h-4.5 ${isExtremeWeather ? 'text-amber-500' : 'text-primary-light'}`} />
+                    <CheckCircle2 className={`w-4.5 h-4.5 ${isExtremeWeather ? 'text-amber-500' : 'text-primary'}`} />
                     <span>{isExtremeWeather ? 'Checklist Tindakan Penyelamatan Lahan' : 'Checklist Tindakan Pemeliharaan Rutin'}</span>
                   </h3>
                   <div className="flex items-center gap-2">
                     <span className="text-[10px] text-text-muted">Progres:</span>
                     <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${
-                      progressPercent === 100 ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 'bg-white/5 text-text-muted border border-white/10'
+                      progressPercent === 100 ? 'bg-primary/10 text-primary border border-primary/20' : 'bg-white/5 text-text-muted border border-white/10'
                     }`}>
                       {progressPercent}%
                     </span>
@@ -1150,7 +1150,7 @@ export default function DashboardClient({ initialUser }: DashboardClientProps) {
                 {/* Progress Bar */}
                 <div className="w-full bg-bg-card h-2 rounded-full overflow-hidden mb-4 border border-white/5 p-[1px] relative">
                   <div 
-                    className="h-full rounded-full transition-all duration-500 bg-emerald-500"
+                    className="h-full rounded-full transition-all duration-500 bg-primary"
                     style={{ width: `${progressPercent}%` }}
                   />
                 </div>
@@ -1220,7 +1220,7 @@ export default function DashboardClient({ initialUser }: DashboardClientProps) {
                           type="checkbox" 
                           checked={checkedActivities['Irigasi Harian Terjadwal'] || false}
                           onChange={(e) => handleToggleActivity('Irigasi Harian Terjadwal', e.target.checked)}
-                          className="mt-0.5 rounded border-white/10 text-emerald-500 focus:ring-0 focus:ring-offset-0 bg-transparent cursor-pointer" 
+                          className="mt-0.5 rounded border-white/10 text-primary focus:ring-0 focus:ring-offset-0 bg-transparent cursor-pointer" 
                         />
                         <div className="text-text-main">
                           <strong className={checkedActivities['Irigasi Harian Terjadwal'] ? 'line-through text-text-muted' : ''}>Irigasi Harian Terjadwal</strong>
@@ -1232,7 +1232,7 @@ export default function DashboardClient({ initialUser }: DashboardClientProps) {
                           type="checkbox" 
                           checked={checkedActivities['Pembersihan Parit'] || false}
                           onChange={(e) => handleToggleActivity('Pembersihan Parit', e.target.checked)}
-                          className="mt-0.5 rounded border-white/10 text-emerald-500 focus:ring-0 focus:ring-offset-0 bg-transparent cursor-pointer" 
+                          className="mt-0.5 rounded border-white/10 text-primary focus:ring-0 focus:ring-offset-0 bg-transparent cursor-pointer" 
                         />
                         <div className="text-text-main">
                           <strong className={checkedActivities['Pembersihan Parit'] ? 'line-through text-text-muted' : ''}>Pembersihan Parit</strong>
@@ -1244,7 +1244,7 @@ export default function DashboardClient({ initialUser }: DashboardClientProps) {
                           type="checkbox" 
                           checked={checkedActivities['Pengecekan Mulsa Lahan'] || false}
                           onChange={(e) => handleToggleActivity('Pengecekan Mulsa Lahan', e.target.checked)}
-                          className="mt-0.5 rounded border-white/10 text-emerald-500 focus:ring-0 focus:ring-offset-0 bg-transparent cursor-pointer" 
+                          className="mt-0.5 rounded border-white/10 text-primary focus:ring-0 focus:ring-offset-0 bg-transparent cursor-pointer" 
                         />
                         <div className="text-text-main">
                           <strong className={checkedActivities['Pengecekan Mulsa Lahan'] ? 'line-through text-text-muted' : ''}>Pengecekan Mulsa Lahan</strong>
@@ -1290,7 +1290,7 @@ export default function DashboardClient({ initialUser }: DashboardClientProps) {
                 setStatusHasil('sukses');
                 setCurrentView('panen');
               }}
-              className="flex-1 py-3.5 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-bold text-sm transition-all text-center shadow-lg shadow-emerald-500/10 cursor-pointer"
+              className="flex-1 py-3.5 px-4 rounded-xl bg-primary-dark hover:bg-primary text-white font-bold text-sm transition-all text-center shadow-lg shadow-primary/10 cursor-pointer"
             >
               Panen Lahan Sekarang
             </button>
@@ -1387,7 +1387,7 @@ export default function DashboardClient({ initialUser }: DashboardClientProps) {
               </button>
               <button 
                 onClick={() => handleSimpanPanen(beratPanen, statusHasil, hargaJual)}
-                className="flex-1 py-3 px-4 rounded-xl bg-primary hover:bg-emerald-600 text-text-main font-bold text-sm transition-all shadow-lg shadow-primary/20"
+                className="flex-1 py-3 px-4 rounded-xl bg-primary hover:bg-primary-dark text-text-main font-bold text-sm transition-all shadow-lg shadow-primary/20"
               >
                 Simpan Riwayat
               </button>
@@ -1406,7 +1406,7 @@ export default function DashboardClient({ initialUser }: DashboardClientProps) {
       <div className="min-h-screen bg-bg-dark flex flex-col justify-center items-center px-4 py-8">
         <div className="w-full max-w-md bg-bg-card border border-border-light rounded-3xl p-6 md:p-8 shadow-2xl max-h-[90vh] overflow-y-auto no-scrollbar">
           <div className="flex items-center gap-3 mb-6">
-            <Settings className="w-6 h-6 text-primary-light" />
+            <Settings className="w-6 h-6 text-primary" />
             <h2 className="text-xl font-bold text-text-main">Pengaturan Profil</h2>
           </div>
           
@@ -1464,13 +1464,13 @@ export default function DashboardClient({ initialUser }: DashboardClientProps) {
 
           <div className="flex items-center gap-4 text-gray-300 text-sm font-semibold">
             <div className="hidden sm:flex items-center gap-1 bg-white/10 rounded-full px-3 py-1 text-xs border border-white/5">
-              <User className="w-3.5 h-3.5 text-primary-light" />
+              <User className="w-3.5 h-3.5 text-primary" />
               <span>{petaniName}</span>
             </div>
             
             <button 
               onClick={() => setCurrentView('profile')}
-              className="p-1.5 text-gray-400 hover:text-primary-light transition-colors bg-white/5 hover:bg-white/10 border border-white/5 rounded-full"
+              className="p-1.5 text-gray-400 hover:text-primary transition-colors bg-white/5 hover:bg-white/10 border border-white/5 rounded-full"
               title="Pengaturan Profil"
             >
               <Settings className="w-4 h-4" />
@@ -1493,7 +1493,7 @@ export default function DashboardClient({ initialUser }: DashboardClientProps) {
         {/* Summary Stats grid (Premium Glassmorphism) */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 mb-6 md:mb-8">
           <div className="bg-white/5 backdrop-blur-md border border-white/10 p-3 md:p-5 rounded-xl md:rounded-2xl flex flex-col md:flex-row items-start md:items-center gap-2 md:gap-4 hover:bg-white/10 transition-colors shadow-lg shadow-black/20">
-            <div className="p-2 md:p-3 bg-emerald-500/10 text-emerald-400 rounded-lg md:rounded-xl border border-emerald-500/20 shadow-[0_0_15px_rgba(16,185,129,0.15)]">
+            <div className="p-2 md:p-3 bg-primary/10 text-primary rounded-lg md:rounded-xl border border-primary/20 shadow-[0_0_15px_rgba(16,185,129,0.15)]">
               <Map className="w-5 h-5 md:w-6 md:h-6" />
             </div>
             <div>
@@ -1556,36 +1556,36 @@ export default function DashboardClient({ initialUser }: DashboardClientProps) {
             <button 
               onClick={() => setActiveTab('lahan')}
               className={`py-2 px-1 text-sm font-bold relative transition-all whitespace-nowrap ${
-                activeTab === 'lahan' ? 'text-emerald-400' : 'text-gray-500 hover:text-gray-300'
+                activeTab === 'lahan' ? 'text-primary' : 'text-gray-500 hover:text-gray-300'
               }`}
             >
               <span className="flex items-center gap-2"><Map className="w-4 h-4"/> Daftar Lahan Sawah</span>
-              {activeTab === 'lahan' && <span className="absolute -bottom-2.5 left-0 right-0 h-0.5 bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.8)]"></span>}
+              {activeTab === 'lahan' && <span className="absolute -bottom-2.5 left-0 right-0 h-0.5 bg-primary-light shadow-[0_0_8px_rgba(52,211,153,0.8)]"></span>}
             </button>
             <button 
               onClick={() => setActiveTab('kalender')}
               className={`py-2 px-1 text-sm font-bold relative transition-all whitespace-nowrap ${
-                activeTab === 'kalender' ? 'text-emerald-400' : 'text-gray-500 hover:text-gray-300'
+                activeTab === 'kalender' ? 'text-primary' : 'text-gray-500 hover:text-gray-300'
               }`}
             >
               <span className="flex items-center gap-2"><Calendar className="w-4 h-4"/> Kalender & Cuaca</span>
-              {activeTab === 'kalender' && <span className="absolute -bottom-2.5 left-0 right-0 h-0.5 bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.8)]"></span>}
+              {activeTab === 'kalender' && <span className="absolute -bottom-2.5 left-0 right-0 h-0.5 bg-primary-light shadow-[0_0_8px_rgba(52,211,153,0.8)]"></span>}
             </button>
             <button 
               onClick={() => setActiveTab('panen')}
               className={`py-2 px-1 text-sm font-bold relative transition-all whitespace-nowrap ${
-                activeTab === 'panen' ? 'text-emerald-400' : 'text-gray-500 hover:text-gray-300'
+                activeTab === 'panen' ? 'text-primary' : 'text-gray-500 hover:text-gray-300'
               }`}
             >
               <span className="flex items-center gap-2"><FileSpreadsheet className="w-4 h-4"/> Riwayat Panen</span>
-              {activeTab === 'panen' && <span className="absolute -bottom-2.5 left-0 right-0 h-0.5 bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.8)]"></span>}
+              {activeTab === 'panen' && <span className="absolute -bottom-2.5 left-0 right-0 h-0.5 bg-primary-light shadow-[0_0_8px_rgba(52,211,153,0.8)]"></span>}
             </button>
           </div>
 
           {activeTab === 'lahan' && (
             <button 
               onClick={() => setCurrentView('add-lahan')}
-              className="bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 font-bold py-3 md:py-2 px-5 rounded-xl md:rounded-full text-xs transition-all flex justify-center items-center gap-1.5 shadow-[0_0_15px_rgba(16,185,129,0.1)] w-full md:w-auto"
+              className="bg-primary/10 hover:bg-primary/20 text-primary border border-primary/30 font-bold py-3 md:py-2 px-5 rounded-xl md:rounded-full text-xs transition-all flex justify-center items-center gap-1.5 shadow-[0_0_15px_rgba(16,185,129,0.1)] w-full md:w-auto"
             >
               <Plus className="w-4 h-4" />
               <span>Tambah Lahan</span>
@@ -1610,13 +1610,13 @@ export default function DashboardClient({ initialUser }: DashboardClientProps) {
               return (
                 <div 
                   key={lahan.id}
-                  className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-6 hover:border-emerald-500/30 hover:bg-white/10 hover:shadow-[0_0_25px_rgba(16,185,129,0.1)] transition-all duration-300 flex flex-col justify-between group relative overflow-hidden"
+                  className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-6 hover:border-primary/30 hover:bg-white/10 hover:shadow-[0_0_25px_rgba(16,185,129,0.1)] transition-all duration-300 flex flex-col justify-between group relative overflow-hidden"
                 >
-                  <div className="absolute top-0 right-0 w-32 h-32 bg-emerald-500/5 rounded-full blur-3xl -mr-10 -mt-10 pointer-events-none group-hover:bg-emerald-500/10 transition-colors"></div>
+                  <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full blur-3xl -mr-10 -mt-10 pointer-events-none group-hover:bg-primary/10 transition-colors"></div>
                   <div className="relative z-10">
                     <div className="flex justify-between items-start mb-4">
                       <div>
-                        <h3 className="text-white font-bold text-base leading-tight group-hover:text-emerald-300 transition-colors">{lahan.nama}</h3>
+                        <h3 className="text-white font-bold text-base leading-tight group-hover:text-primary transition-colors">{lahan.nama}</h3>
                         <span className="text-xs text-gray-400 mt-1 block">Luas: {lahan.luas.toLocaleString('id-ID')} m²</span>
                       </div>
                       
@@ -1642,7 +1642,7 @@ export default function DashboardClient({ initialUser }: DashboardClientProps) {
                           </button>
                         </div>
                       ) : lahan.status === 'sedang-ditanam' ? (
-                        <span className="px-2 py-0.5 rounded-full text-[10px] bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-bold uppercase tracking-wider">Ditanami</span>
+                        <span className="px-2 py-0.5 rounded-full text-[10px] bg-primary/10 text-primary border border-primary/20 font-bold uppercase tracking-wider">Ditanami</span>
                       ) : (
                         <span className="px-2 py-0.5 rounded-full text-[10px] bg-amber-500/10 text-amber-400 border border-amber-500/20 font-bold uppercase tracking-wider">Siap Panen</span>
                       )}
@@ -1705,7 +1705,7 @@ export default function DashboardClient({ initialUser }: DashboardClientProps) {
                           setSelectedLahan(lahan);
                           setCurrentView('suitability');
                         }}
-                        className="flex-1 text-xs font-bold py-2.5 rounded-xl border border-emerald-500/30 text-emerald-400 hover:bg-emerald-500/10 transition-colors text-center"
+                        className="flex-1 text-xs font-bold py-2.5 rounded-xl border border-primary/30 text-primary hover:bg-primary/10 transition-colors text-center"
                       >
                         Cek Kelayakan
                       </button>
@@ -1716,7 +1716,7 @@ export default function DashboardClient({ initialUser }: DashboardClientProps) {
                             setSelectedLahan(lahan);
                             setCurrentView('monitoring');
                           }}
-                          className="flex-1 text-xs font-bold py-2.5 rounded-xl bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 transition-colors text-center flex items-center justify-center gap-1"
+                          className="flex-1 text-xs font-bold py-2.5 rounded-xl bg-primary/10 hover:bg-primary/20 text-primary transition-colors text-center flex items-center justify-center gap-1"
                         >
                           <Activity className="w-3.5 h-3.5" />
                           <span>Pantau Lahan</span>
@@ -1759,7 +1759,7 @@ export default function DashboardClient({ initialUser }: DashboardClientProps) {
                 </p>
                 <button 
                   onClick={() => setCurrentView('add-lahan')}
-                  className="bg-primary hover:bg-emerald-600 text-text-main font-bold py-2.5 px-6 rounded-full text-xs transition-all inline-flex items-center gap-1.5"
+                  className="bg-primary hover:bg-primary-dark text-text-main font-bold py-2.5 px-6 rounded-full text-xs transition-all inline-flex items-center gap-1.5"
                 >
                   <Plus className="w-4 h-4" />
                   <span>Gambar Lahan Pertama</span>
@@ -1849,7 +1849,7 @@ export default function DashboardClient({ initialUser }: DashboardClientProps) {
                       <td className="py-4.5 text-text-muted">{p.tanggalPanen}</td>
                       <td className="py-4.5">
                         {p.statusHasil === 'sukses' ? (
-                          <span className="bg-emerald-500/10 text-emerald-400 px-2 py-0.5 rounded font-bold uppercase text-[9px]">Melimpah</span>
+                          <span className="bg-primary/10 text-primary px-2 py-0.5 rounded font-bold uppercase text-[9px]">Melimpah</span>
                         ) : p.statusHasil === 'sebagian' ? (
                           <span className="bg-amber-500/10 text-amber-400 px-2 py-0.5 rounded font-bold uppercase text-[9px]">Sebagian</span>
                         ) : (
@@ -1857,7 +1857,7 @@ export default function DashboardClient({ initialUser }: DashboardClientProps) {
                         )}
                       </td>
                       <td className="py-4.5 font-semibold">{p.beratPanen.toLocaleString('id-ID')} Kg</td>
-                      <td className="py-4.5 text-right font-extrabold text-primary-light">
+                      <td className="py-4.5 text-right font-extrabold text-primary">
                         Rp {p.pendapatanEstimasi.toLocaleString('id-ID')}
                       </td>
                       <td className="py-4.5 text-right">
@@ -1906,7 +1906,7 @@ export default function DashboardClient({ initialUser }: DashboardClientProps) {
         <p>&copy; 2026 EcoTani. Hak Cipta Dilindungi Undang-Undang.</p>
         <p className="mt-1">
           Developed by Tim EcoTani Indonesia <br className="md:hidden" />
-          <span className="hidden md:inline"> - </span>Telkom University Purwokerto <span className="text-emerald-500 font-bold mx-1">X</span> Universitas Jendral Soedirman
+          <span className="hidden md:inline"> - </span>Telkom University Purwokerto <span className="text-primary font-bold mx-1">X</span> Universitas Jendral Soedirman
         </p>
       </footer>
 

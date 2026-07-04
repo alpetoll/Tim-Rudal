@@ -341,6 +341,7 @@ export default function PetaLahan({ onSaveLahan, savedLahans, onClose, initialLa
         <MapContainer 
           center={initialLahan ? initialLahan.centroid : [-7.150, 110.140]} 
           zoom={initialLahan ? 15 : 10} 
+          maxZoom={22}
           scrollWheelZoom={true}
           style={{ width: '100%', height: '100%' }}
         >
@@ -354,6 +355,8 @@ export default function PetaLahan({ onSaveLahan, savedLahans, onClose, initialLa
               ? 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'
               : 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'
             }
+            maxZoom={22}
+            maxNativeZoom={19}
           />
           <MapResizer />
           <MapClickHandler setPoints={setPoints} />

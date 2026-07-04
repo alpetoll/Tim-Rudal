@@ -12,7 +12,11 @@ import {
   TrendingUp, 
   AlertTriangle,
   Menu,
-  X
+  X,
+  CloudRain,
+  Leaf,
+  CloudLightning,
+  Droplets
 } from 'lucide-react';
 const EcoTaniAnimatedLogo = () => {
   return (
@@ -185,18 +189,14 @@ export default function LandingPage() {
       {/* HERO SECTION - GEOSPATIAL THEME */}
       <section className="min-h-screen flex flex-col justify-center pt-24 pb-12 bg-[#050505] relative overflow-hidden" id="hero">
         
-        {/* GeoSpatial Background Grid & Radar */}
+        {/* Modern GeoSpatial Background (No Radar) */}
         <div className="absolute inset-0 z-0">
-          {/* Animated Grid */}
-          <div className="absolute inset-0 bg-[linear-gradient(to_right,#00a85915_1px,transparent_1px),linear-gradient(to_bottom,#00a85915_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_60%_60%_at_50%_50%,#000_70%,transparent_100%)]"></div>
+          {/* Subtle Grid & Glow */}
+          <div className="absolute inset-0 bg-[linear-gradient(to_right,#8bc34a08_1px,transparent_1px),linear-gradient(to_bottom,#8bc34a08_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_60%_60%_at_50%_50%,#000_70%,transparent_100%)]"></div>
           
-          {/* Radar Circles */}
-          <div className="absolute top-1/2 left-3/4 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] border border-[#00a85920] rounded-full hidden md:block"></div>
-          <div className="absolute top-1/2 left-3/4 -translate-x-1/2 -translate-y-1/2 w-[400px] h-[400px] border border-[#00a85930] rounded-full hidden md:block"></div>
-          <div className="absolute top-1/2 left-3/4 -translate-x-1/2 -translate-y-1/2 w-[200px] h-[200px] border border-[#00a85940] rounded-full hidden md:block"></div>
-          
-          {/* Radar Sweep Element */}
-          <div className="absolute top-1/2 left-3/4 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] radar-sweep opacity-50 hidden md:block"></div>
+          {/* Soft ambient glows */}
+          <div className="absolute top-1/4 left-1/4 w-[300px] h-[300px] bg-primary/20 rounded-full blur-[100px] opacity-50 mix-blend-screen hidden md:block"></div>
+          <div className="absolute top-1/2 right-1/4 w-[400px] h-[400px] bg-primary-light/10 rounded-full blur-[120px] opacity-50 mix-blend-screen hidden md:block"></div>
         </div>
 
         <div className="max-w-7xl mx-auto px-4 grid grid-cols-1 lg:grid-cols-2 items-center gap-12 lg:gap-8 relative z-10">
@@ -208,108 +208,81 @@ export default function LandingPage() {
             transition={{ duration: 0.8, ease: "easeOut" }}
             className="flex flex-col items-start text-left"
           >
-            <div className="inline-flex items-center gap-2 px-3 py-1 bg-emerald-950/50 border border-emerald-500/30 rounded-full mb-6">
-              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
-              <span className="text-emerald-400 font-mono text-xs tracking-widest uppercase">ECOTANI SAT-SYNC ONLINE</span>
+            <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-primary/10 border border-primary/20 rounded-full mb-6 backdrop-blur-sm">
+              <span className="w-2 h-2 rounded-full bg-primary-light animate-pulse"></span>
+              <span className="text-primary-light font-medium text-xs tracking-wide">Platform Pemantauan Pertanian Modern</span>
             </div>
             
-            <h1 className="text-white font-extrabold text-4xl md:text-5xl lg:text-6xl leading-[1.1] tracking-tight mb-6">
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-400 to-green-600 drop-shadow-[0_0_15px_rgba(0,168,89,0.5)]">
-                EcoTani:
-              </span><br/>Sawah Terlindungi,<br/>
+            <h1 className="text-white font-extrabold text-4xl md:text-5xl lg:text-6xl leading-[1.15] tracking-tight mb-6">
+              EcoTani: <br/>
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary-light to-primary drop-shadow-sm">
+                Sawah Terlindungi,
+              </span><br/>
               Panen Terjaga
             </h1>
             
-            <p className="text-gray-400 text-sm md:text-base lg:text-lg mb-10 max-w-lg leading-relaxed font-mono">
-              &gt; Menginisialisasi pemetaan geospatial...<br/>
-              &gt; Menganalisis ketidakpastian iklim...<br/>
-              Platform pemantauan lahan dan peringatan dini cuaca berbasis data satelit waktu nyata.
+            <p className="text-gray-400 text-sm md:text-base lg:text-lg mb-10 max-w-lg leading-relaxed">
+              Tingkatkan hasil panen Anda dengan platform pemantauan lahan presisi dan peringatan dini cuaca ekstrem berbasis teknologi geospasial real-time.
             </p>
             
-            <Link href="/dashboard" className="inline-flex items-center gap-3 px-8 py-4 bg-emerald-500/10 border border-emerald-500/50 text-emerald-400 font-mono font-bold rounded-none hover:bg-emerald-500 hover:text-white transition-all duration-300 group overflow-hidden relative">
-              <div className="absolute inset-0 w-0 bg-emerald-500 transition-all duration-500 ease-out group-hover:w-full z-0"></div>
-              <span className="relative z-10 flex items-center gap-2 tracking-widest">
-                [ INISIALISASI PLOTTING ]
-                <ArrowRight className="w-4 h-4 md:w-5 md:h-5 transition-transform duration-300 group-hover:translate-x-1" />
+            <Link href="/dashboard" className="inline-flex items-center gap-3 px-8 py-4 bg-primary text-white font-bold rounded-full hover:bg-primary-dark shadow-lg shadow-primary/20 hover:shadow-primary/40 transition-all duration-300 group overflow-hidden relative">
+              <span className="relative z-10 flex items-center gap-2">
+                Mulai Pantau Lahan Anda
+                <ArrowRight className="w-5 h-5 transition-transform duration-300 group-hover:translate-x-1" />
               </span>
             </Link>
           </motion.div>
           
-          {/* Hero HUD / Map Visuals (Right) */}
+          {/* Hero Visuals (Right) */}
           <div className="hidden lg:flex relative h-[400px] md:h-[500px] w-full justify-center items-center">
             
-            {/* Center Map Box */}
+            {/* Center Visual Box */}
             <motion.div
               initial={{ opacity: 0, scale: 0.9 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 1, delay: 0.2 }}
-              className="absolute w-[80%] md:w-[350px] h-[350px] border border-emerald-500/30 bg-[#0a0a0a]/80 backdrop-blur-md rounded-2xl overflow-hidden shadow-[0_0_40px_rgba(0,168,89,0.15)] flex justify-center items-center"
+              className="absolute w-[80%] md:w-[400px] h-[400px] bg-white/5 backdrop-blur-xl border border-white/10 rounded-[2rem] overflow-hidden shadow-2xl shadow-primary/20 flex flex-col justify-center items-center"
             >
-              <div className="absolute inset-0 opacity-20 bg-[url('https://upload.wikimedia.org/wikipedia/commons/e/ec/Topographic_map_example.png')] bg-cover bg-center mix-blend-screen grayscale"></div>
-              <div className="absolute inset-0 bg-gradient-to-t from-black via-transparent to-black"></div>
-              
-              {/* Scanning Line */}
-              <motion.div 
-                animate={{ y: [-175, 175] }}
-                transition={{ duration: 2.5, repeat: Infinity, ease: "linear" }}
-                className="absolute top-1/2 left-0 w-full h-[2px] bg-emerald-500 shadow-[0_0_10px_#00a859]"
-              />
-
-              <Sprout className="w-16 h-16 text-emerald-500 z-10 animate-pulse-soft opacity-80" />
+              <div className="absolute inset-0 bg-gradient-to-tr from-primary-dark/40 to-transparent mix-blend-overlay"></div>
+              <img src="/assets/logo.webp" alt="EcoTani" className="w-32 h-32 mb-6 drop-shadow-[0_0_20px_rgba(139,195,74,0.4)] z-10" />
+              <div className="z-10 text-center px-6">
+                <h3 className="text-xl font-bold text-white mb-2">Sistem Cerdas</h3>
+                <p className="text-sm text-gray-300">Memantau kesehatan tanaman dan cuaca secara presisi</p>
+              </div>
             </motion.div>
 
-            {/* Floating Data Card 1 */}
+            {/* Floating Elements (Nature Theme instead of Hacker) */}
             <motion.div
               initial={{ opacity: 0, x: 50, y: -20 }}
               animate={{ opacity: 1, x: 0, y: 0 }}
               transition={{ duration: 0.8, delay: 0.6 }}
               style={{ animation: 'float 6s ease-in-out infinite' }}
-              className="absolute top-10 right-0 md:-right-10 bg-black/60 backdrop-blur-md border border-emerald-500/40 p-3 rounded-lg font-mono text-xs text-emerald-400 shadow-[0_0_15px_rgba(0,168,89,0.2)]"
+              className="absolute top-12 -right-4 lg:-right-8 bg-white/10 backdrop-blur-md border border-white/20 p-4 rounded-2xl flex items-center gap-4 shadow-xl z-20"
             >
-              <div className="flex items-center gap-2 mb-1 border-b border-emerald-500/30 pb-1">
-                <MapPin className="w-3 h-3" />
-                <span className="font-bold">COORDINATES</span>
+              <div className="p-3 rounded-full bg-primary/20 text-primary-light">
+                <CloudRain className="w-6 h-6" />
               </div>
-              <div style={{ animation: 'data-glitch 4s infinite' }}>
-                LAT: -6.2088<br/>LON: 106.8456
+              <div>
+                <span className="block text-xs text-gray-400 font-medium">Prediksi Hujan</span>
+                <span className="block text-sm font-bold text-white">Normal (Aman)</span>
               </div>
             </motion.div>
 
-            {/* Floating Data Card 2 */}
             <motion.div
               initial={{ opacity: 0, x: -50, y: 20 }}
               animate={{ opacity: 1, x: 0, y: 0 }}
               transition={{ duration: 0.8, delay: 0.8 }}
               style={{ animation: 'float 5s ease-in-out infinite reverse' }}
-              className="absolute bottom-20 left-0 md:-left-10 bg-black/60 backdrop-blur-md border border-emerald-500/40 p-3 rounded-lg font-mono text-xs text-emerald-400 shadow-[0_0_15px_rgba(0,168,89,0.2)]"
+              className="absolute bottom-12 -left-4 lg:-left-8 bg-white/10 backdrop-blur-md border border-white/20 p-4 rounded-2xl flex items-center gap-4 shadow-xl z-20"
             >
-              <div className="flex items-center gap-2 mb-1 border-b border-emerald-500/30 pb-1">
-                <Activity className="w-3 h-3" />
-                <span className="font-bold">SURFACE DATA</span>
+              <div className="p-3 rounded-full bg-emerald-500/20 text-emerald-400">
+                <Leaf className="w-6 h-6" />
               </div>
-              <div style={{ animation: 'data-glitch 3s infinite 1s' }}>
-                TEMP: 32°C [NORMAL]<br/>
-                NDVI: 0.78 [HEALTHY]
+              <div>
+                <span className="block text-xs text-gray-400 font-medium">Kondisi Lahan</span>
+                <span className="block text-sm font-bold text-white">Sangat Optimal</span>
               </div>
             </motion.div>
-
-            {/* Floating Data Card 3 */}
-            <motion.div
-              initial={{ opacity: 0, y: 50 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.8, delay: 1 }}
-              style={{ animation: 'float 7s ease-in-out infinite' }}
-              className="absolute -bottom-10 right-10 md:right-0 bg-black/60 backdrop-blur-md border border-emerald-500/40 p-3 rounded-lg font-mono text-xs text-emerald-400 shadow-[0_0_15px_rgba(0,168,89,0.2)]"
-            >
-              <div className="flex items-center gap-2 mb-1 border-b border-emerald-500/30 pb-1">
-                <AlertTriangle className="w-3 h-3" />
-                <span className="font-bold">WEATHER ALERT</span>
-              </div>
-              <div className="text-emerald-500">
-                CLEAR SKIES<br/>PRECIPITATION: 0%
-              </div>
-            </motion.div>
-
           </div>
         </div>
       </section>
@@ -330,9 +303,12 @@ export default function LandingPage() {
               viewport={{ once: true, margin: "-100px" }}
               transition={{ duration: 0.6 }}
               whileHover={{ scale: 1.03 }}
-              className="bg-border-light border border-white/[0.06] backdrop-blur-md rounded-2xl p-8 md:p-10 hover:border-primary/30 hover:bg-white/[0.04] transition-colors duration-300 shadow-xl"
+              className="bg-border-light border border-white/[0.06] backdrop-blur-md rounded-2xl p-8 md:p-10 hover:border-primary/30 hover:bg-white/[0.04] transition-colors duration-300 shadow-xl flex flex-col gap-4"
             >
-              <h3 className="text-primary-light font-bold text-xl md:text-2xl mb-3">Anomali Cuaca Ekstrem</h3>
+              <div className="w-14 h-14 rounded-2xl bg-primary/20 flex items-center justify-center text-primary-light shadow-[0_0_20px_rgba(139,195,74,0.15)] mb-2">
+                <CloudLightning className="w-7 h-7" />
+              </div>
+              <h3 className="text-primary-light font-bold text-xl md:text-2xl mb-1">Anomali Cuaca Ekstrem</h3>
               <p className="text-text-muted text-sm md:text-base leading-relaxed">Pemantauan cuaca akurat dan terpercaya, berkontribusi penting meminimalisir kerusakan tanaman tradisional.</p>
             </motion.div>
             {/* Card 2 */}
@@ -342,9 +318,12 @@ export default function LandingPage() {
               viewport={{ once: true, margin: "-100px" }}
               transition={{ duration: 0.6, delay: 0.2 }}
               whileHover={{ scale: 1.03 }}
-              className="bg-border-light border border-white/[0.06] backdrop-blur-md rounded-2xl p-8 md:p-10 hover:border-primary/30 hover:bg-white/[0.04] transition-colors duration-300 shadow-xl"
+              className="bg-border-light border border-white/[0.06] backdrop-blur-md rounded-2xl p-8 md:p-10 hover:border-primary/30 hover:bg-white/[0.04] transition-colors duration-300 shadow-xl flex flex-col gap-4"
             >
-              <h3 className="text-primary-light font-bold text-xl md:text-2xl mb-3">Krisis Kelembapan Tanah</h3>
+              <div className="w-14 h-14 rounded-2xl bg-primary/20 flex items-center justify-center text-primary-light shadow-[0_0_20px_rgba(139,195,74,0.15)] mb-2">
+                <Droplets className="w-7 h-7" />
+              </div>
+              <h3 className="text-primary-light font-bold text-xl md:text-2xl mb-1">Krisis Kelembapan Tanah</h3>
               <p className="text-text-muted text-sm md:text-base leading-relaxed">Penyusutan kandungan air tanah yang lambat-laun dapat menyebabkan penurunan hasil panen secara massal.</p>
             </motion.div>
           </div>
@@ -514,7 +493,7 @@ export default function LandingPage() {
           <div className="max-w-6xl mx-auto px-4 flex flex-col md:flex-row justify-between items-center gap-4 text-xs md:text-sm text-text-muted text-center md:text-left">
             <p>&copy; 2026 EcoTani. Hak Cipta Dilindungi Undang-Undang.</p>
             <p className="md:text-right leading-relaxed">
-              Developed by <a href="#" className="text-primary-light hover:underline font-semibold">Tim EcoTani Indonesia</a> <br className="md:hidden" />
+              Developed by <a href="#" className="text-primary-light hover:underline font-semibold">Tim Rudal</a> <br className="md:hidden" />
               <span className="hidden md:inline"> - </span>Telkom University Purwokerto <span className="text-emerald-500 font-bold mx-1">X</span> Universitas Jendral Soedirman
             </p>
           </div>
