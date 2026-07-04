@@ -403,13 +403,44 @@ export default function PetaLahan({ onSaveLahan, savedLahans, onClose, initialLa
   return (
     <div className="relative w-full h-[calc(100vh-4rem)] lg:grid lg:grid-cols-3 lg:gap-6 lg:h-[calc(100vh-12rem)] lg:min-h-[500px]">
       <style>{`
+        /* Mobile Layout Adjustments */
         @media (max-width: 1023px) {
           .leaflet-top {
-            top: 80px !important;
-            left: 10px !important;
+            top: 70px !important;
+            left: 6px !important;
           }
           .leaflet-bottom {
-            bottom: 90px !important;
+            bottom: 70px !important;
+            right: 6px !important;
+          }
+          .leaflet-left {
+            left: 6px !important;
+          }
+          .leaflet-right {
+            right: 6px !important;
+          }
+          .leaflet-control-attribution {
+            margin: 0 !important;
+          }
+        }
+        /* Desktop Layout Adjustments */
+        @media (min-width: 1024px) {
+          .leaflet-top {
+            top: 8px !important;
+            left: 8px !important;
+          }
+          .leaflet-bottom {
+            bottom: 8px !important;
+            right: 8px !important;
+          }
+          .leaflet-left {
+            left: 8px !important;
+          }
+          .leaflet-right {
+            right: 8px !important;
+          }
+          .leaflet-control-attribution {
+            margin: 0 !important;
           }
         }
       `}</style>
@@ -418,7 +449,7 @@ export default function PetaLahan({ onSaveLahan, savedLahans, onClose, initialLa
       <div className="fixed inset-0 w-full h-full z-0 lg:relative lg:col-span-2 lg:border lg:border-white/10 lg:rounded-2xl lg:overflow-hidden lg:h-full shrink-0">
         <button 
           onClick={() => setIsSatellite(!isSatellite)}
-          className="absolute top-20 right-3 z-[400] lg:top-3 lg:right-3 bg-bg-card/90 hover:bg-bg-card backdrop-blur-md px-3 py-2 rounded-xl border border-white/20 shadow-lg flex items-center gap-2 text-xs font-semibold text-primary-light transition-all cursor-pointer"
+          className="absolute top-[70px] right-1.5 z-[400] lg:top-2 lg:right-2 bg-bg-card/90 hover:bg-bg-card backdrop-blur-md px-3 py-2 rounded-xl border border-white/20 shadow-lg flex items-center gap-2 text-xs font-semibold text-primary-light transition-all cursor-pointer"
         >
           <Layers className="w-4 h-4" />
           <span>{isSatellite ? 'Ubah ke Peta Jalan' : 'Ubah ke Satelit'}</span>
@@ -502,7 +533,7 @@ export default function PetaLahan({ onSaveLahan, savedLahans, onClose, initialLa
         {points.length > 0 && (
           <button 
             onClick={handleReset}
-            className="absolute bottom-20 right-4 z-[400] lg:bottom-4 lg:right-4 bg-red-600 hover:bg-red-700 text-white font-bold p-2.5 rounded-full shadow-lg flex items-center justify-center gap-1.5 transition-all text-xs"
+            className="absolute bottom-[105px] right-2 z-[400] lg:bottom-8 lg:right-2 bg-red-600 hover:bg-red-700 text-white font-bold p-2.5 rounded-full shadow-lg flex items-center justify-center gap-1.5 transition-all text-xs"
           >
             <RefreshCw className="w-4 h-4" />
             <span>Reset Titik</span>
