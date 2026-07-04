@@ -16,7 +16,8 @@ import {
   CloudRain,
   Leaf,
   CloudLightning,
-  Droplets
+  Droplets,
+  Sparkles
 } from 'lucide-react';
 const EcoTaniAnimatedLogo = () => {
   return (
@@ -199,91 +200,89 @@ export default function LandingPage() {
             <div className="absolute top-1/2 right-1/4 w-[400px] h-[400px] bg-primary-light/10 rounded-full blur-[120px] opacity-50 mix-blend-screen hidden md:block"></div>
           </div>
 
-          <div className="max-w-7xl mx-auto px-4 grid grid-cols-1 lg:grid-cols-2 items-center gap-12 lg:gap-8 relative z-10">
+          <div className="max-w-5xl mx-auto px-4 relative z-10 flex flex-col items-center text-center">
 
-            {/* Hero Content (Left) */}
+            {/* Pill Badge */}
             <motion.div
-              initial={{ opacity: 0, x: -50 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.8, ease: "easeOut" }}
-              className="flex flex-col items-start text-left"
+              initial={{ opacity: 0, y: -20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.6 }}
+              className="inline-flex items-center gap-2 px-4 py-1.5 bg-primary/10 border border-primary/20 rounded-full mb-6 backdrop-blur-sm cursor-pointer hover:bg-primary/20 transition-all duration-300"
             >
-              <div className="inline-flex items-center gap-2 px-4 py-1.5 bg-primary/10 border border-primary/20 rounded-full mb-6 backdrop-blur-sm">
-                <span className="w-2 h-2 rounded-full bg-primary-light animate-pulse"></span>
-                <span className="text-primary-light font-medium text-xs tracking-wide">Platform Pemantauan Pertanian Modern</span>
-              </div>
+              <span className="bg-primary px-2.5 py-0.5 rounded-full text-[10px] font-extrabold text-white flex items-center gap-1">
+                <Sparkles className="w-3 h-3 text-white shrink-0" />
+                <span>Rilis</span>
+              </span>
+              <span className="text-primary-light font-bold text-xs tracking-wide flex items-center gap-1">
+                Mulai Simulasi Iklim Ekstrem Sekarang <ArrowRight className="w-3 h-3" />
+              </span>
+            </motion.div>
 
-              <h1 className="text-white font-extrabold text-4xl md:text-5xl lg:text-6xl leading-[1.15] tracking-tight mb-6">
-                EcoTani: <br />
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary-light to-primary drop-shadow-sm">
-                  Sawah Terlindungi,
-                </span><br />
-                Panen Terjaga
-              </h1>
+            {/* Main Heading */}
+            <motion.h1
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 0.1 }}
+              className="text-white font-extrabold text-4xl md:text-6xl lg:text-7xl leading-[1.1] tracking-tight mb-6 max-w-3xl"
+            >
+              Sawah Terlindungi, <br className="hidden md:inline" />
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary-light via-primary to-[#8bc34a] drop-shadow-sm">
+                Panen Melimpah.
+              </span> Secara Presisi.
+            </motion.h1>
 
-              <p className="text-gray-400 text-sm md:text-base lg:text-lg mb-10 max-w-lg leading-relaxed">
-                Tingkatkan hasil panen Anda dengan platform pemantauan lahan presisi dan peringatan dini cuaca ekstrem berbasis teknologi geospasial real-time.
-              </p>
+            {/* Subtext */}
+            <motion.p
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 0.2 }}
+              className="text-text-muted text-sm md:text-base lg:text-lg mb-10 max-w-2xl leading-relaxed"
+            >
+              Platform pemantauan sawah cerdas bertenaga geospasial real-time. Deteksi kelayakan tanam, simulasikan risiko iklim ekstrem, dan amankan ketahanan pangan Anda.
+            </motion.p>
 
-              <Link href="/auth" className="inline-flex items-center gap-3 px-8 py-4 bg-primary text-white font-bold rounded-full hover:bg-primary-dark shadow-lg shadow-primary/20 hover:shadow-primary/40 transition-all duration-300 group overflow-hidden relative">
-                <span className="relative z-10 flex items-center gap-2">
-                  Mulai Pantau Lahan Anda
-                  <ArrowRight className="w-5 h-5 transition-transform duration-300 group-hover:translate-x-1" />
-                </span>
+            {/* Email Signup Form */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 0.3 }}
+              className="w-full max-w-lg bg-bg-card/45 backdrop-blur-md border border-white/10 p-1.5 rounded-full flex items-center shadow-2xl focus-within:border-primary/50 transition-all mb-12"
+            >
+              <input 
+                type="email" 
+                placeholder="Masukkan alamat email Anda..." 
+                className="flex-1 bg-transparent border-0 outline-none px-4 py-2 text-white text-xs md:text-sm placeholder:text-text-muted focus:ring-0 focus:outline-none"
+              />
+              <Link 
+                href="/auth?mode=register" 
+                className="bg-primary hover:bg-primary-dark text-white font-bold text-xs md:text-sm px-6 py-3 rounded-full flex items-center gap-1.5 transition-all shadow-md shadow-primary/20 hover:translate-x-0.5"
+              >
+                <span>Coba Sekarang</span>
+                <ArrowRight className="w-4 h-4" />
               </Link>
             </motion.div>
 
-            {/* Hero Visuals (Right) */}
-            <div className="hidden lg:flex relative h-[400px] md:h-[500px] w-full justify-center items-center">
+            {/* Inline Features */}
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: 0.8, delay: 0.4 }}
+              className="flex flex-col sm:flex-row flex-wrap justify-center items-center gap-6 lg:gap-10 text-xs md:text-sm text-text-muted font-bold"
+            >
+              <div className="flex items-center gap-2">
+                <Sprout className="w-4.5 h-4.5 text-primary-light" />
+                <span>Analisis Kelayakan & Rekomendasi Tanaman</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <Activity className="w-4.5 h-4.5 text-primary-light" />
+                <span>Simulasi Musim Sulit & Tekanan Iklim</span>
+              </div>
+              <div className="flex items-center gap-2">
+                <AlertTriangle className="w-4.5 h-4.5 text-primary-light" />
+                <span>Peringatan Dini Bencana & EWS Satelit</span>
+              </div>
+            </motion.div>
 
-              {/* Center Visual Box */}
-              <motion.div
-                initial={{ opacity: 0, scale: 0.9 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ duration: 1, delay: 0.2 }}
-                className="absolute w-[80%] md:w-[400px] h-[400px] bg-white/5 backdrop-blur-xl border border-white/10 rounded-[2rem] overflow-hidden shadow-2xl shadow-primary/20 flex flex-col justify-center items-center"
-              >
-                <div className="absolute inset-0 bg-gradient-to-tr from-primary-dark/40 to-transparent mix-blend-overlay"></div>
-                <img src="/assets/logo.webp" alt="EcoTani" className="w-32 h-32 mb-6 drop-shadow-[0_0_20px_rgba(139,195,74,0.4)] z-10" />
-                <div className="z-10 text-center px-6">
-                  <h3 className="text-xl font-bold text-white mb-2">Sistem Cerdas</h3>
-                  <p className="text-sm text-gray-300">Memantau kesehatan tanaman dan cuaca secara presisi</p>
-                </div>
-              </motion.div>
-
-              {/* Floating Elements (Nature Theme instead of Hacker) */}
-              <motion.div
-                initial={{ opacity: 0, x: 50, y: -20 }}
-                animate={{ opacity: 1, x: 0, y: 0 }}
-                transition={{ duration: 0.8, delay: 0.6 }}
-                style={{ animation: 'float 6s ease-in-out infinite' }}
-                className="absolute top-12 -right-4 lg:-right-8 bg-white/10 backdrop-blur-md border border-white/20 p-4 rounded-2xl flex items-center gap-4 shadow-xl z-20"
-              >
-                <div className="p-3 rounded-full bg-primary/20 text-primary-light">
-                  <CloudRain className="w-6 h-6" />
-                </div>
-                <div>
-                  <span className="block text-xs text-gray-400 font-medium">Prediksi Hujan</span>
-                  <span className="block text-sm font-bold text-white">Normal (Aman)</span>
-                </div>
-              </motion.div>
-
-              <motion.div
-                initial={{ opacity: 0, x: -50, y: 20 }}
-                animate={{ opacity: 1, x: 0, y: 0 }}
-                transition={{ duration: 0.8, delay: 0.8 }}
-                style={{ animation: 'float 5s ease-in-out infinite reverse' }}
-                className="absolute bottom-12 -left-4 lg:-left-8 bg-white/10 backdrop-blur-md border border-white/20 p-4 rounded-2xl flex items-center gap-4 shadow-xl z-20"
-              >
-                <div className="p-3 rounded-full bg-emerald-500/20 text-emerald-400">
-                  <Leaf className="w-6 h-6" />
-                </div>
-                <div>
-                  <span className="block text-xs text-gray-400 font-medium">Kondisi Lahan</span>
-                  <span className="block text-sm font-bold text-white">Sangat Optimal</span>
-                </div>
-              </motion.div>
-            </div>
           </div>
         </section>
 

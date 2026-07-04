@@ -53,7 +53,10 @@ import {
   ChevronDown,
   Search,
   Eye,
-  EyeOff
+  EyeOff,
+  Sparkles,
+  Lightbulb,
+  Check
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -661,7 +664,7 @@ export default function DashboardClient({ initialUser }: DashboardClientProps) {
                   <Map className="w-12 h-12" />
                 </div>
               </div>
-              <h3 className="text-lg font-bold text-text-main">1. Tambah & Petakan Lahan Sawah 🗺️</h3>
+              <h3 className="text-lg font-bold text-text-main flex items-center justify-center gap-1.5"><span>1. Tambah & Petakan Lahan Sawah</span> <Map className="w-4.5 h-4.5 text-primary-light" /></h3>
               <p className="text-xs text-text-muted leading-relaxed max-w-sm mx-auto">
                 Gambarkan batas wilayah sawah Anda secara interaktif di peta. Sistem geospatial kami akan mendeteksi koordinat lintang/bujur dan mengimpor data **ketinggian (mdpl)**, **suhu**, serta **curah hujan** secara otomatis tanpa pengisian manual.
               </p>
@@ -676,7 +679,7 @@ export default function DashboardClient({ initialUser }: DashboardClientProps) {
                   <Sprout className="w-12 h-12" />
                 </div>
               </div>
-              <h3 className="text-lg font-bold text-text-main">2. Analisis Kelayakan & Mitigasi 🌾</h3>
+              <h3 className="text-lg font-bold text-text-main flex items-center justify-center gap-1.5"><span>2. Analisis Kelayakan & Mitigasi</span> <Sprout className="w-4.5 h-4.5 text-primary-light" /></h3>
               <p className="text-xs text-text-muted leading-relaxed max-w-sm mx-auto">
                 Gunakan fitur **Cek Kelayakan** dengan alur 5-Step Stepper interaktif. Sistem mencocokkan kondisi fisik tanah (pH, lereng, tipe drainase) dan kondisi iklim mikro dengan syarat tumbuh tanaman untuk meminimalkan risiko gagal tanam.
               </p>
@@ -691,7 +694,7 @@ export default function DashboardClient({ initialUser }: DashboardClientProps) {
                   <Activity className="w-12 h-12" />
                 </div>
               </div>
-              <h3 className="text-lg font-bold text-text-main">3. Pantau Lahan & Catat Hasil Panen 📈</h3>
+              <h3 className="text-lg font-bold text-text-main flex items-center justify-center gap-1.5"><span>3. Pantau Lahan & Catat Hasil Panen</span> <TrendingUp className="w-4.5 h-4.5 text-primary-light" /></h3>
               <p className="text-xs text-text-muted leading-relaxed max-w-sm mx-auto">
                 Setelah ditanam, Anda dapat memantau iklim lokal secara real-time, mengikuti checklist tindakan pemeliharaan harian, serta merekam performa keuntungan hasil ke dalam database **Riwayat Panen** Anda.
               </p>
@@ -700,43 +703,34 @@ export default function DashboardClient({ initialUser }: DashboardClientProps) {
 
           {/* Slide Indicator Dots */}
           <div className="flex justify-center gap-1.5 mt-6 mb-4">
-            {[1, 2, 3].map((s) => (
+            {[1, 2, 3].map((step) => (
               <button
-                key={s}
+                key={step}
                 type="button"
-                onClick={() => setOnboardingStep(s)}
-                className={`h-1.5 rounded-full transition-all duration-300 ${
-                  onboardingStep === s ? 'w-6 bg-primary' : 'w-1.5 bg-white/20'
+                onClick={() => setOnboardingStep(step)}
+                className={`w-2 h-2 rounded-full transition-all ${
+                  onboardingStep === step ? 'bg-primary w-4' : 'bg-border-medium'
                 }`}
               />
             ))}
           </div>
 
-          {/* Navigation Controls */}
-          <div className="flex gap-3 mt-4 border-t border-white/5 pt-4">
-            {onboardingStep > 1 ? (
+          {/* Buttons */}
+          <div className="flex gap-3 border-t border-border-light pt-4 mt-auto">
+            {onboardingStep > 1 && (
               <button
                 type="button"
-                onClick={() => setOnboardingStep(onboardingStep - 1)}
-                className="flex-1 py-3 px-4 rounded-xl border border-border-medium hover:bg-white/5 text-text-muted font-bold text-xs transition-all flex items-center justify-center gap-1.5 cursor-pointer"
+                onClick={() => setOnboardingStep(prev => prev - 1)}
+                className="py-3 px-4 rounded-xl border border-border-medium hover:bg-border-light text-text-muted font-bold text-xs transition-all flex items-center justify-center gap-1 cursor-pointer"
               >
                 <ChevronLeft className="w-4 h-4" />
                 <span>Kembali</span>
               </button>
-            ) : (
-              <button
-                type="button"
-                onClick={() => setShowOnboarding(false)}
-                className="flex-1 py-3 px-4 rounded-xl border border-border-medium hover:bg-white/5 text-text-muted font-bold text-xs transition-all text-center cursor-pointer"
-              >
-                Lewati Panduan
-              </button>
             )}
-
             {onboardingStep < 3 ? (
               <button
                 type="button"
-                onClick={() => setOnboardingStep(onboardingStep + 1)}
+                onClick={() => setOnboardingStep(prev => prev + 1)}
                 className="flex-1 py-3 px-4 rounded-xl bg-primary hover:bg-primary-dark text-text-inverse font-bold text-xs transition-all flex items-center justify-center gap-1.5 cursor-pointer"
               >
                 <span>Lanjutkan</span>
@@ -748,7 +742,8 @@ export default function DashboardClient({ initialUser }: DashboardClientProps) {
                 onClick={() => setShowOnboarding(false)}
                 className="flex-1 py-3 px-4 rounded-xl bg-primary hover:bg-primary-dark text-text-inverse font-bold text-xs transition-all flex items-center justify-center gap-1.5 cursor-pointer font-extrabold shadow-lg shadow-primary/20"
               >
-                <span>Mulai Gunakan EcoTani 🌾</span>
+                <span>Mulai Gunakan EcoTani</span>
+                <Sprout className="w-4 h-4" />
               </button>
             )}
           </div>
@@ -1166,7 +1161,8 @@ export default function DashboardClient({ initialUser }: DashboardClientProps) {
                         </p>
                         {isClimateAnomaly && (
                           <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold bg-red-500/10 text-red-400 border border-red-500/20">
-                            <span>⚠️ Dipengaruhi Anomali Iklim</span>
+                            <AlertTriangle className="w-3.5 h-3.5 text-red-400 shrink-0" />
+                            <span>Dipengaruhi Anomali Iklim</span>
                           </span>
                         )}
                       </div>
@@ -1187,7 +1183,6 @@ export default function DashboardClient({ initialUser }: DashboardClientProps) {
                       <div className="flex flex-col sm:flex-row gap-3">
                         {climateScenarios.map((scenario) => {
                           const isHot = scenario.nama_skenario.toLowerCase().includes('panas') || scenario.nama_skenario.toLowerCase().includes('nino');
-                          const emoji = isHot ? '🔥' : '🌧️';
                           const isSelected = selectedScenario?.id === scenario.id;
                           return (
                             <button
@@ -1203,7 +1198,14 @@ export default function DashboardClient({ initialUser }: DashboardClientProps) {
                                   : 'bg-bg-card border-white/10 hover:border-primary/50 text-text-main hover:bg-primary/5'
                               }`}
                             >
-                              <span>{emoji} {scenario.nama_skenario.split('(')[0].trim()}</span>
+                              <div className="flex items-center gap-1.5 justify-center">
+                                {isHot ? (
+                                  <ThermometerSun className="w-4 h-4 text-orange-400 shrink-0" />
+                                ) : (
+                                  <CloudRain className="w-4 h-4 text-blue-400 shrink-0" />
+                                )}
+                                <span>{scenario.nama_skenario.split('(')[0].trim()}</span>
+                              </div>
                             </button>
                           );
                         })}
@@ -1335,21 +1337,21 @@ export default function DashboardClient({ initialUser }: DashboardClientProps) {
                             if (diff > 0) {
                               return (
                                 <div className="bg-red-500/10 border border-red-500/20 text-red-400 text-xs font-semibold rounded-xl p-3 flex items-center gap-1.5">
-                                  <span>⚠️</span>
+                                  <AlertTriangle className="w-4 h-4 shrink-0" />
                                   <span>Penurunan skor {diff} poin — lahan ini rentan terhadap {selectedScenario.nama_skenario.split('(')[0].trim()}</span>
                                 </div>
                               );
                             } else if (diff < 0) {
                               return (
                                 <div className="bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-semibold rounded-xl p-3 flex items-center gap-1.5">
-                                  <span>🎉</span>
+                                  <Sparkles className="w-4 h-4 shrink-0" />
                                   <span>Peningkatan skor {Math.abs(diff)} poin — kondisi ini justru menguntungkan komoditas ini!</span>
                                 </div>
                               );
                             } else {
                               return (
                                 <div className="bg-amber-500/10 border border-amber-500/20 text-amber-500 text-xs font-semibold rounded-xl p-3 flex items-center gap-1.5">
-                                  <span>⚠️</span>
+                                  <AlertTriangle className="w-4 h-4 shrink-0 text-amber-500" />
                                   <span>Skor kelayakan stabil pada {score}%, namun kondisi ekstrem {selectedScenario.nama_skenario.split('(')[0].trim()} tetap berisiko menimbulkan tekanan iklim (climate stress) pada tanaman dalam jangka panjang. Sangat disarankan menerapkan adaptasi di bawah.</span>
                                 </div>
                               );
@@ -1394,7 +1396,10 @@ export default function DashboardClient({ initialUser }: DashboardClientProps) {
                                       </div>
                                     ))}
                                     {recomms.length === 0 && (
-                                      <p className="text-emerald-400">✓ Tidak diperlukan penyesuaian khusus untuk skenario iklim ini.</p>
+                                      <p className="text-emerald-400 flex items-center gap-1.5">
+                                        <Check className="w-3.5 h-3.5" />
+                                        <span>Tidak diperlukan penyesuaian khusus untuk skenario iklim ini.</span>
+                                      </p>
                                     )}
                                   </div>
                                 );
@@ -1449,7 +1454,10 @@ export default function DashboardClient({ initialUser }: DashboardClientProps) {
                         <Activity className="w-4.5 h-4.5 text-primary" />
                         <span>Detail Perbandingan Parameter</span>
                       </h4>
-                      <p className="text-[10px] text-text-muted mb-4">💡 Klik pada baris parameter untuk melihat penjelasan detail.</p>
+                      <p className="text-[10px] text-text-muted mb-4 flex items-center gap-1">
+                        <Lightbulb className="w-3.5 h-3.5 text-amber-500 shrink-0" />
+                        <span>Klik pada baris parameter untuk melihat penjelasan detail.</span>
+                      </p>
                       
                       <div className="overflow-x-auto rounded-xl border border-white/5">
                         <table className="w-full text-left text-xs border-collapse">
@@ -1564,7 +1572,10 @@ export default function DashboardClient({ initialUser }: DashboardClientProps) {
                                 ))}
                               </div>
                             ) : (
-                              <p className="text-emerald-400">✓ Parameter suhu dan curah hujan sangat ideal untuk komoditas ini. Tidak perlu langkah mitigasi iklim khusus.</p>
+                              <p className="text-emerald-400 flex items-start gap-1.5 leading-relaxed">
+                                <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
+                                <span>Parameter suhu dan curah hujan sangat ideal untuk komoditas ini. Tidak perlu langkah mitigasi iklim khusus.</span>
+                              </p>
                             )}
                           </div>
                         )}
@@ -1595,7 +1606,10 @@ export default function DashboardClient({ initialUser }: DashboardClientProps) {
                                 ))}
                               </div>
                             ) : (
-                              <p className="text-emerald-400">✓ Kondisi drainase lahan Anda dinilai sangat baik (S1).</p>
+                              <p className="text-emerald-400 flex items-start gap-1.5 leading-relaxed">
+                                <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
+                                <span>Kondisi drainase lahan Anda dinilai sangat baik (S1).</span>
+                              </p>
                             )}
                           </div>
                         )}
@@ -1668,7 +1682,10 @@ export default function DashboardClient({ initialUser }: DashboardClientProps) {
                                 ))}
                               </div>
                             ) : (
-                              <p className="text-emerald-400">✓ Kemiringan lereng lahan aman (datar, &lt;3%). Risiko erosi minimal.</p>
+                              <p className="text-emerald-400 flex items-start gap-1.5 leading-relaxed">
+                                <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0 mt-0.5" />
+                                <span>Kemiringan lereng lahan aman (datar, &lt;3%). Risiko erosi minimal.</span>
+                              </p>
                             )}
                           </div>
                         )}
@@ -1979,7 +1996,8 @@ export default function DashboardClient({ initialUser }: DashboardClientProps) {
               <KalenderTanam savedLahans={[selectedLahan]} cropsDbList={cropsList} />
               
               <div className="bg-bg-dark border border-border-medium rounded-2xl p-4 text-xs text-amber-300 flex items-center gap-2">
-                <span>💡 Dibandingkan rata-rata historis 5 tahun terakhir: <strong>+1.2°C lebih panas</strong> akibat pergeseran iklim lokal.</span>
+                <Lightbulb className="w-4 h-4 text-amber-300 shrink-0" />
+                <span>Dibandingkan rata-rata historis 5 tahun terakhir: <strong>+1.2°C lebih panas</strong> akibat pergeseran iklim lokal.</span>
               </div>
             </div>
           )}
