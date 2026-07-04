@@ -216,13 +216,13 @@ export default function LandingPage() {
           <div 
             className="absolute inset-0 z-0 bg-[#050505]"
             style={{
-              backgroundImage: (isMobile || videoError) ? "url('/videos/hero-poster.jpg')" : 'none',
+              backgroundImage: videoError ? "url('/videos/hero-poster.jpg')" : "url('/videos/hero-poster.jpg')",
               backgroundSize: 'cover',
               backgroundPosition: 'center'
             }}
           >
-            {/* Video Background (Only loaded on desktop and if no error) */}
-            {!isMobile && !videoError && (
+            {/* Video Background */}
+            {!videoError && (
               <video
                 autoPlay
                 loop
