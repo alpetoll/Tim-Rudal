@@ -368,3 +368,20 @@ export async function upsertActivityLog(landId: string, activityName: string, is
   }
   return true;
 }
+
+// ==========================================
+// 6. QUERY CLIMATE SCENARIOS
+// ==========================================
+export async function getClimateScenarios(): Promise<any[]> {
+  const { data, error } = await supabase
+    .from('climate_scenarios')
+    .select('*')
+    .order('id', { ascending: true });
+
+  if (error) {
+    console.error('Gagal mengambil skenario iklim:', error.message);
+    return [];
+  }
+  return data || [];
+}
+

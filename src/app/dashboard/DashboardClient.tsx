@@ -20,8 +20,10 @@ import {
   updatePetaniProfile,
   getTanamanList,
   getTodayActivityLogs,
-  upsertActivityLog
+  upsertActivityLog,
+  getClimateScenarios
 } from '@/utils/supabaseQueries';
+import { runStressTest, saveStressTestResult, updateUserDecision, applyScenarioDelta } from '@/utils/climateStressTest';
 import { 
   Sprout, 
   Map as MapIcon, 
@@ -112,6 +114,14 @@ export default function DashboardClient({ initialUser }: DashboardClientProps) {
 
   // --- CHECKLIST & MONITORING STATES ---
   const [checkedActivities, setCheckedActivities] = useState<Record<string, boolean>>({});
+
+  // --- CLIMATE STRESS TEST STATES ---
+  const [climateScenarios, setClimateScenarios] = useState<any[]>([]);
+  const [selectedScenario, setSelectedScenario] = useState<any | null>(null);
+  const [isStressTestModalOpen, setIsStressTestModalOpen] = useState<boolean>(false);
+  const [stressTestResult, setStressTestResult] = useState<any | null>(null);
+  const [stressTestId, setStressTestId] = useState<string | null>(null);
+  const [isSimulating, setIsSimulating] = useState<boolean>(false);
 
   // Fetch live weather for suitability check and monitoring
   useEffect(() => {
@@ -281,14 +291,16 @@ export default function DashboardClient({ initialUser }: DashboardClientProps) {
   const loadDashboardData = async (userId: string) => {
     setDataLoading(true);
     try {
-      const [fetchedLahans, fetchedPanens, fetchedCrops] = await Promise.all([
+      const [fetchedLahans, fetchedPanens, fetchedCrops, fetchedScenarios] = await Promise.all([
         getLahans(userId),
         getRiwayatPanens(userId),
-        getTanamanList()
+        getTanamanList(),
+        getClimateScenarios()
       ]);
       setLahans(fetchedLahans);
       setPanens(fetchedPanens);
       setCropsList(fetchedCrops);
+      setClimateScenarios(fetchedScenarios);
       if (fetchedCrops.length > 0) {
         setSelectedCropId(fetchedCrops[0].id);
       }
@@ -444,6 +456,58 @@ export default function DashboardClient({ initialUser }: DashboardClientProps) {
       await showAlertModal('Gagal', 'Gagal mengaktifkan penanaman.', 'error');
     }
     setDataLoading(false);
+  };
+
+  const handleExecuteStressTest = async (activeCrop: any, normalScore: number) => {
+    if (!selectedScenario || !selectedLahan || !activeCrop) return;
+    setIsSimulating(true);
+    try {
+      const normalLahan = liveWeather ? { ...selectedLahan, suhu: liveWeather.suhu, curahHujan: liveWeather.curahHujan } : selectedLahan;
+      const hasilSimulasi = runStressTest(normalLahan, activeCrop, selectedScenario);
+
+      const savedId = await saveStressTestResult(
+        selectedLahan.id,
+        selectedScenario.id,
+        normalScore,
+        hasilSimulasi
+      );
+
+      setStressTestResult(hasilSimulasi);
+      setStressTestId(savedId);
+      setIsStressTestModalOpen(false);
+    } catch (e) {
+      console.error('Error running stress test:', e);
+      await showAlertModal('Error', 'Gagal menjalankan simulasi iklim.', 'error');
+    } finally {
+      setIsSimulating(false);
+    }
+  };
+
+  const handleStressTestDecision = async (keputusan: 'tetap_tanam' | 'pilih_alternatif') => {
+    if (!stressTestId || !selectedLahan) return;
+
+    setDataLoading(true);
+    const success = await updateUserDecision(stressTestId, keputusan);
+    setDataLoading(false);
+
+    if (success) {
+      if (keputusan === 'tetap_tanam') {
+        const activeCrop = cropsList.find(c => c.id === selectedCropId) || (cropsList.length > 0 ? cropsList[0] : null);
+        handleConfirmTanam(selectedCropId, stressTestResult?.saranMitigasi || (activeCrop ? evaluasiLahanDinamis(selectedLahan, activeCrop).saranMitigasi : ''));
+      } else {
+        // Go to alternatives
+        setActiveStep(5);
+      }
+    } else {
+      await showAlertModal('Gagal', 'Gagal memperbarui keputusan simulasi.', 'error');
+    }
+  };
+
+  const handleResetStressTest = () => {
+    setStressTestResult(null);
+    setStressTestId(null);
+    setSelectedScenario(null);
+    setIsStressTestModalOpen(false);
   };
 
   const handleSimpanPanen = async (berat: number | '', statusHasil: RiwayatPanen['statusHasil'], hargaJualActual: number | '') => {
@@ -865,6 +929,7 @@ export default function DashboardClient({ initialUser }: DashboardClientProps) {
               setCurrentView('dashboard');
               setSelectedLahan(null);
               setActiveStep(1);
+              handleResetStressTest();
             }}
             className="inline-flex items-center gap-2 text-sm text-text-muted hover:text-text-main mb-6"
           >
@@ -977,6 +1042,7 @@ export default function DashboardClient({ initialUser }: DashboardClientProps) {
                                       setSelectedCropId(crop.id);
                                       setIsCropDropdownOpen(false);
                                       setCropSearchQuery('');
+                                      handleResetStressTest();
                                     }}
                                     className={`w-full text-left px-3 py-2 rounded-lg text-xs transition-all flex flex-col ${
                                       crop.id === selectedCropId
@@ -1107,6 +1173,262 @@ export default function DashboardClient({ initialUser }: DashboardClientProps) {
                     ) : (
                       <p className="text-sm text-text-muted">Selamat! Parameter lingkungan terdeteksi sangat cocok dengan kebutuhan varietas tanaman ini.</p>
                     )}
+                  </div>
+
+                  {/* Simulasi Musim Sulit Section */}
+                  <div className="bg-bg-dark border border-border-light rounded-2xl p-5 space-y-4 mt-6">
+                    <div className="flex flex-col">
+                      <h4 className="font-bold text-sm text-text-main">Simulasi Musim Sulit</h4>
+                      <span className="text-xs text-text-muted">Bagaimana jika iklim berubah ekstrem?</span>
+                    </div>
+
+                    {/* Skenario Pilihan */}
+                    {climateScenarios.length > 0 && !stressTestResult && (
+                      <div className="flex flex-col sm:flex-row gap-3">
+                        {climateScenarios.map((scenario) => {
+                          const isHot = scenario.nama_skenario.toLowerCase().includes('panas') || scenario.nama_skenario.toLowerCase().includes('nino');
+                          const emoji = isHot ? '🔥' : '🌧️';
+                          const isSelected = selectedScenario?.id === scenario.id;
+                          return (
+                            <button
+                              key={scenario.id}
+                              type="button"
+                              onClick={() => {
+                                setSelectedScenario(scenario);
+                                setIsStressTestModalOpen(true);
+                              }}
+                              className={`flex-1 py-3 px-4 rounded-xl border font-bold text-xs transition-all text-center flex items-center justify-center gap-2 cursor-pointer ${
+                                isSelected 
+                                  ? 'bg-primary/20 border-primary text-white' 
+                                  : 'bg-bg-card border-white/10 hover:border-primary/50 text-text-main hover:bg-primary/5'
+                              }`}
+                            >
+                              <span>{emoji} {scenario.nama_skenario.split('(')[0].trim()}</span>
+                            </button>
+                          );
+                        })}
+                      </div>
+                    )}
+
+                    {/* Modal/Expandable Card Konfirmasi */}
+                    <AnimatePresence>
+                      {isStressTestModalOpen && selectedScenario && !stressTestResult && (
+                        <motion.div
+                          initial={{ opacity: 0, height: 0 }}
+                          animate={{ opacity: 1, height: 'auto' }}
+                          exit={{ opacity: 0, height: 0 }}
+                          className="bg-bg-card border border-border-medium rounded-xl p-4 space-y-3 overflow-hidden"
+                        >
+                          <div className="space-y-1">
+                            <h5 className="font-bold text-xs uppercase tracking-wider text-text-muted">Konfirmasi Simulasi</h5>
+                            <p className="text-xs text-text-main leading-relaxed">{selectedScenario.deskripsi}</p>
+                          </div>
+                          <div className="bg-bg-dark border border-border-light rounded-xl p-3 flex justify-between items-center text-xs">
+                            <div>
+                              <span className="text-[10px] text-text-muted block uppercase tracking-wider font-semibold">Modifikasi Suhu</span>
+                              <strong className="text-orange-400 font-bold">{selectedScenario.delta_suhu > 0 ? `+${selectedScenario.delta_suhu}` : selectedScenario.delta_suhu} °C</strong>
+                            </div>
+                            <div className="w-[1px] h-8 bg-white/10" />
+                            <div>
+                              <span className="text-[10px] text-text-muted block uppercase tracking-wider font-semibold">Modifikasi Curah Hujan</span>
+                              <strong className="text-blue-400 font-bold">{selectedScenario.delta_curah_hujan_persen > 0 ? `+${selectedScenario.delta_curah_hujan_persen}` : selectedScenario.delta_curah_hujan_persen} %</strong>
+                            </div>
+                          </div>
+                          <div className="flex gap-2 justify-end pt-2">
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setIsStressTestModalOpen(false);
+                                setSelectedScenario(null);
+                              }}
+                              className="px-3 py-1.5 rounded-lg border border-border-medium hover:bg-white/5 text-text-muted text-xs font-bold transition-all cursor-pointer"
+                            >
+                              Batal
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => handleExecuteStressTest(activeCrop, score)}
+                              disabled={isSimulating}
+                              className="px-3 py-1.5 rounded-lg bg-orange-600 hover:bg-orange-700 text-white text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer shadow-lg shadow-orange-600/20"
+                            >
+                              {isSimulating ? 'Menjalankan...' : 'Jalankan Simulasi'}
+                            </button>
+                          </div>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
+
+                    {/* Perbandingan Side-by-Side */}
+                    <AnimatePresence>
+                      {stressTestResult && selectedScenario && (
+                        <motion.div
+                          initial={{ opacity: 0, y: 10 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          exit={{ opacity: 0, y: 10 }}
+                          className="space-y-4"
+                        >
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            {/* Kondisi Normal */}
+                            <div className="bg-[#2e7d32]/10 border border-[#2e7d32]/30 rounded-2xl p-4 space-y-2">
+                              <span className="text-[10px] text-[#2e7d32] font-extrabold uppercase tracking-wider block">Kondisi Normal</span>
+                              <div className="flex justify-between items-baseline">
+                                <strong className="text-2xl font-extrabold text-[#2e7d32]">{score}%</strong>
+                                <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${
+                                  score >= 75 ? 'bg-primary-dark/20 text-primary border border-primary/20' :
+                                  score >= 50 ? 'bg-amber-500/10 text-amber-500 border border-amber-500/20' :
+                                  'bg-red-500/10 text-red-500 border border-red-500/20'
+                                }`}>
+                                  {score >= 75 ? 'S1' : score >= 50 ? 'S2' : 'N'}
+                                </span>
+                              </div>
+                              <div className="text-xs text-text-muted space-y-1 pt-2 border-t border-white/5">
+                                <div className="flex justify-between">
+                                  <span>Suhu:</span>
+                                  <span className="text-text-main">{liveWeather ? liveWeather.suhu : selectedLahan.suhu} °C</span>
+                                </div>
+                                <div className="flex justify-between">
+                                  <span>Curah Hujan:</span>
+                                  <span className="text-text-main">{liveWeather ? liveWeather.curahHujan : selectedLahan.curahHujan} mm/bln</span>
+                                </div>
+                              </div>
+                            </div>
+
+                            {/* Kondisi Skenario */}
+                            <div className="bg-orange-600/10 border border-orange-500/30 rounded-2xl p-4 space-y-2">
+                              <span className="text-[10px] text-orange-400 font-extrabold uppercase tracking-wider block">Skenario {selectedScenario.nama_skenario.split('(')[0].trim()}</span>
+                              <div className="flex justify-between items-baseline">
+                                <strong className="text-2xl font-extrabold text-orange-400">{stressTestResult.skor}%</strong>
+                                <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${
+                                  stressTestResult.skor >= 75 ? 'bg-primary-dark/20 text-primary border border-primary/20' :
+                                  stressTestResult.skor >= 50 ? 'bg-amber-500/10 text-amber-500 border border-amber-500/20' :
+                                  'bg-red-500/10 text-red-500 border border-red-500/20'
+                                }`}>
+                                  {stressTestResult.skor >= 75 ? 'S1' : stressTestResult.skor >= 50 ? 'S2' : 'N'}
+                                </span>
+                              </div>
+                              <div className="text-xs text-text-muted space-y-1 pt-2 border-t border-white/5">
+                                {(() => {
+                                  const modified = applyScenarioDelta(
+                                    liveWeather ? { ...selectedLahan, suhu: liveWeather.suhu, curahHujan: liveWeather.curahHujan } : selectedLahan,
+                                    selectedScenario
+                                  );
+                                  return (
+                                    <>
+                                      <div className="flex justify-between">
+                                        <span>Suhu:</span>
+                                        <span className="text-text-main">{modified.suhu} °C</span>
+                                      </div>
+                                      <div className="flex justify-between">
+                                        <span>Curah Hujan:</span>
+                                        <span className="text-text-main">{modified.curahHujan} mm/bln</span>
+                                      </div>
+                                    </>
+                                  );
+                                })()}
+                              </div>
+                            </div>
+                          </div>
+
+                          {/* Delta Message */}
+                          {(() => {
+                            const diff = score - stressTestResult.skor;
+                            if (diff > 0) {
+                              return (
+                                <div className="bg-red-500/10 border border-red-500/20 text-red-400 text-xs font-semibold rounded-xl p-3 flex items-center gap-1.5">
+                                  <span>⚠️</span>
+                                  <span>Penurunan skor {diff} poin — lahan ini rentan terhadap {selectedScenario.nama_skenario.split('(')[0].trim()}</span>
+                                </div>
+                              );
+                            } else if (diff < 0) {
+                              return (
+                                <div className="bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-semibold rounded-xl p-3 flex items-center gap-1.5">
+                                  <span>🎉</span>
+                                  <span>Peningkatan skor {Math.abs(diff)} poin — kondisi ini justru menguntungkan komoditas ini!</span>
+                                </div>
+                              );
+                            } else {
+                              return (
+                                <div className="bg-amber-500/10 border border-amber-500/20 text-amber-500 text-xs font-semibold rounded-xl p-3 flex items-center gap-1.5">
+                                  <span>⚠️</span>
+                                  <span>Skor kelayakan stabil pada {score}%, namun kondisi ekstrem {selectedScenario.nama_skenario.split('(')[0].trim()} tetap berisiko menimbulkan tekanan iklim (climate stress) pada tanaman dalam jangka panjang. Sangat disarankan menerapkan adaptasi di bawah.</span>
+                                </div>
+                              );
+                            }
+                          })()}
+
+                          {/* Rekomendasi Adaptasi */}
+                          <div className="bg-bg-card border border-border-medium rounded-xl p-4 space-y-2">
+                            <span className="text-xs font-extrabold text-text-main block">Rekomendasi Adaptasi</span>
+                            <div className="text-xs text-text-muted space-y-1.5 leading-relaxed">
+                              {(() => {
+                                const temp = selectedScenario.delta_suhu;
+                                const rainPercent = selectedScenario.delta_curah_hujan_persen;
+                                const recomms = [];
+                                
+                                if (temp > 0) {
+                                  recomms.push('Naungan & Mulsa: Gunakan jaring naungan (paranet 50-70%) atau mulsa tebal untuk menekan laju penguapan (evapotranspirasi) akibat peningkatan suhu ekstrem.');
+                                }
+                                if (rainPercent < 0) {
+                                  recomms.push('Manajemen Air: Terapkan sistem irigasi tetes (drip irrigation) yang efisien, lakukan penyiraman hanya pada pagi/sore hari, dan kumpulkan cadangan air di embung.');
+                                }
+                                if (rainPercent > 0) {
+                                  recomms.push('Sistem Drainase: Tinggikan bedengan hingga minimal 30 cm, bersihkan saluran air utama dari sedimentasi untuk melancarkan pembuangan air berlebih guna mencegah pembusukan akar.');
+                                }
+
+                                if (stressTestResult.kendala && stressTestResult.kendala.length > 0) {
+                                  const hasIssue = (param: string) => stressTestResult.kendala.some((k: string) => k.toLowerCase().includes(param));
+                                  if (hasIssue('suhu') && temp <= 0) {
+                                    recomms.push('Mitigasi Suhu Dingin: Gunakan mulsa penutup tanah untuk menjaga temperatur perakaran tetap hangat.');
+                                  }
+                                  if (hasIssue('curah hujan') && rainPercent === 0) {
+                                    recomms.push('Mitigasi Hujan Rendah: Gunakan irigasi air permukaan cadangan untuk menjaga kelembapan perakaran.');
+                                  }
+                                }
+
+                                return (
+                                  <div className="space-y-1.5">
+                                    {recomms.map((rec, i) => (
+                                      <div key={i} className="flex gap-2">
+                                        <span className="text-primary font-bold">•</span>
+                                        <span>{rec}</span>
+                                      </div>
+                                    ))}
+                                    {recomms.length === 0 && (
+                                      <p className="text-emerald-400">✓ Tidak diperlukan penyesuaian khusus untuk skenario iklim ini.</p>
+                                    )}
+                                  </div>
+                                );
+                              })()}
+                            </div>
+                          </div>
+
+                          {/* Tombol Keputusan */}
+                          <div className="flex flex-col sm:flex-row gap-3 pt-2">
+                            <button
+                              type="button"
+                              onClick={() => handleStressTestDecision('tetap_tanam')}
+                              className="flex-1 py-3 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold transition-all text-center cursor-pointer shadow-lg shadow-emerald-600/10"
+                            >
+                              Tetap Tanam Komoditas Ini
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => handleStressTestDecision('pilih_alternatif')}
+                              className="flex-1 py-3 px-4 rounded-xl bg-orange-600 hover:bg-orange-700 text-white text-xs font-bold transition-all text-center cursor-pointer shadow-lg shadow-orange-600/10"
+                            >
+                              Pilih Alternatif
+                            </button>
+                            <button
+                              type="button"
+                              onClick={handleResetStressTest}
+                              className="py-3 px-5 rounded-xl border border-border-medium hover:bg-white/5 text-text-muted text-xs font-bold transition-all text-center cursor-pointer"
+                            >
+                              Uji Skenario Lain
+                            </button>
+                          </div>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
                   </div>
                 </motion.div>
               )}
@@ -1387,6 +1709,7 @@ export default function DashboardClient({ initialUser }: DashboardClientProps) {
                                 onClick={() => {
                                   setSelectedCropId(alt.tanaman.id);
                                   setActiveStep(1); // Back to Step 1 to let them analyze it
+                                  handleResetStressTest();
                                 }}
                                 className="bg-border-medium hover:bg-white/10 text-text-main font-bold py-2 px-4 rounded-xl transition-all text-[11px] cursor-pointer"
                               >
@@ -1406,6 +1729,7 @@ export default function DashboardClient({ initialUser }: DashboardClientProps) {
                         setCurrentView('dashboard');
                         setSelectedLahan(null);
                         setActiveStep(1);
+                        handleResetStressTest();
                       }}
                       className="flex-1 py-3.5 px-4 rounded-xl border border-border-medium hover:bg-border-light text-text-muted font-bold text-sm transition-all text-center"
                     >
