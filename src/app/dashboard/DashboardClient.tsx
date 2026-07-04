@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Fragment } from 'react';
 import dynamic from 'next/dynamic';
 import Link from 'next/link';
 import { Lahan, RiwayatPanen } from '@/types';
@@ -46,6 +46,7 @@ import {
   Trash2,
   Settings,
   ThermometerSun,
+  ChevronLeft,
   ChevronRight,
   ChevronDown,
   Search,
@@ -93,8 +94,15 @@ export default function DashboardClient({ initialUser }: DashboardClientProps) {
   const [selectedCropId, setSelectedCropId] = useState<string>('');
   const [isCropDropdownOpen, setIsCropDropdownOpen] = useState(false);
   const [cropSearchQuery, setCropSearchQuery] = useState('');
+  const [activeStep, setActiveStep] = useState<number>(1);
+  const [animateProgress, setAnimateProgress] = useState(false);
+  const [expandedRow, setExpandedRow] = useState<string | null>(null);
+  const [activeCategory, setActiveCategory] = useState<string>('Suhu');
+  const [innerTab, setInnerTab] = useState<'overview' | 'weather' | 'checklist'>('overview');
+  const [showOnboarding, setShowOnboarding] = useState<boolean>(false);
+  const [onboardingStep, setOnboardingStep] = useState<number>(1);
 
-  const [activeTab, setActiveTab] = useState<'lahan' | 'panen' | 'kalender'>('lahan');
+  const [activeTab, setActiveTab] = useState<'lahan' | 'panen'>('lahan');
   const [liveWeather, setLiveWeather] = useState<{suhu: number, curahHujan: number, currentTemp?: number, weatherDesc?: string} | null>(null);
 
   // --- HARVEST (PANEN) STATES ---
@@ -182,6 +190,17 @@ export default function DashboardClient({ initialUser }: DashboardClientProps) {
     }
   }, [selectedLahan, currentView]);
 
+  // Trigger animation for the suitability circular progress bar when mounting Step 2
+  useEffect(() => {
+    if (activeStep === 2) {
+      setAnimateProgress(false);
+      const timer = setTimeout(() => {
+        setAnimateProgress(true);
+      }, 50);
+      return () => clearTimeout(timer);
+    }
+  }, [activeStep]);
+
   // ==========================================
   // AUTHENTICATION & INITIALIZATION FLOW
   // ==========================================
@@ -210,6 +229,22 @@ export default function DashboardClient({ initialUser }: DashboardClientProps) {
     return () => {
       subscription.unsubscribe();
     };
+  }, []);
+
+  // Check if user has just confirmed their email address
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const urlParams = new URLSearchParams(window.location.search);
+      if (urlParams.get('confirmed') === 'true') {
+        showAlertModal(
+          'Email Berhasil Diverifikasi',
+          'Alamat email Anda telah berhasil dikonfirmasi! Selamat menggunakan EcoTani.',
+          'success'
+        );
+        const newUrl = window.location.pathname;
+        window.history.replaceState({}, document.title, newUrl);
+      }
+    }
   }, []);
 
   // Fetch or setup Petani Profile
@@ -287,6 +322,7 @@ export default function DashboardClient({ initialUser }: DashboardClientProps) {
       
       setNeedProfileSetup(false);
       await loadDashboardData(user.id);
+      setShowOnboarding(true);
     } catch (err: any) {
       await showAlertModal('Gagal Membuat Profil', err.message || 'Terjadi kesalahan.', 'error');
     } finally {
@@ -537,6 +573,127 @@ export default function DashboardClient({ initialUser }: DashboardClientProps) {
   }
 
   // ==========================================================================
+  // VIEW: ONBOARDING WIZARD
+  // ==========================================================================
+  if (showOnboarding) {
+    return (
+      <div className="min-h-screen bg-bg-dark flex flex-col justify-center items-center px-4 py-8 relative overflow-hidden bg-[radial-gradient(circle_at_center,rgba(0,168,89,0.06),transparent_50%)]">
+        <div className="absolute inset-0 z-0 pointer-events-none">
+          <div className="absolute inset-0 bg-[linear-gradient(to_right,#00a85908_1px,transparent_1px),linear-gradient(to_bottom,#00a85908_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_80%_80%_at_50%_0%,#000_40%,transparent_100%)]"></div>
+        </div>
+        
+        <div className="w-full max-w-lg bg-bg-card border border-border-medium rounded-3xl p-6 md:p-8 shadow-2xl relative z-10 text-center flex flex-col justify-between min-h-[460px] animate-fade-in">
+          {/* Header */}
+          <div className="flex justify-between items-center mb-4">
+            <span className="text-[10px] uppercase font-bold text-primary bg-primary/10 border border-primary/20 px-2.5 py-1 rounded-full tracking-wider">Panduan Mulai Cepat</span>
+            <span className="text-xs text-text-muted font-semibold">{onboardingStep} dari 3</span>
+          </div>
+
+          {/* Slide 1 */}
+          {onboardingStep === 1 && (
+            <div className="space-y-4 my-auto">
+              <div className="flex justify-center">
+                <div className="p-4 bg-emerald-500/10 border border-emerald-500/20 rounded-full text-primary shadow-[0_0_20px_rgba(16,185,129,0.15)]">
+                  <Map className="w-12 h-12" />
+                </div>
+              </div>
+              <h3 className="text-lg font-bold text-text-main">1. Tambah & Petakan Lahan Sawah 🗺️</h3>
+              <p className="text-xs text-text-muted leading-relaxed max-w-sm mx-auto">
+                Gambarkan batas wilayah sawah Anda secara interaktif di peta. Sistem geospatial kami akan mendeteksi koordinat lintang/bujur dan mengimpor data **ketinggian (mdpl)**, **suhu**, serta **curah hujan** secara otomatis tanpa pengisian manual.
+              </p>
+            </div>
+          )}
+
+          {/* Slide 2 */}
+          {onboardingStep === 2 && (
+            <div className="space-y-4 my-auto">
+              <div className="flex justify-center">
+                <div className="p-4 bg-emerald-500/10 border border-emerald-500/20 rounded-full text-primary shadow-[0_0_20px_rgba(16,185,129,0.15)]">
+                  <Sprout className="w-12 h-12" />
+                </div>
+              </div>
+              <h3 className="text-lg font-bold text-text-main">2. Analisis Kelayakan & Mitigasi 🌾</h3>
+              <p className="text-xs text-text-muted leading-relaxed max-w-sm mx-auto">
+                Gunakan fitur **Cek Kelayakan** dengan alur 5-Step Stepper interaktif. Sistem mencocokkan kondisi fisik tanah (pH, lereng, tipe drainase) dan kondisi iklim mikro dengan syarat tumbuh tanaman untuk meminimalkan risiko gagal tanam.
+              </p>
+            </div>
+          )}
+
+          {/* Slide 3 */}
+          {onboardingStep === 3 && (
+            <div className="space-y-4 my-auto">
+              <div className="flex justify-center">
+                <div className="p-4 bg-emerald-500/10 border border-emerald-500/20 rounded-full text-primary shadow-[0_0_20px_rgba(16,185,129,0.15)]">
+                  <Activity className="w-12 h-12" />
+                </div>
+              </div>
+              <h3 className="text-lg font-bold text-text-main">3. Pantau Lahan & Catat Hasil Panen 📈</h3>
+              <p className="text-xs text-text-muted leading-relaxed max-w-sm mx-auto">
+                Setelah ditanam, Anda dapat memantau iklim lokal secara real-time, mengikuti checklist tindakan pemeliharaan harian, serta merekam performa keuntungan hasil ke dalam database **Riwayat Panen** Anda.
+              </p>
+            </div>
+          )}
+
+          {/* Slide Indicator Dots */}
+          <div className="flex justify-center gap-1.5 mt-6 mb-4">
+            {[1, 2, 3].map((s) => (
+              <button
+                key={s}
+                type="button"
+                onClick={() => setOnboardingStep(s)}
+                className={`h-1.5 rounded-full transition-all duration-300 ${
+                  onboardingStep === s ? 'w-6 bg-primary' : 'w-1.5 bg-white/20'
+                }`}
+              />
+            ))}
+          </div>
+
+          {/* Navigation Controls */}
+          <div className="flex gap-3 mt-4 border-t border-white/5 pt-4">
+            {onboardingStep > 1 ? (
+              <button
+                type="button"
+                onClick={() => setOnboardingStep(onboardingStep - 1)}
+                className="flex-1 py-3 px-4 rounded-xl border border-border-medium hover:bg-white/5 text-text-muted font-bold text-xs transition-all flex items-center justify-center gap-1.5 cursor-pointer"
+              >
+                <ChevronLeft className="w-4 h-4" />
+                <span>Kembali</span>
+              </button>
+            ) : (
+              <button
+                type="button"
+                onClick={() => setShowOnboarding(false)}
+                className="flex-1 py-3 px-4 rounded-xl border border-border-medium hover:bg-white/5 text-text-muted font-bold text-xs transition-all text-center cursor-pointer"
+              >
+                Lewati Panduan
+              </button>
+            )}
+
+            {onboardingStep < 3 ? (
+              <button
+                type="button"
+                onClick={() => setOnboardingStep(onboardingStep + 1)}
+                className="flex-1 py-3 px-4 rounded-xl bg-primary hover:bg-primary-dark text-text-inverse font-bold text-xs transition-all flex items-center justify-center gap-1.5 cursor-pointer"
+              >
+                <span>Lanjutkan</span>
+                <ChevronRight className="w-4 h-4" />
+              </button>
+            ) : (
+              <button
+                type="button"
+                onClick={() => setShowOnboarding(false)}
+                className="flex-1 py-3 px-4 rounded-xl bg-primary hover:bg-primary-dark text-text-inverse font-bold text-xs transition-all flex items-center justify-center gap-1.5 cursor-pointer font-extrabold shadow-lg shadow-primary/20"
+              >
+                <span>Mulai Gunakan EcoTani 🌾</span>
+              </button>
+            )}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // ==========================================================================
   // VIEW: ADD LAHAN (GEOSPATIAL DRAWING)
   // ==========================================================================
   if (currentView === 'add-lahan') {
@@ -611,12 +768,94 @@ export default function DashboardClient({ initialUser }: DashboardClientProps) {
     const activeCrop = cropsList.find(c => c.id === selectedCropId) || (cropsList.length > 0 ? cropsList[0] : null);
     const evalResult = activeCrop 
       ? evaluasiLahanDinamis(lahanToEvaluate, activeCrop) 
-      : { layak: false, skor: 0, kendala: [], siklusPemupukan: [], kebutuhanAirDaily: 5, saranMitigasi: '' };
+      : { layak: false, skor: 0, skorPotensial: 0, kendala: [], siklusPemupukan: [], kebutuhanAirDaily: 5, saranMitigasi: '', details: [] };
     const alternatifList = cropsList.length > 0 ? cariAlternatifDinamis(lahanToEvaluate, cropsList) : [];
     const filteredCrops = cropsList.filter(crop =>
       crop.nama.toLowerCase().includes(cropSearchQuery.toLowerCase()) ||
       (crop.nama_latin && crop.nama_latin.toLowerCase().includes(cropSearchQuery.toLowerCase()))
     );
+
+    // Compute tactical mitigations
+    const mitigasiTaktis: any[] = [];
+    if (evalResult.details) {
+      evalResult.details.forEach((detail: any) => {
+        if (detail.rating === 'S1') return;
+
+        let text = '';
+        if (detail.parameter === 'tekstur_tanah') {
+          text = 'Penambahan bahan organik secara masif (kompos/pupuk kandang matang sebanyak 2-3 kg/m²) untuk meningkatkan struktur agregat tanah, menunjang retensi air, dan memulihkan sirkulasi udara pada daerah perakaran.';
+        } else if (detail.parameter === 'drainase') {
+          if (detail.rating === 'S2') {
+            text = 'Kondisi drainase sedikit terhambat/cepat. Disarankan untuk memantau intensitas pemberian air harian dan membuat parit drainase sekunder dengan kedalaman sedang (15-20 cm) agar tanah tidak jenuh air.';
+          } else { // S3 atau N
+            text = 'Sistem drainase sangat buruk/ekstrem. Buat parit bedengan yang tinggi (minimal 30 cm) dan saluran pembuangan air utama di keliling lahan untuk mencegah genangan air lama yang memicu busuk perakaran.';
+          }
+        } else if (detail.parameter === 'ph_tanah') {
+          const phVal = parseFloat(detail.actual) || 6.5;
+          if (phVal < 5.5) {
+            text = 'Tanah terlalu asam (pH rendah). Aplikasikan kapur pertanian (dolomit) sebanyak 150-200 gram/m² sekitar 2-3 minggu sebelum tanam untuk menetralkan pH dan menambah kalsium (Ca) serta magnesium (Mg).';
+          } else if (phVal > 7.5) {
+            text = 'Tanah terlalu basa (pH tinggi). Berikan belerang hiasan (sulfur) atau aplikasikan pupuk amonium sulfat (ZA) serta pupuk organik untuk membantu menurunkan pH ke arah netral secara bertahap.';
+          } else {
+            text = 'Derajat keasaman tanah (pH) berada di luar batas ideal. Lakukan pemupukan bahan organik matang atau berikan dolomit/sulfur sesuai dengan uji indikator laboratorium.';
+          }
+        } else if (detail.parameter === 'lereng') {
+          text = 'Kemiringan lereng tidak ideal. Terapkan metode terasering (sengkedan) serta buat sabuk gunung / penanaman rumput vetiver di bibir lereng untuk memitigasi risiko erosi lapisan tanah atas (topsoil) yang subur.';
+        } else if (detail.parameter === 'temperatur') {
+          text = 'Suhu udara ekstrem. Gunakan jaring naungan (paranet dengan kerapatan 50-70%) atau aplikasikan mulsa plastik/organik (jerami) pada permukaan tanah untuk menstabilkan suhu mikro tanah dan mereduksi evaporasi.';
+        } else if (detail.parameter === 'curah_hujan') {
+          text = 'Volume curah hujan tidak sesuai. Jika terlalu rendah, buat penampung air (embung) dan pasang instalasi irigasi tetes (drip irrigation). Jika terlalu tinggi, optimalkan kapasitas saluran pembuangan utama.';
+        } else if (detail.parameter === 'ketinggian') {
+          text = 'Ketinggian wilayah kurang ideal untuk komoditas ini. Pertahankan suhu tanah tetap sejuk dengan mengoptimalkan ketebalan mulsa penutup tanah dan memilih varietas benih yang tahan suhu panas/dingin.';
+        }
+
+        if (text) {
+          mitigasiTaktis.push({ label: detail.label, parameter: detail.parameter, rating: detail.rating, text });
+        }
+      });
+    }
+
+    // Categorized mitigations for Step 4
+    const suhuIklimItems = mitigasiTaktis.filter(m => m.parameter === 'temperatur' || m.parameter === 'curah_hujan' || m.parameter === 'ketinggian');
+    const drainaseItems = mitigasiTaktis.filter(m => m.parameter === 'drainase');
+    const tanahItems = mitigasiTaktis.filter(m => m.parameter === 'ph_tanah' || m.parameter === 'tekstur_tanah');
+    const lerengItems = mitigasiTaktis.filter(m => m.parameter === 'lereng');
+
+    // Constraint summary for Step 2
+    const mainConstraint = evalResult.kendala[0] || '';
+    const isClimateAnomaly = mainConstraint.toLowerCase().includes('suhu') || 
+                             mainConstraint.toLowerCase().includes('temperatur') || 
+                             mainConstraint.toLowerCase().includes('curah') || 
+                             mainConstraint.toLowerCase().includes('hujan');
+
+    // Circular gauge calculations for Step 2
+    const radius = 50;
+    const circumference = 2 * Math.PI * radius;
+    const score = evalResult.skor;
+    const potentialScore = evalResult.skorPotensial || score;
+    const currentScore = animateProgress ? score : 0;
+    const currentPotentialScore = animateProgress ? potentialScore : 0;
+    const strokeDashoffset = circumference - (currentScore / 100) * circumference;
+    const potentialDashoffset = circumference - (currentPotentialScore / 100) * circumference;
+    const strokeColor = score >= 75 ? '#2e7d32' : score >= 50 ? '#d97706' : '#dc2626';
+
+    const parameterExplanations: Record<string, string> = {
+      temperatur: 'Suhu mempengaruhi respirasi, laju transpirasi, dan fotosintesis tanaman. Suhu di luar batas ideal menghambat pengisian bulir/buah.',
+      curah_hujan: 'Curah hujan menentukan ketersediaan air alami. Curah hujan terlalu tinggi memicu banjir dan kelembapan tinggi (penyakit), sedangkan kekeringan menghentikan pertumbuhan.',
+      ph_tanah: 'pH tanah mempengaruhi ketersediaan unsur hara makro dan mikro bagi perakaran. Pada pH ekstrem, unsur hara penting terikat kuat dan tidak dapat diserap tanaman.',
+      ketinggian: 'Ketinggian menentukan tekanan udara dan suhu lingkungan secara makro. Menanam di ketinggian tidak cocok memicu kegagalan adaptasi vegetatif.',
+      lereng: 'Lereng mempengaruhi limpasan air hujan dan risiko erosi topsoil. Lereng curam memerlukan terasering/sengkedan.',
+      drainase: 'Drainase mengatur sirkulasi oksigen di zona perakaran. Drainase yang buruk memicu genangan air berkepanjangan (anoksia akar) dan busuk akar.',
+      tekstur_tanah: 'Tekstur tanah menentukan daya ikat air dan sirkulasi udara (aerasi). Tanah berpasir terlalu kering (nutrisi hanyut), sedangkan tanah liat berat cenderung padat.'
+    };
+
+    const steps = [
+      { number: 1, label: 'Komoditas' },
+      { number: 2, label: 'Kelayakan' },
+      { number: 3, label: 'Parameter' },
+      { number: 4, label: 'Mitigasi' },
+      { number: 5, label: 'Konfirmasi' }
+    ];
 
     return (
       <div className="min-h-screen bg-bg-dark py-8 px-4">
@@ -625,6 +864,7 @@ export default function DashboardClient({ initialUser }: DashboardClientProps) {
             onClick={() => {
               setCurrentView('dashboard');
               setSelectedLahan(null);
+              setActiveStep(1);
             }}
             className="inline-flex items-center gap-2 text-sm text-text-muted hover:text-text-main mb-6"
           >
@@ -635,346 +875,579 @@ export default function DashboardClient({ initialUser }: DashboardClientProps) {
           <h2 className="text-2xl font-bold text-text-main mb-1">Cek Kelayakan Lahan Tanam</h2>
           <p className="text-sm text-text-muted mb-6">
             Menilai kesesuaian lahan <strong className="text-text-main">{selectedLahan.nama}</strong> berdasarkan parameter geospasial tanah dan iklim.
-            {liveWeather && <span className="block mt-1 text-primary flex items-center gap-1"><CloudRain className="w-3.5 h-3.5" /> Terhubung dengan data cuaca live ({liveWeather.suhu}°C, {liveWeather.curahHujan} mm/bln)</span>}
+            {liveWeather && (
+              <span className="block mt-1 text-primary flex items-center gap-1">
+                <CloudRain className="w-3.5 h-3.5" /> Terhubung dengan data cuaca live ({liveWeather.suhu}°C, {liveWeather.curahHujan} mm/bln)
+              </span>
+            )}
           </p>
 
-          {/* Pilihan Jenis Tanaman */}
-          <div className="mb-8 bg-bg-dark border border-border-medium rounded-2xl p-5">
-            <label className="block text-xs font-semibold text-text-muted uppercase tracking-wider mb-3">Pilih Komoditas Tanaman</label>
-            <div className="relative">
-              <button
-                type="button"
-                onClick={() => setIsCropDropdownOpen(!isCropDropdownOpen)}
-                className="w-full bg-bg-dark border border-white/10 rounded-xl px-4 py-3 text-left text-white focus:outline-none focus:border-primary transition-all text-sm font-bold flex justify-between items-center"
-              >
-                <span>
-                  {activeCrop ? `${activeCrop.nama} ${activeCrop.nama_latin ? `(${activeCrop.nama_latin})` : ''}` : 'Pilih Komoditas Tanaman'}
-                </span>
-                <ChevronDown className={`w-4 h-4 transform transition-transform duration-200 ${isCropDropdownOpen ? 'rotate-180' : ''}`} />
-              </button>
-
-              {isCropDropdownOpen && (
-                <>
-                  <div className="fixed inset-0 z-40" onClick={() => { setIsCropDropdownOpen(false); setCropSearchQuery(''); }} />
-                  <div className="absolute z-50 mt-2 w-full bg-bg-card border border-border-medium rounded-xl shadow-2xl p-3 space-y-2">
-                    <div className="relative">
-                      <input
-                        type="text"
-                        placeholder="Cari komoditas..."
-                        value={cropSearchQuery}
-                        onChange={(e) => setCropSearchQuery(e.target.value)}
-                        className="w-full bg-bg-dark border border-white/10 rounded-lg pl-9 pr-4 py-2 text-white focus:outline-none focus:border-primary transition-all text-xs"
-                        autoFocus
-                      />
-                      <Search className="absolute left-3 top-2.5 w-3.5 h-3.5 text-text-muted" />
-                    </div>
-                    <div className="max-h-60 overflow-y-auto space-y-1 custom-scrollbar">
-                      {filteredCrops.length > 0 ? (
-                        filteredCrops.map(crop => (
-                          <button
-                            key={crop.id}
-                            type="button"
-                            onClick={() => {
-                              setSelectedCropId(crop.id);
-                              setIsCropDropdownOpen(false);
-                              setCropSearchQuery('');
-                            }}
-                            className={`w-full text-left px-3 py-2 rounded-lg text-xs transition-all flex flex-col ${
-                              crop.id === selectedCropId
-                                ? 'bg-primary/20 border border-primary text-white font-bold'
-                                : 'hover:bg-white/5 text-text-muted hover:text-text-main'
-                            }`}
-                          >
-                            <span className="font-bold">{crop.nama}</span>
-                            {crop.nama_latin && <span className="text-[10px] italic opacity-60">{crop.nama_latin}</span>}
-                          </button>
-                        ))
-                      ) : (
-                        <div className="text-center py-4 text-xs text-text-muted">Komoditas tidak ditemukan</div>
-                      )}
-                    </div>
+          {/* SLEEK STEPPER INDICATOR */}
+          <div className="mb-8">
+            <div className="flex items-center justify-between relative">
+              {/* Background Line */}
+              <div className="absolute top-1/2 left-0 right-0 h-[2px] bg-white/10 -translate-y-1/2 z-0" />
+              {/* Active Progress Line */}
+              <div 
+                className="absolute top-1/2 left-0 h-[2px] bg-gradient-to-r from-primary to-primary-light -translate-y-1/2 z-0 transition-all duration-300"
+                style={{ width: `${((activeStep - 1) / (steps.length - 1)) * 100}%` }}
+              />
+              
+              {steps.map((s) => {
+                const isCompleted = activeStep > s.number;
+                const isActive = activeStep === s.number;
+                return (
+                  <div key={s.number} className="relative z-10 flex flex-col items-center">
+                    <button
+                      type="button"
+                      disabled={s.number > activeStep && !selectedCropId}
+                      onClick={() => {
+                        if (s.number <= activeStep || selectedCropId) {
+                          setActiveStep(s.number);
+                        }
+                      }}
+                      className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold transition-all duration-300 border ${
+                        isCompleted ? 'bg-primary border-primary text-text-inverse shadow-md shadow-primary/20' :
+                        isActive ? 'bg-bg-card border-primary text-primary ring-4 ring-primary/20 scale-110' :
+                        'bg-bg-dark border-white/10 text-text-muted'
+                      }`}
+                    >
+                      {isCompleted ? '✓' : s.number}
+                    </button>
+                    <span className={`text-[10px] font-semibold mt-2 hidden sm:inline ${
+                      isActive ? 'text-primary' : isCompleted ? 'text-text-main' : 'text-text-muted'
+                    }`}>
+                      {s.label}
+                    </span>
                   </div>
-                </>
-              )}
+                );
+              })}
             </div>
           </div>
 
-          {/* HASIL ANALISIS KELAYAKAN */}
+          {/* STEP CONTENT CONTAINER */}
           <div className="space-y-6">
-            <div className="flex items-start gap-4 p-5 rounded-2xl border bg-bg-dark border-border-light">
-              <div className="mt-1 flex-shrink-0">
-                <div className="h-10 w-10 rounded-full bg-white/5 flex items-center justify-center border border-white/10">
-                  <Activity className="h-5 w-5 text-text-muted" />
-                </div>
-              </div>
-              <div className="flex-grow w-full">
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-3">
-                  <h3 className="font-bold text-lg text-text-main">
-                    {evalResult.details?.some((d: any) => d.rating === 'N' || d.rating === 'S3') 
-                      ? 'Evaluasi Kelayakan Tanam' 
-                      : 'Lahan Sangat Layak Ditanami'}
-                  </h3>
-                  <div className="flex items-center gap-2">
-                    <span className="text-xs text-text-muted">Skor Kecocokan:</span>
-                    <span className={`px-2.5 py-0.5 rounded-full text-xs font-semibold border ${
-                      (evalResult.skorPotensial || evalResult.skor) >= 75 ? 'bg-primary-dark/20 text-primary border-primary/10' :
-                      (evalResult.skorPotensial || evalResult.skor) >= 50 ? 'bg-amber-950/20 text-amber-400 border-amber-500/10' :
-                      'bg-red-950/20 text-red-400 border-red-500/10'
-                    }`}>
-                      {evalResult.skor}%
-                      {evalResult.skorPotensial && evalResult.skorPotensial > evalResult.skor && (
-                        <span className="text-text-muted font-normal"> → <strong className="text-primary/90 font-bold">{evalResult.skorPotensial}% setelah Mitigasi</strong></span>
+            <AnimatePresence mode="wait">
+              {/* STEP 1: PILIH KOMODITAS */}
+              {activeStep === 1 && (
+                <motion.div
+                  key="step-1"
+                  initial={{ opacity: 0, x: 15 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -15 }}
+                  transition={{ duration: 0.2 }}
+                  className="space-y-6"
+                >
+                  <div className="bg-bg-dark border border-border-medium rounded-2xl p-5">
+                    <label className="block text-xs font-semibold text-text-muted uppercase tracking-wider mb-3">Pilih Komoditas Tanaman</label>
+                    <div className="relative">
+                      <button
+                        type="button"
+                        onClick={() => setIsCropDropdownOpen(!isCropDropdownOpen)}
+                        className="w-full bg-bg-dark border border-white/10 rounded-xl px-4 py-3 text-left text-white focus:outline-none focus:border-primary transition-all text-sm font-bold flex justify-between items-center"
+                      >
+                        <span>
+                          {activeCrop ? `${activeCrop.nama} ${activeCrop.nama_latin ? `(${activeCrop.nama_latin})` : ''}` : 'Pilih Komoditas Tanaman'}
+                        </span>
+                        <ChevronDown className={`w-4 h-4 transform transition-transform duration-200 ${isCropDropdownOpen ? 'rotate-180' : ''}`} />
+                      </button>
+
+                      {isCropDropdownOpen && (
+                        <>
+                          <div className="fixed inset-0 z-40" onClick={() => { setIsCropDropdownOpen(false); setCropSearchQuery(''); }} />
+                          <div className="absolute z-50 mt-2 w-full bg-bg-card border border-border-medium rounded-xl shadow-2xl p-3 space-y-2">
+                            <div className="relative">
+                              <input
+                                type="text"
+                                placeholder="Cari komoditas..."
+                                value={cropSearchQuery}
+                                onChange={(e) => setCropSearchQuery(e.target.value)}
+                                className="w-full bg-bg-dark border border-white/10 rounded-lg pl-9 pr-4 py-2 text-white focus:outline-none focus:border-primary transition-all text-xs"
+                                autoFocus
+                              />
+                              <Search className="absolute left-3 top-2.5 w-3.5 h-3.5 text-text-muted" />
+                            </div>
+                            <div className="max-h-60 overflow-y-auto space-y-1 custom-scrollbar">
+                              {filteredCrops.length > 0 ? (
+                                filteredCrops.map(crop => (
+                                  <button
+                                    key={crop.id}
+                                    type="button"
+                                    onClick={() => {
+                                      setSelectedCropId(crop.id);
+                                      setIsCropDropdownOpen(false);
+                                      setCropSearchQuery('');
+                                    }}
+                                    className={`w-full text-left px-3 py-2 rounded-lg text-xs transition-all flex flex-col ${
+                                      crop.id === selectedCropId
+                                        ? 'bg-primary/20 border border-primary text-white font-bold'
+                                        : 'hover:bg-white/5 text-text-muted hover:text-text-main'
+                                    }`}
+                                  >
+                                    <span className="font-bold">{crop.nama}</span>
+                                    {crop.nama_latin && <span className="text-[10px] italic opacity-60">{crop.nama_latin}</span>}
+                                  </button>
+                                ))
+                              ) : (
+                                <div className="text-center py-4 text-xs text-text-muted">Komoditas tidak ditemukan</div>
+                              )}
+                            </div>
+                          </div>
+                        </>
                       )}
-                    </span>
-                  </div>
-                </div>
-
-                {/* Visual Progress Bar */}
-                <div className="w-full bg-bg-card h-2.5 rounded-full overflow-hidden mb-4 border border-white/5 p-[1px] relative">
-                  {/* Potential score bar extension (semi-transparent) */}
-                  {evalResult.skorPotensial && evalResult.skorPotensial > evalResult.skor && (
-                    <div 
-                      className={`absolute top-0 bottom-0 left-0 rounded-full opacity-35 transition-all duration-500 ${
-                        evalResult.skorPotensial >= 75 ? 'bg-primary' :
-                        evalResult.skorPotensial >= 50 ? 'bg-amber-500' :
-                        'bg-red-500'
-                      }`}
-                      style={{ width: `${evalResult.skorPotensial}%` }}
-                    />
-                  )}
-                  {/* Current score bar */}
-                  <div 
-                    className={`h-full rounded-full transition-all duration-500 relative z-10 ${
-                      evalResult.skor >= 75 ? 'bg-gradient-to-r from-primary-dark to-primary' :
-                      evalResult.skor >= 50 ? 'bg-gradient-to-r from-amber-600 to-amber-500' :
-                      'bg-gradient-to-r from-red-600 to-red-500'
-                    }`}
-                    style={{ width: `${evalResult.skor}%` }}
-                  />
-                </div>
-                
-                {evalResult.kendala.length > 0 ? (
-                  <div className="space-y-2">
-                    <span className="text-xs font-semibold text-amber-500/90 block uppercase tracking-wider">Deteksi Kendala:</span>
-                    <ul className="list-disc pl-4 text-xs text-text-muted space-y-1">
-                      {evalResult.kendala.map((k, i) => <li key={`k-${i}`}>{k}</li>)}
-                    </ul>
-                  </div>
-                ) : (
-                  <p className="text-sm text-text-muted">Selamat! Parameter lingkungan (suhu, curah hujan, ketinggian, dan tipe tanah) terdeteksi sangat cocok dengan kebutuhan varietas tanaman ini.</p>
-                )}
-              </div>
-            </div>
-
-            {/* TABEL KOMPARASI PARAMETER */}
-            {evalResult.details && evalResult.details.length > 0 && (
-              <div className="bg-bg-dark border border-border-light rounded-2xl p-5 shadow-inner">
-                <h4 className="font-bold text-text-main text-sm mb-4 flex items-center gap-2">
-                  <Activity className="w-4.5 h-4.5 text-primary" />
-                  <span>Detail Perbandingan Parameter</span>
-                </h4>
-                <div className="overflow-x-auto">
-                  <table className="w-full text-left border-collapse text-xs">
-                    <thead>
-                      <tr className="border-b border-white/10 text-text-muted">
-                        <th className="py-2.5 px-3 font-semibold uppercase tracking-wider">Parameter</th>
-                        <th className="py-2.5 px-3 font-semibold uppercase tracking-wider">Lahan Anda</th>
-                        <th className="py-2.5 px-3 font-semibold uppercase tracking-wider">Ideal (S1)</th>
-                        <th className="py-2.5 px-3 font-semibold uppercase tracking-wider text-center">Kelas</th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-white/5">
-                      {evalResult.details.map((detail, index) => {
-                        const isN = detail.rating === 'N';
-                        const isS3 = detail.rating === 'S3';
-                        const isS2 = detail.rating === 'S2';
-                        
-                        const rowBg = 'hover:bg-white/5 transition-colors';
-
-                        let ratingBadgeColor = '';
-                        if (isN) ratingBadgeColor = 'text-red-400 font-bold';
-                        else if (isS3) ratingBadgeColor = 'text-amber-500 font-bold';
-                        else if (isS2) ratingBadgeColor = 'text-blue-400/90 font-medium';
-                        else ratingBadgeColor = 'text-zinc-500 font-medium';
-
-                        return (
-                          <tr key={`param-${index}`} className={rowBg}>
-                            <td className="py-3 px-3 font-medium text-text-main">{detail.label}</td>
-                            <td className="py-3 px-3 text-text-muted">{detail.actual}</td>
-                            <td className="py-3 px-3 text-text-muted">{detail.ideal}</td>
-                            <td className="py-3 px-3 text-center">
-                              <span className={`inline-block text-[10px] tracking-wider ${ratingBadgeColor}`}>
-                                {detail.rating}
-                              </span>
-                            </td>
-                          </tr>
-                        );
-                      })}
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-            )}
-
-            {/* Jika LAYAK: Tampilkan Kalender Kerja / Estimasi */}
-            {evalResult.layak && (
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="p-5 rounded-2xl bg-bg-dark border border-border-light space-y-4">
-                  <h4 className="font-bold text-text-main flex items-center gap-2 border-b border-border-light pb-2">
-                    <Calendar className="w-4.5 h-4.5 text-primary" />
-                    <span>Rencana Perawatan</span>
-                  </h4>
-                  <ul className="text-xs text-text-muted space-y-3">
-                    {evalResult.siklusPemupukan.map((step, i) => (
-                      <li key={`s-${i}`} className="flex items-start gap-2">
-                        <span className="h-1.5 w-1.5 rounded-full bg-primary mt-1.5 flex-shrink-0"></span>
-                        <span>{step}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-
-                <div className="p-5 rounded-2xl bg-bg-dark border border-border-light space-y-3">
-                  <h4 className="font-bold text-text-main flex items-center gap-2 border-b border-border-light pb-2">
-                    <Droplet className="w-4.5 h-4.5 text-primary" />
-                    <span>Kebutuhan Sumber Daya</span>
-                  </h4>
-                  <div className="grid grid-cols-2 gap-3 text-xs">
-                    <div>
-                      <span className="text-text-muted block mb-0.5">Estimasi Air</span>
-                      <strong className="text-text-main text-sm">{(evalResult.kebutuhanAirDaily * selectedLahan.luas).toLocaleString('id-ID')} Liter/Hari</strong>
-                      <span className="text-gray-600 block mt-0.5">({evalResult.kebutuhanAirDaily}L / m²)</span>
-                    </div>
-                    <div>
-                      <span className="text-text-muted block mb-0.5">Siklus Panen</span>
-                      <strong className="text-text-main text-sm">{cropsList.find(t => t.id === selectedCropId)?.siklus_tanam_days || 120} Hari</strong>
                     </div>
                   </div>
-                  <p className="text-xs text-text-muted leading-relaxed border-t border-border-light pt-2 mt-2">
-                    {evalResult.saranMitigasi}
-                  </p>
-                </div>
-              </div>
-            )}
+                  
+                  <div className="flex justify-end pt-4">
+                    <button
+                      type="button"
+                      disabled={!selectedCropId && !activeCrop}
+                      onClick={() => {
+                        if (selectedCropId || activeCrop) {
+                          if (!selectedCropId && activeCrop) {
+                            setSelectedCropId(activeCrop.id);
+                          }
+                          setActiveStep(2);
+                        }
+                      }}
+                      className="w-full sm:w-auto px-6 py-3 rounded-xl bg-primary hover:bg-primary-dark text-text-inverse font-bold text-sm transition-all text-center flex items-center justify-center gap-2 shadow-lg shadow-primary/20"
+                    >
+                      <span>Analisis Kelayakan Lahan</span>
+                      <ArrowRight className="w-4 h-4" />
+                    </button>
+                  </div>
+                </motion.div>
+              )}
 
-            {/* ANALISIS MITIGASI TAKTIS & DINAMIS (Tampil jika ada parameter sub-optimal: S2/S3/N) */}
-            {(() => {
-              const mitigasiTaktis: any[] = [];
-              if (evalResult.details) {
-                evalResult.details.forEach((detail: any) => {
-                  if (detail.rating === 'S1') return;
+              {/* STEP 2: HASIL KELAYAKAN */}
+              {activeStep === 2 && (
+                <motion.div
+                  key="step-2"
+                  initial={{ opacity: 0, x: 15 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -15 }}
+                  transition={{ duration: 0.2 }}
+                  className="space-y-6"
+                >
+                  <div className="flex flex-col items-center justify-center p-6 bg-bg-dark border border-border-light rounded-2xl">
+                    <span className="text-xs font-semibold text-text-muted uppercase tracking-wider mb-2">Skor Kecocokan</span>
+                    
+                    {/* Gauge */}
+                    <div className="relative w-40 h-40">
+                      <svg className="w-full h-full transform -rotate-90" viewBox="0 0 120 120">
+                        <circle
+                          cx="60"
+                          cy="60"
+                          r="50"
+                          className="stroke-white/5"
+                          strokeWidth="8"
+                          fill="transparent"
+                        />
+                        {potentialScore > score && (
+                          <circle
+                            cx="60"
+                            cy="60"
+                            r="50"
+                            className="transition-all duration-1000 ease-out"
+                            stroke={strokeColor}
+                            strokeWidth="8"
+                            strokeDasharray={circumference}
+                            strokeDashoffset={potentialDashoffset}
+                            strokeLinecap="round"
+                            opacity="0.3"
+                            fill="transparent"
+                          />
+                        )}
+                        <circle
+                          cx="60"
+                          cy="60"
+                          r="50"
+                          className="transition-all duration-1000 ease-out"
+                          stroke={strokeColor}
+                          strokeWidth="8"
+                          strokeDasharray={circumference}
+                          strokeDashoffset={strokeDashoffset}
+                          strokeLinecap="round"
+                          fill="transparent"
+                        />
+                      </svg>
+                      <div className="absolute inset-0 flex flex-col items-center justify-center text-center">
+                        <span className="text-3xl font-extrabold text-white">{score}%</span>
+                        {potentialScore > score && (
+                          <span className="text-[9px] text-primary-light font-bold mt-0.5">Potensi: {potentialScore}%</span>
+                        )}
+                      </div>
+                    </div>
 
-                  let text = '';
-                  if (detail.parameter === 'tekstur_tanah') {
-                    text = 'Penambahan bahan organik secara masif (kompos/pupuk kandang matang sebanyak 2-3 kg/m²) untuk meningkatkan struktur agregat tanah, menunjang retensi air, dan memulihkan sirkulasi udara pada daerah perakaran.';
-                  } else if (detail.parameter === 'drainase') {
-                    if (detail.rating === 'S2') {
-                      text = 'Kondisi drainase sedikit terhambat/cepat. Disarankan untuk memantau intensitas pemberian air harian dan membuat parit drainase sekunder dengan kedalaman sedang (15-20 cm) agar tanah tidak jenuh air.';
-                    } else { // S3 atau N
-                      text = 'Sistem drainase sangat buruk/ekstrem. Buat parit bedengan yang tinggi (minimal 30 cm) dan saluran pembuangan air utama di keliling lahan untuk mencegah genangan air lama yang memicu busuk perakaran.';
-                    }
-                  } else if (detail.parameter === 'ph_tanah') {
-                    const phVal = parseFloat(detail.actual) || 6.5;
-                    if (phVal < 5.5) {
-                      text = 'Tanah terlalu asam (pH rendah). Aplikasikan kapur pertanian (dolomit) sebanyak 150-200 gram/m² sekitar 2-3 minggu sebelum tanam untuk menetralkan pH dan menambah kalsium (Ca) serta magnesium (Mg).';
-                    } else if (phVal > 7.5) {
-                      text = 'Tanah terlalu basa (pH tinggi). Berikan belerang hiasan (sulfur) atau aplikasikan pupuk amonium sulfat (ZA) serta pupuk organik untuk membantu menurunkan pH ke arah netral secara bertahap.';
-                    } else {
-                      text = 'Derajat keasaman tanah (pH) berada di luar batas ideal. Lakukan pemupukan bahan organik matang atau berikan dolomit/sulfur sesuai dengan uji indikator laboratorium.';
-                    }
-                  } else if (detail.parameter === 'lereng') {
-                    text = 'Kemiringan lereng tidak ideal. Terapkan metode terasering (sengkedan) serta buat sabuk gunung / penanaman rumput vetiver di bibir lereng untuk memitigasi risiko erosi lapisan tanah atas (topsoil) yang subur.';
-                  } else if (detail.parameter === 'temperatur') {
-                    text = 'Suhu udara ekstrem. Gunakan jaring naungan (paranet dengan kerapatan 50-70%) atau aplikasikan mulsa plastik/organik (jerami) pada permukaan tanah untuk menstabilkan suhu mikro tanah dan mereduksi evaporasi.';
-                  } else if (detail.parameter === 'curah_hujan') {
-                    text = 'Volume curah hujan tidak sesuai. Jika terlalu rendah, buat penampung air (embung) dan pasang instalasi irigasi tetes (drip irrigation). Jika terlalu tinggi, optimalkan kapasitas saluran pembuangan utama.';
-                  } else if (detail.parameter === 'ketinggian') {
-                    text = 'Ketinggian wilayah kurang ideal untuk komoditas ini. Pertahankan suhu tanah tetap sejuk dengan mengoptimalkan ketebalan mulsa penutup tanah dan memilih varietas benih yang tahan suhu panas/dingin.';
-                  }
+                    <div className="mt-4 text-center">
+                      <span className={`px-3 py-1 rounded-full text-xs font-extrabold border ${
+                        score >= 75 ? 'bg-primary-dark/20 text-primary border-primary/20' :
+                        score >= 50 ? 'bg-amber-500/10 text-amber-500 border-amber-500/20' :
+                        'bg-red-500/10 text-red-500 border-red-500/20'
+                      }`}>
+                        {score >= 75 ? 'Lahan Sangat Layak' : score >= 50 ? 'Cukup Layak (Butuh Mitigasi)' : 'Tidak Layak / Berisiko'}
+                      </span>
+                    </div>
+                  </div>
 
-                  if (text) {
-                    mitigasiTaktis.push({ label: detail.label, rating: detail.rating, text });
-                  }
-                });
-              }
-
-              if (mitigasiTaktis.length === 0) return null;
-
-              return (
-                <div className="p-5 rounded-r-2xl rounded-l-none border-l-4 border-l-amber-500/80 border-y border-r border-border-light bg-bg-dark text-xs text-text-muted space-y-4 shadow-md">
-                  <h4 className="font-bold text-sm uppercase tracking-wider flex items-center gap-2 text-text-main">
-                    <AlertTriangle className="w-4.5 h-4.5 text-amber-500/85" />
-                    <span>Rencana & Rekomendasi Mitigasi Taktis</span>
-                  </h4>
-                  <div className="space-y-4 divide-y divide-white/5">
-                    {mitigasiTaktis.map((m, idx) => (
-                      <div key={`mitigasi-${idx}`} className="pt-3 first:pt-0">
-                        <div className="flex items-center gap-2 mb-1.5">
-                          <span className="font-semibold text-text-main text-xs">{m.label}</span>
-                        </div>
-                        <p className="text-text-muted leading-relaxed text-xs">
-                          {m.text}
+                  {/* Constraint summary & Climate change positioning */}
+                  <div className="bg-bg-dark border border-border-light rounded-2xl p-5 space-y-4">
+                    <h4 className="font-bold text-xs uppercase tracking-wider text-text-muted">Ringkasan Kendala Utama</h4>
+                    {mainConstraint ? (
+                      <div className="space-y-3">
+                        <p className="text-sm font-semibold text-text-main leading-relaxed">
+                          {mainConstraint}
                         </p>
+                        {isClimateAnomaly && (
+                          <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold bg-red-500/10 text-red-400 border border-red-500/20">
+                            <span>⚠️ Dipengaruhi Anomali Iklim</span>
+                          </span>
+                        )}
                       </div>
-                    ))}
+                    ) : (
+                      <p className="text-sm text-text-muted">Selamat! Parameter lingkungan terdeteksi sangat cocok dengan kebutuhan varietas tanaman ini.</p>
+                    )}
                   </div>
-                </div>
-              );
-            })()}
+                </motion.div>
+              )}
 
-            {/* OPSI REKOMENDASI ALTERNATIF JIKA ADA KENDALA */}
-            {evalResult.skor < 90 && alternatifList.filter(a => a.tanaman.id !== selectedCropId).length > 0 && (
-              <div className="p-5 rounded-2xl bg-bg-dark border border-border-light space-y-4 shadow-md">
-                <h4 className="font-bold text-text-main text-sm flex items-center gap-2 border-b border-border-light/40 pb-2">
-                  <TrendingUp className="w-4.5 h-4.5 text-primary" />
-                  <span>Rekomendasi Tanaman Alternatif Terdekat</span>
-                </h4>
-                <div className="space-y-3">
-                  {alternatifList.filter(a => a.tanaman.id !== selectedCropId).slice(0, 2).map((alt) => (
-                    <div key={alt.tanaman.id} className="flex items-center justify-between p-3.5 bg-bg-card border border-border-medium rounded-xl text-xs hover:border-primary/20 transition-all">
-                      <div className="space-y-1">
-                        <strong className="text-text-main text-sm block">{alt.tanaman.nama}</strong>
-                        <span className="text-text-muted block text-[10px]">Estimasi panen: {alt.tanaman.siklus_tanam_days || 120} hari</span>
-                      </div>
-                      <div className="flex items-center gap-4">
-                        <span className="text-primary/90 font-semibold bg-primary-dark/20 px-2 py-0.5 rounded border border-primary/10">Kecocokan: {alt.evaluasi.skor}%</span>
-                        <button
-                          onClick={() => setSelectedCropId(alt.tanaman.id)}
-                          className="bg-border-medium hover:bg-white/10 text-text-main font-bold py-2 px-4 rounded-xl transition-all text-[11px] cursor-pointer"
-                        >
-                          Pilih
-                        </button>
+              {/* STEP 3: DETAIL PARAMETER */}
+              {activeStep === 3 && (
+                <motion.div
+                  key="step-3"
+                  initial={{ opacity: 0, x: 15 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -15 }}
+                  transition={{ duration: 0.2 }}
+                  className="space-y-6"
+                >
+                  {evalResult.details && evalResult.details.length > 0 ? (
+                    <div className="bg-bg-dark border border-border-light rounded-2xl p-5 shadow-inner">
+                      <h4 className="font-bold text-text-main text-sm mb-4 flex items-center gap-2">
+                        <Activity className="w-4.5 h-4.5 text-primary" />
+                        <span>Detail Perbandingan Parameter</span>
+                      </h4>
+                      <p className="text-[10px] text-text-muted mb-4">💡 Klik pada baris parameter untuk melihat penjelasan detail.</p>
+                      
+                      <div className="overflow-x-auto rounded-xl border border-white/5">
+                        <table className="w-full text-left text-xs border-collapse">
+                          <thead>
+                            <tr className="bg-white/5 border-b border-white/10 text-[10px] uppercase font-bold text-text-muted">
+                              <th className="p-3">Parameter</th>
+                              <th className="p-3">Aktual</th>
+                              <th className="p-3">Batas Ideal</th>
+                              <th className="p-3 text-right">Status</th>
+                            </tr>
+                          </thead>
+                          <tbody className="divide-y divide-white/5">
+                            {evalResult.details.map((detail: any, index: number) => {
+                              const isExpanded = expandedRow === detail.parameter;
+                              const isN = detail.rating === 'N';
+                              const isS3 = detail.rating === 'S3';
+                              const isS2 = detail.rating === 'S2';
+                              
+                              let ratingBadgeColor = '';
+                              if (isN) ratingBadgeColor = 'bg-red-500/10 text-red-400 border border-red-500/20';
+                              else if (isS3) ratingBadgeColor = 'bg-amber-500/10 text-amber-500 border border-amber-500/20';
+                              else if (isS2) ratingBadgeColor = 'bg-blue-500/10 text-blue-400 border border-blue-500/20';
+                              else ratingBadgeColor = 'bg-zinc-500/10 text-zinc-400 border border-zinc-500/20';
+
+                              return (
+                                <Fragment key={`param-fragment-${index}`}>
+                                  <tr 
+                                    onClick={() => setExpandedRow(isExpanded ? null : detail.parameter)}
+                                    className="hover:bg-white/5 transition-colors cursor-pointer"
+                                  >
+                                    <td className="p-3 font-bold text-text-main flex items-center gap-1.5">
+                                      <span>{detail.label}</span>
+                                      <ChevronDown className={`w-3.5 h-3.5 text-text-muted transition-transform duration-200 ${isExpanded ? 'rotate-180' : ''}`} />
+                                    </td>
+                                    <td className="p-3 text-text-muted font-medium">{detail.actual}</td>
+                                    <td className="p-3 text-text-muted font-medium">{detail.ideal}</td>
+                                    <td className="p-3 text-right">
+                                      <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${ratingBadgeColor}`}>
+                                        {detail.rating}
+                                      </span>
+                                    </td>
+                                  </tr>
+                                  
+                                  {isExpanded && (
+                                    <tr className="bg-white/[0.02]">
+                                      <td colSpan={4} className="p-3 border-t border-white/[0.02]">
+                                        <p className="text-[11px] text-text-muted leading-relaxed font-medium">
+                                          {parameterExplanations[detail.parameter] || 'Parameter penting untuk menentukan pertumbuhan tanaman.'}
+                                        </p>
+                                      </td>
+                                    </tr>
+                                  )}
+                                </Fragment>
+                              );
+                            })}
+                          </tbody>
+                        </table>
                       </div>
                     </div>
-                  ))}
-                </div>
+                  ) : (
+                    <div className="text-center py-8 text-xs text-text-muted">Detail parameter tidak tersedia.</div>
+                  )}
+                </motion.div>
+              )}
+
+              {/* STEP 4: RENCANA MITIGASI */}
+              {activeStep === 4 && (
+                <motion.div
+                  key="step-4"
+                  initial={{ opacity: 0, x: 15 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -15 }}
+                  transition={{ duration: 0.2 }}
+                  className="space-y-6"
+                >
+                  <div className="space-y-4">
+                    <h4 className="font-bold text-text-main text-sm flex items-center gap-2">
+                      <AlertTriangle className="w-4.5 h-4.5 text-amber-500" />
+                      <span>Rencana Perawatan & Mitigasi Taktis</span>
+                    </h4>
+
+                    <div className="space-y-2">
+                      {/* Category Suhu */}
+                      <div className="bg-bg-dark border border-border-light rounded-xl overflow-hidden">
+                        <button
+                          type="button"
+                          onClick={() => setActiveCategory(activeCategory === 'Suhu' ? '' : 'Suhu')}
+                          className="w-full flex items-center justify-between p-4 font-bold text-xs text-text-main hover:bg-white/5 transition-colors text-left"
+                        >
+                          <span className="flex items-center gap-2">
+                            <ThermometerSun className="w-4 h-4 text-orange-400" />
+                            <span>1. Suhu, Iklim & Kebutuhan Air</span>
+                          </span>
+                          <ChevronDown className={`w-4 h-4 text-text-muted transition-transform duration-200 ${activeCategory === 'Suhu' ? 'rotate-180' : ''}`} />
+                        </button>
+                        {activeCategory === 'Suhu' && (
+                          <div className="p-4 border-t border-white/5 bg-white/[0.01] space-y-4 text-xs text-text-muted">
+                            <div className="bg-bg-card p-3 rounded-lg border border-border-medium flex justify-between items-center">
+                              <div>
+                                <span className="text-[10px] text-text-muted block mb-0.5 uppercase tracking-wider font-semibold">Estimasi Air Harian</span>
+                                <strong className="text-text-main text-xs">{(evalResult.kebutuhanAirDaily * selectedLahan.luas).toLocaleString('id-ID')} Liter/Hari</strong>
+                              </div>
+                              <span className="text-[10px] text-gray-500">({evalResult.kebutuhanAirDaily} L/m²)</span>
+                            </div>
+                            {suhuIklimItems.length > 0 ? (
+                              <div className="space-y-3">
+                                {suhuIklimItems.map((item, idx) => (
+                                  <div key={idx} className="space-y-1">
+                                    <span className="font-semibold text-text-main">{item.label}</span>
+                                    <p className="leading-relaxed">{item.text}</p>
+                                  </div>
+                                ))}
+                              </div>
+                            ) : (
+                              <p className="text-emerald-400">✓ Parameter suhu dan curah hujan sangat ideal untuk komoditas ini. Tidak perlu langkah mitigasi iklim khusus.</p>
+                            )}
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Category Drainase */}
+                      <div className="bg-bg-dark border border-border-light rounded-xl overflow-hidden">
+                        <button
+                          type="button"
+                          onClick={() => setActiveCategory(activeCategory === 'Drainase' ? '' : 'Drainase')}
+                          className="w-full flex items-center justify-between p-4 font-bold text-xs text-text-main hover:bg-white/5 transition-colors text-left"
+                        >
+                          <span className="flex items-center gap-2">
+                            <Droplet className="w-4 h-4 text-blue-400" />
+                            <span>2. Sistem Drainase Lahan</span>
+                          </span>
+                          <ChevronDown className={`w-4 h-4 text-text-muted transition-transform duration-200 ${activeCategory === 'Drainase' ? 'rotate-180' : ''}`} />
+                        </button>
+                        {activeCategory === 'Drainase' && (
+                          <div className="p-4 border-t border-white/5 bg-white/[0.01] space-y-3 text-xs text-text-muted">
+                            {drainaseItems.length > 0 ? (
+                              <div className="space-y-3">
+                                {drainaseItems.map((item, idx) => (
+                                  <div key={idx} className="space-y-1">
+                                    <span className="font-semibold text-text-main">{item.label}</span>
+                                    <p className="leading-relaxed">{item.text}</p>
+                                  </div>
+                                ))}
+                              </div>
+                            ) : (
+                              <p className="text-emerald-400">✓ Kondisi drainase lahan Anda dinilai sangat baik (S1).</p>
+                            )}
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Category Tanah */}
+                      <div className="bg-bg-dark border border-border-light rounded-xl overflow-hidden">
+                        <button
+                          type="button"
+                          onClick={() => setActiveCategory(activeCategory === 'Tanah' ? '' : 'Tanah')}
+                          className="w-full flex items-center justify-between p-4 font-bold text-xs text-text-main hover:bg-white/5 transition-colors text-left"
+                        >
+                          <span className="flex items-center gap-2">
+                            <Sprout className="w-4 h-4 text-emerald-400" />
+                            <span>3. Tanah, pH & Siklus Pemupukan</span>
+                          </span>
+                          <ChevronDown className={`w-4 h-4 text-text-muted transition-transform duration-200 ${activeCategory === 'Tanah' ? 'rotate-180' : ''}`} />
+                        </button>
+                        {activeCategory === 'Tanah' && (
+                          <div className="p-4 border-t border-white/5 bg-white/[0.01] space-y-4 text-xs text-text-muted">
+                            <div className="space-y-2">
+                              <span className="text-[10px] text-text-main block uppercase tracking-wider font-extrabold flex items-center gap-1.5">
+                                <Calendar className="w-3.5 h-3.5 text-primary" /> Rencana Jadwal Pemupukan
+                              </span>
+                              <div className="space-y-1.5 pl-1.5 border-l border-primary/30">
+                                {evalResult.siklusPemupukan.map((step, i) => (
+                                  <div key={i} className="flex gap-2 text-text-muted">
+                                    <span className="text-primary font-bold">•</span>
+                                    <span>{step}</span>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                            {tanahItems.length > 0 && (
+                              <div className="space-y-3 pt-3 border-t border-white/5">
+                                {tanahItems.map((item, idx) => (
+                                  <div key={idx} className="space-y-1">
+                                    <span className="font-semibold text-text-main">{item.label}</span>
+                                    <p className="leading-relaxed">{item.text}</p>
+                                  </div>
+                                ))}
+                              </div>
+                            )}
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Category Lereng */}
+                      <div className="bg-bg-dark border border-border-light rounded-xl overflow-hidden">
+                        <button
+                          type="button"
+                          onClick={() => setActiveCategory(activeCategory === 'Lereng' ? '' : 'Lereng')}
+                          className="w-full flex items-center justify-between p-4 font-bold text-xs text-text-main hover:bg-white/5 transition-colors text-left"
+                        >
+                          <span className="flex items-center gap-2">
+                            <MapIcon className="w-4 h-4 text-lime-400" />
+                            <span>4. Kemiringan Lereng & Erosi</span>
+                          </span>
+                          <ChevronDown className={`w-4 h-4 text-text-muted transition-transform duration-200 ${activeCategory === 'Lereng' ? 'rotate-180' : ''}`} />
+                        </button>
+                        {activeCategory === 'Lereng' && (
+                          <div className="p-4 border-t border-white/5 bg-white/[0.01] space-y-3 text-xs text-text-muted">
+                            {lerengItems.length > 0 ? (
+                              <div className="space-y-3">
+                                {lerengItems.map((item, idx) => (
+                                  <div key={idx} className="space-y-1">
+                                    <span className="font-semibold text-text-main">{item.label}</span>
+                                    <p className="leading-relaxed">{item.text}</p>
+                                  </div>
+                                ))}
+                              </div>
+                            ) : (
+                              <p className="text-emerald-400">✓ Kemiringan lereng lahan aman (datar, &lt;3%). Risiko erosi minimal.</p>
+                            )}
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                </motion.div>
+              )}
+
+              {/* STEP 5: ALTERNATIF & KONFIRMASI */}
+              {activeStep === 5 && (
+                <motion.div
+                  key="step-5"
+                  initial={{ opacity: 0, x: 15 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: -15 }}
+                  transition={{ duration: 0.2 }}
+                  className="space-y-6"
+                >
+                  {/* Alternatives */}
+                  {evalResult.skor < 90 && alternatifList.filter(a => a.tanaman.id !== selectedCropId).length > 0 && (
+                    <div className="bg-bg-dark border border-border-light rounded-2xl p-5 space-y-4 shadow-md">
+                      <h4 className="font-bold text-text-main text-sm flex items-center gap-2 border-b border-white/5 pb-2.5">
+                        <TrendingUp className="w-4.5 h-4.5 text-primary" />
+                        <span>Rekomendasi Tanaman Alternatif Terdekat</span>
+                      </h4>
+                      <div className="space-y-3">
+                        {alternatifList.filter(a => a.tanaman.id !== selectedCropId).slice(0, 2).map((alt) => (
+                          <div key={alt.tanaman.id} className="flex items-center justify-between p-3.5 bg-bg-card border border-border-medium rounded-xl text-xs hover:border-primary/20 transition-all">
+                            <div className="space-y-1">
+                              <strong className="text-text-main text-sm block">{alt.tanaman.nama}</strong>
+                              <span className="text-text-muted block text-[10px]">Estimasi panen: {alt.tanaman.siklus_tanam_days || 120} hari</span>
+                            </div>
+                            <div className="flex items-center gap-4">
+                              <span className="text-primary/90 font-semibold bg-primary-dark/20 px-2 py-0.5 rounded border border-primary/10">Kecocokan: {alt.evaluasi.skor}%</span>
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setSelectedCropId(alt.tanaman.id);
+                                  setActiveStep(1); // Back to Step 1 to let them analyze it
+                                }}
+                                className="bg-border-medium hover:bg-white/10 text-text-main font-bold py-2 px-4 rounded-xl transition-all text-[11px] cursor-pointer"
+                              >
+                                Pilih
+                              </button>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Final Confirmation Buttons */}
+                  <div className="flex gap-4 border-t border-border-light pt-6 mt-8">
+                    <button 
+                      onClick={() => {
+                        setCurrentView('dashboard');
+                        setSelectedLahan(null);
+                        setActiveStep(1);
+                      }}
+                      className="flex-1 py-3.5 px-4 rounded-xl border border-border-medium hover:bg-border-light text-text-muted font-bold text-sm transition-all text-center"
+                    >
+                      Batalkan
+                    </button>
+
+                    <button 
+                      onClick={() => handleConfirmTanam(selectedCropId, evalResult.saranMitigasi)}
+                      className={`flex-1 py-3.5 px-4 rounded-xl font-bold text-sm transition-all text-center ${
+                        evalResult.layak 
+                          ? 'bg-primary hover:bg-primary-dark text-text-inverse shadow-lg shadow-primary/20' 
+                          : 'bg-orange-600 hover:bg-orange-700 text-text-inverse shadow-lg shadow-orange-600/20'
+                      }`}
+                    >
+                      {evalResult.layak ? 'Konfirmasi Tanam' : 'Paksa Tanam (Gunakan Mitigasi)'}
+                    </button>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
+
+            {/* STEPPER FOOTER BUTTONS (Back/Next for internal steps 2, 3, 4) */}
+            {activeStep > 1 && activeStep < 5 && (
+              <div className="flex gap-4 border-t border-border-light pt-6 mt-8">
+                <button
+                  type="button"
+                  onClick={() => setActiveStep(activeStep - 1)}
+                  className="flex-1 py-3 px-4 rounded-xl border border-border-medium hover:bg-white/5 text-text-muted font-bold text-sm transition-all flex items-center justify-center gap-2"
+                >
+                  <ChevronLeft className="w-4 h-4" />
+                  <span>Kembali</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setActiveStep(activeStep + 1)}
+                  className="flex-1 py-3 px-4 rounded-xl bg-primary hover:bg-primary-dark text-text-inverse font-bold text-sm transition-all text-center flex items-center justify-center gap-2"
+                >
+                  <span>Lanjutkan</span>
+                  <ChevronRight className="w-4 h-4" />
+                </button>
               </div>
             )}
-
-            {/* ACTIONS */}
-            <div className="flex gap-4 border-t border-border-light pt-6 mt-8">
-              <button 
-                onClick={() => {
-                  setCurrentView('dashboard');
-                  setSelectedLahan(null);
-                }}
-                className="flex-1 py-3.5 px-4 rounded-xl border border-border-medium hover:bg-border-light text-text-muted font-bold text-sm transition-all text-center"
-              >
-                Batalkan
-              </button>
-
-              <button 
-                onClick={() => handleConfirmTanam(selectedCropId, evalResult.saranMitigasi)}
-                className={`flex-1 py-3.5 px-4 rounded-xl font-bold text-sm transition-all text-center ${
-                  evalResult.layak 
-                    ? 'bg-primary hover:bg-primary-dark text-text-main shadow-lg shadow-primary/20' 
-                    : 'bg-orange-600 hover:bg-orange-700 text-text-main shadow-lg shadow-orange-600/20'
-                }`}
-              >
-                {evalResult.layak ? 'Konfirmasi Tanam' : 'Paksa Tanam (Gunakan Mitigasi)'}
-              </button>
-            </div>
-
           </div>
 
         </div>
@@ -1013,11 +1486,16 @@ export default function DashboardClient({ initialUser }: DashboardClientProps) {
             <span>Kembali ke Dashboard</span>
           </button>
 
+          {/* Land Card Header */}
           <div className="flex justify-between items-start mb-6 border-b border-border-light pb-4">
             <div>
               <span className="text-xs bg-primary-dark/30 text-primary font-bold px-2.5 py-1 rounded-full uppercase tracking-wider">Sedang Ditanam</span>
               <h2 className="text-2xl font-bold text-text-main mt-2">{selectedLahan.nama}</h2>
-              <p className="text-sm text-text-muted mt-1">Varietas: <strong className="text-text-main">{selectedLahan.varietasDitanam}</strong></p>
+              <p className="text-sm text-text-muted mt-1">
+                Varietas: <strong className="text-text-main">{selectedLahan.varietasDitanam}</strong>
+                <span className="mx-2">•</span>
+                Tanggal Tanam: <strong className="text-text-main">{selectedLahan.tanggalTanam || 'Tidak tersedia'}</strong>
+              </p>
             </div>
             {isExtremeWeather && (
               <div className="bg-red-500/10 border border-red-500/20 text-red-500 rounded-full px-3 py-1 flex items-center gap-1.5 text-xs font-bold">
@@ -1027,247 +1505,303 @@ export default function DashboardClient({ initialUser }: DashboardClientProps) {
             )}
           </div>
 
-          {/* METRICS SUMMARY GRID */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
-            <div className="bg-bg-dark p-5 rounded-2xl border border-border-light">
-              <span className="text-text-muted text-[11px] block mb-1 uppercase tracking-wider font-semibold">Sensor Kelembapan</span>
-              <div className="flex items-baseline gap-1 mt-1">
-                <strong className="text-2xl font-bold text-text-main">78%</strong>
-                <span className="text-[10px] text-primary font-semibold bg-emerald-955/20 px-1.5 py-0.5 rounded border border-primary/10">Optimal</span>
-              </div>
-              <p className="text-[10px] text-text-muted mt-2">Kondisi media tanam optimal untuk perakaran.</p>
-            </div>
-
-            <div className="bg-bg-dark p-5 rounded-2xl border border-border-light">
-              <span className="text-text-muted text-[11px] block mb-1 uppercase tracking-wider font-semibold">Suhu & Cuaca</span>
-              <div className="flex items-center gap-2 mt-1">
-                <CloudRain className="w-5 h-5 text-blue-400" />
-                <strong className="text-lg font-bold text-text-main">
-                  {liveWeather ? `${liveWeather.currentTemp}°C` : '24°C'}
-                </strong>
-                <span className="text-[10px] text-text-muted font-normal">
-                  ({liveWeather ? liveWeather.weatherDesc : 'Hujan Ringan'})
-                </span>
-              </div>
-              <p className="text-[10px] text-text-muted mt-2">Suhu rata-rata harian terpantau stabil.</p>
-            </div>
-
-            <div className="bg-bg-dark p-5 rounded-2xl border border-border-light">
-              <span className="text-text-muted text-[11px] block mb-1 uppercase tracking-wider font-semibold">Proyeksi Panen</span>
-              <div className="flex items-baseline gap-1 mt-1">
-                <strong className="text-base font-bold text-text-main">{selectedLahan.estimasiPanenDate}</strong>
-              </div>
-              <p className="text-[10px] text-text-muted mt-2">Perkiraan umur tanaman siap dipanen.</p>
-            </div>
+          {/* INNER TABS SELECTOR */}
+          <div className="flex border-b border-white/10 gap-6 mb-6 overflow-x-auto no-scrollbar">
+            <button
+              onClick={() => setInnerTab('overview')}
+              className={`pb-3 text-xs font-extrabold relative transition-colors whitespace-nowrap ${
+                innerTab === 'overview' ? 'text-primary' : 'text-gray-500 hover:text-gray-300'
+              }`}
+            >
+              <span>Overview Lahan</span>
+              {innerTab === 'overview' && <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary shadow-[0_0_8px_rgba(52,211,153,0.8)]"></span>}
+            </button>
+            <button
+              onClick={() => setInnerTab('weather')}
+              className={`pb-3 text-xs font-extrabold relative transition-colors whitespace-nowrap ${
+                innerTab === 'weather' ? 'text-primary' : 'text-gray-500 hover:text-gray-300'
+              }`}
+            >
+              <span>Pemantauan Iklim & Cuaca</span>
+              {innerTab === 'weather' && <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary shadow-[0_0_8px_rgba(52,211,153,0.8)]"></span>}
+            </button>
+            <button
+              onClick={() => setInnerTab('checklist')}
+              className={`pb-3 text-xs font-extrabold relative transition-colors whitespace-nowrap ${
+                innerTab === 'checklist' ? 'text-primary' : 'text-gray-500 hover:text-gray-300'
+              }`}
+            >
+              <span>Checklist Pemeliharaan</span>
+              {innerTab === 'checklist' && <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary shadow-[0_0_8px_rgba(52,211,153,0.8)]"></span>}
+            </button>
           </div>
 
-          {/* HISTORICAL TREND CHARTS */}
-          <div className="bg-bg-dark border border-border-light rounded-3xl p-5 mb-6">
-            <h3 className="font-bold text-text-main text-sm mb-4 flex items-center gap-2 border-b border-border-light/40 pb-2">
-              <Activity className="w-4.5 h-4.5 text-primary" />
-              <span>Tren Sensor Lahan (7 Hari Terakhir)</span>
-            </h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {/* Chart 1: Kelembapan */}
-              <div className="space-y-2">
-                <span className="text-xs font-semibold text-text-muted block">Status Kelembapan Lahan (%)</span>
-                <div className="bg-bg-card/50 border border-border-medium rounded-2xl p-3">
-                  <ResponsiveContainer width="100%" height={160}>
-                    <AreaChart data={mockTrendData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-                      <defs>
-                        <linearGradient id="colorMoisture" x1="0" y1="0" x2="0" y2="1">
-                          <stop offset="5%" stopColor="#10b981" stopOpacity={0.2}/>
-                          <stop offset="95%" stopColor="#10b981" stopOpacity={0}/>
-                        </linearGradient>
-                      </defs>
-                      <CartesianGrid strokeDasharray="3 3" stroke="#ffffff/5" vertical={false} />
-                      <XAxis dataKey="name" stroke="#6b7280" fontSize={10} tickLine={false} />
-                      <YAxis stroke="#6b7280" fontSize={10} tickLine={false} domain={[60, 100]} />
-                      <Tooltip 
-                        contentStyle={{ backgroundColor: '#18181b', borderColor: '#27272a', borderRadius: '8px' }}
-                        labelStyle={{ color: '#a1a1aa', fontWeight: 'bold', fontSize: '11px' }}
-                        itemStyle={{ color: '#10b981', fontSize: '12px' }}
-                      />
-                      <Area type="monotone" dataKey="kelembapan" name="Kelembapan" stroke="#10b981" strokeWidth={1.5} fillOpacity={1} fill="url(#colorMoisture)" />
-                    </AreaChart>
-                  </ResponsiveContainer>
+          {/* TAB CONTENT 1: OVERVIEW */}
+          {innerTab === 'overview' && (
+            <div className="space-y-6">
+              {/* METRICS SUMMARY GRID */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="bg-bg-dark p-5 rounded-2xl border border-border-light">
+                  <span className="text-text-muted text-[11px] block mb-1 uppercase tracking-wider font-semibold">Sensor Kelembapan</span>
+                  <div className="flex items-baseline gap-1 mt-1">
+                    <strong className="text-2xl font-bold text-text-main">78%</strong>
+                    <span className="text-[10px] text-primary font-semibold bg-emerald-955/20 px-1.5 py-0.5 rounded border border-primary/10">Optimal</span>
+                  </div>
+                  <p className="text-[10px] text-text-muted mt-2">Kondisi media tanam optimal untuk perakaran.</p>
                 </div>
-              </div>
 
-              {/* Chart 2: Suhu */}
-              <div className="space-y-2">
-                <span className="text-xs font-semibold text-text-muted block">Suhu Udara (°C)</span>
-                <div className="bg-bg-card/50 border border-border-medium rounded-2xl p-3">
-                  <ResponsiveContainer width="100%" height={160}>
-                    <AreaChart data={mockTrendData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
-                      <defs>
-                        <linearGradient id="colorTemp" x1="0" y1="0" x2="0" y2="1">
-                          <stop offset="5%" stopColor="#f5a623" stopOpacity={0.2}/>
-                          <stop offset="95%" stopColor="#f5a623" stopOpacity={0}/>
-                        </linearGradient>
-                      </defs>
-                      <CartesianGrid strokeDasharray="3 3" stroke="#ffffff/5" vertical={false} />
-                      <XAxis dataKey="name" stroke="#6b7280" fontSize={10} tickLine={false} />
-                      <YAxis stroke="#6b7280" fontSize={10} tickLine={false} domain={[15, 35]} />
-                      <Tooltip 
-                        contentStyle={{ backgroundColor: '#18181b', borderColor: '#27272a', borderRadius: '8px' }}
-                        labelStyle={{ color: '#a1a1aa', fontWeight: 'bold', fontSize: '11px' }}
-                        itemStyle={{ color: '#f5a623', fontSize: '12px' }}
-                      />
-                      <Area type="monotone" dataKey="suhu" name="Suhu" stroke="#f5a623" strokeWidth={1.5} fillOpacity={1} fill="url(#colorTemp)" />
-                    </AreaChart>
-                  </ResponsiveContainer>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* PANDUAN AKTIF & CHECKLIST MITIGASI */}
-          {(() => {
-            const requiredItems = isExtremeWeather 
-              ? ['Buka katup drainase sawah', 'Pemangkasan daun terbawah', 'Semprotkan fungisida organik', 'Monitor tanggul bedengan']
-              : ['Irigasi Harian Terjadwal', 'Pembersihan Parit', 'Pengecekan Mulsa Lahan'];
-            const completedCount = requiredItems.filter(item => checkedActivities[item]).length;
-            const progressPercent = requiredItems.length > 0 ? Math.round((completedCount / requiredItems.length) * 100) : 0;
-
-            return (
-              <div className="bg-bg-dark border border-border-light rounded-3xl p-5 mb-6">
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-3 pb-2 border-b border-border-light/40">
-                  <h3 className="font-bold text-text-main text-sm flex items-center gap-2">
-                    <CheckCircle2 className={`w-4.5 h-4.5 ${isExtremeWeather ? 'text-amber-500' : 'text-primary'}`} />
-                    <span>{isExtremeWeather ? 'Checklist Tindakan Penyelamatan Lahan' : 'Checklist Tindakan Pemeliharaan Rutin'}</span>
-                  </h3>
-                  <div className="flex items-center gap-2">
-                    <span className="text-[10px] text-text-muted">Progres:</span>
-                    <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${
-                      progressPercent === 100 ? 'bg-primary/10 text-primary border border-primary/20' : 'bg-white/5 text-text-muted border border-white/10'
-                    }`}>
-                      {progressPercent}%
+                <div className="bg-bg-dark p-5 rounded-2xl border border-border-light">
+                  <span className="text-text-muted text-[11px] block mb-1 uppercase tracking-wider font-semibold">Suhu & Cuaca</span>
+                  <div className="flex items-center gap-2 mt-1">
+                    <CloudRain className="w-5 h-5 text-blue-400" />
+                    <strong className="text-lg font-bold text-text-main">
+                      {liveWeather ? `${liveWeather.currentTemp}°C` : '24°C'}
+                    </strong>
+                    <span className="text-[10px] text-text-muted font-normal">
+                      ({liveWeather ? liveWeather.weatherDesc : 'Hujan Ringan'})
                     </span>
                   </div>
+                  <p className="text-[10px] text-text-muted mt-2">Suhu rata-rata harian terpantau stabil.</p>
                 </div>
 
-                {/* Progress Bar */}
-                <div className="w-full bg-bg-card h-2 rounded-full overflow-hidden mb-4 border border-white/5 p-[1px] relative">
-                  <div 
-                    className="h-full rounded-full transition-all duration-500 bg-primary"
-                    style={{ width: `${progressPercent}%` }}
-                  />
-                </div>
-                
-                <p className="text-xs text-text-muted mb-4 leading-relaxed">
-                  {isExtremeWeather 
-                    ? `Kami mendeteksi anomali cuaca berupa curah hujan ekstrim (${selectedLahan.curahHujan} mm/bln) di ketinggian lahan ${selectedLahan.ketinggian} mdpl. Jalankan rekomendasi taktis berikut segera:`
-                    : `Kondisi curah hujan (${selectedLahan.curahHujan} mm/bln) dan suhu udara (${selectedLahan.suhu}°C) stabil di batas optimal. Jalankan perawatan harian berikut untuk memaksimalkan pertumbuhan varietas ${selectedLahan.varietasDitanam}:`}
-                </p>
-
-                <div className="space-y-2.5">
-                  {isExtremeWeather ? (
-                    <>
-                      <div className="flex items-start gap-3 p-3 bg-bg-card border border-border-medium rounded-xl text-xs hover:border-amber-500/20 transition-all">
-                        <input 
-                          type="checkbox" 
-                          checked={checkedActivities['Buka katup drainase sawah'] || false}
-                          onChange={(e) => handleToggleActivity('Buka katup drainase sawah', e.target.checked)}
-                          className="mt-0.5 rounded border-white/10 text-amber-500 focus:ring-0 focus:ring-offset-0 bg-transparent cursor-pointer" 
-                        />
-                        <div className="text-text-main">
-                          <strong className={checkedActivities['Buka katup drainase sawah'] ? 'line-through text-text-muted' : ''}>Buka katup drainase sawah</strong>
-                          <p className="text-[10px] text-text-muted mt-0.5">Keluarkan limpahan air berlebih untuk mencegah busuk akar.</p>
-                        </div>
-                      </div>
-                      <div className="flex items-start gap-3 p-3 bg-bg-card border border-border-medium rounded-xl text-xs hover:border-amber-500/20 transition-all">
-                        <input 
-                          type="checkbox" 
-                          checked={checkedActivities['Pemangkasan daun terbawah'] || false}
-                          onChange={(e) => handleToggleActivity('Pemangkasan daun terbawah', e.target.checked)}
-                          className="mt-0.5 rounded border-white/10 text-amber-500 focus:ring-0 focus:ring-offset-0 bg-transparent cursor-pointer" 
-                        />
-                        <div className="text-text-main">
-                          <strong className={checkedActivities['Pemangkasan daun terbawah'] ? 'line-through text-text-muted' : ''}>Pemangkasan daun terbawah</strong>
-                          <p className="text-[10px] text-text-muted mt-0.5">Kurangi kelembapan rumpun tanaman varietas {selectedLahan.varietasDitanam}.</p>
-                        </div>
-                      </div>
-                      <div className="flex items-start gap-3 p-3 bg-bg-card border border-border-medium rounded-xl text-xs hover:border-amber-500/20 transition-all">
-                        <input 
-                          type="checkbox" 
-                          checked={checkedActivities['Semprotkan fungisida organik'] || false}
-                          onChange={(e) => handleToggleActivity('Semprotkan fungisida organik', e.target.checked)}
-                          className="mt-0.5 rounded border-white/10 text-amber-500 focus:ring-0 focus:ring-offset-0 bg-transparent cursor-pointer" 
-                        />
-                        <div className="text-text-main">
-                          <strong className={checkedActivities['Semprotkan fungisida organik'] ? 'line-through text-text-muted' : ''}>Semprotkan fungisida organik</strong>
-                          <p className="text-[10px] text-text-muted mt-0.5">Lakukan pencegahan awal terhadap serangan jamur patogen.</p>
-                        </div>
-                      </div>
-                      <div className="flex items-start gap-3 p-3 bg-bg-card border border-border-medium rounded-xl text-xs hover:border-amber-500/20 transition-all">
-                        <input 
-                          type="checkbox" 
-                          checked={checkedActivities['Monitor tanggul bedengan'] || false}
-                          onChange={(e) => handleToggleActivity('Monitor tanggul bedengan', e.target.checked)}
-                          className="mt-0.5 rounded border-white/10 text-amber-500 focus:ring-0 focus:ring-offset-0 bg-transparent cursor-pointer" 
-                        />
-                        <div className="text-text-main">
-                          <strong className={checkedActivities['Monitor tanggul bedengan'] ? 'line-through text-text-muted' : ''}>Monitor tanggul bedengan</strong>
-                          <p className="text-[10px] text-text-muted mt-0.5">Pastikan tidak terjadi sumbatan aliran air di saluran irigasi utama.</p>
-                        </div>
-                      </div>
-                    </>
-                  ) : (
-                    <>
-                      <div className="flex items-start gap-3 p-3 bg-bg-card border border-border-medium rounded-xl text-xs hover:border-primary/20 transition-all">
-                        <input 
-                          type="checkbox" 
-                          checked={checkedActivities['Irigasi Harian Terjadwal'] || false}
-                          onChange={(e) => handleToggleActivity('Irigasi Harian Terjadwal', e.target.checked)}
-                          className="mt-0.5 rounded border-white/10 text-primary focus:ring-0 focus:ring-offset-0 bg-transparent cursor-pointer" 
-                        />
-                        <div className="text-text-main">
-                          <strong className={checkedActivities['Irigasi Harian Terjadwal'] ? 'line-through text-text-muted' : ''}>Irigasi Harian Terjadwal</strong>
-                          <p className="text-[10px] text-text-muted mt-0.5">Salurkan air irigasi sebanyak {(selectedLahan.kebutuhanAirDaily || 5) * selectedLahan.luas} Liter di pagi hari.</p>
-                        </div>
-                      </div>
-                      <div className="flex items-start gap-3 p-3 bg-bg-card border border-border-medium rounded-xl text-xs hover:border-primary/20 transition-all">
-                        <input 
-                          type="checkbox" 
-                          checked={checkedActivities['Pembersihan Parit'] || false}
-                          onChange={(e) => handleToggleActivity('Pembersihan Parit', e.target.checked)}
-                          className="mt-0.5 rounded border-white/10 text-primary focus:ring-0 focus:ring-offset-0 bg-transparent cursor-pointer" 
-                        />
-                        <div className="text-text-main">
-                          <strong className={checkedActivities['Pembersihan Parit'] ? 'line-through text-text-muted' : ''}>Pembersihan Parit</strong>
-                          <p className="text-[10px] text-text-muted mt-0.5">Bersihkan parit irigasi dari sisa gulma atau lumpur penyumbat.</p>
-                        </div>
-                      </div>
-                      <div className="flex items-start gap-3 p-3 bg-bg-card border border-border-medium rounded-xl text-xs hover:border-primary/20 transition-all">
-                        <input 
-                          type="checkbox" 
-                          checked={checkedActivities['Pengecekan Mulsa Lahan'] || false}
-                          onChange={(e) => handleToggleActivity('Pengecekan Mulsa Lahan', e.target.checked)}
-                          className="mt-0.5 rounded border-white/10 text-primary focus:ring-0 focus:ring-offset-0 bg-transparent cursor-pointer" 
-                        />
-                        <div className="text-text-main">
-                          <strong className={checkedActivities['Pengecekan Mulsa Lahan'] ? 'line-through text-text-muted' : ''}>Pengecekan Mulsa Lahan</strong>
-                          <p className="text-[10px] text-text-muted mt-0.5">Pastikan mulsa organik/jerami penutup tanah tidak tergeser.</p>
-                        </div>
-                      </div>
-                    </>
-                  )}
+                <div className="bg-bg-dark p-5 rounded-2xl border border-border-light flex flex-col justify-between">
+                  <div>
+                    <span className="text-text-muted text-[11px] block mb-1 uppercase tracking-wider font-semibold">Proyeksi Panen</span>
+                    <div className="flex items-baseline gap-1 mt-1">
+                      <strong className="text-base font-bold text-text-main">{selectedLahan.estimasiPanenDate}</strong>
+                    </div>
+                  </div>
+                  <div className="mt-3 border-t border-border-light/40 pt-2 flex justify-between items-center text-[10px]">
+                    <span className="text-text-muted">Tanggal Tanam:</span>
+                    <span className="font-semibold text-text-main">{selectedLahan.tanggalTanam || 'Tidak tersedia'}</span>
+                  </div>
                 </div>
               </div>
-            );
-          })()}
 
-          {/* CATATAN MITIGASI SAAT CHECK SUITABILITY */}
-          {selectedLahan.catatanMitigasi && (
-            <div className="bg-bg-dark border border-border-light rounded-3xl p-5 mb-6">
-              <h4 className="font-bold text-text-main mb-3 text-xs uppercase tracking-wider text-text-muted border-b border-border-light/40 pb-2">Instruksi Tanam Awal</h4>
-              <p className="text-xs text-text-muted whitespace-pre-line leading-relaxed">{selectedLahan.catatanMitigasi}</p>
+              {/* HISTORICAL TREND CHARTS */}
+              <div className="bg-bg-dark border border-border-light rounded-3xl p-5">
+                <h3 className="font-bold text-text-main text-sm mb-4 flex items-center gap-2 border-b border-border-light/40 pb-2">
+                  <Activity className="w-4.5 h-4.5 text-primary" />
+                  <span>Tren Sensor Lahan (7 Hari Terakhir)</span>
+                </h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {/* Chart 1: Kelembapan */}
+                  <div className="space-y-2">
+                    <span className="text-xs font-semibold text-text-muted block">Status Kelembapan Lahan (%)</span>
+                    <div className="bg-bg-card/50 border border-border-medium rounded-2xl p-3">
+                      <ResponsiveContainer width="100%" height={160}>
+                        <AreaChart data={mockTrendData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                          <defs>
+                            <linearGradient id="colorMoisture" x1="0" y1="0" x2="0" y2="1">
+                              <stop offset="5%" stopColor="#10b981" stopOpacity={0.2}/>
+                              <stop offset="95%" stopColor="#10b981" stopOpacity={0}/>
+                            </linearGradient>
+                          </defs>
+                          <CartesianGrid strokeDasharray="3 3" stroke="#ffffff/5" vertical={false} />
+                          <XAxis dataKey="name" stroke="#6b7280" fontSize={10} tickLine={false} />
+                          <YAxis stroke="#6b7280" fontSize={10} tickLine={false} domain={[60, 100]} />
+                          <Tooltip 
+                            contentStyle={{ backgroundColor: '#18181b', borderColor: '#27272a', borderRadius: '8px' }}
+                            labelStyle={{ color: '#a1a1aa', fontWeight: 'bold', fontSize: '11px' }}
+                            itemStyle={{ color: '#10b981', fontSize: '12px' }}
+                          />
+                          <Area type="monotone" dataKey="kelembapan" name="Kelembapan" stroke="#10b981" strokeWidth={1.5} fillOpacity={1} fill="url(#colorMoisture)" />
+                        </AreaChart>
+                      </ResponsiveContainer>
+                    </div>
+                  </div>
+
+                  {/* Chart 2: Suhu */}
+                  <div className="space-y-2">
+                    <span className="text-xs font-semibold text-text-muted block">Suhu Udara (°C)</span>
+                    <div className="bg-bg-card/50 border border-border-medium rounded-2xl p-3">
+                      <ResponsiveContainer width="100%" height={160}>
+                        <AreaChart data={mockTrendData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                          <defs>
+                            <linearGradient id="colorTemp" x1="0" y1="0" x2="0" y2="1">
+                              <stop offset="5%" stopColor="#f5a623" stopOpacity={0.2}/>
+                              <stop offset="95%" stopColor="#f5a623" stopOpacity={0}/>
+                            </linearGradient>
+                          </defs>
+                          <CartesianGrid strokeDasharray="3 3" stroke="#ffffff/5" vertical={false} />
+                          <XAxis dataKey="name" stroke="#6b7280" fontSize={10} tickLine={false} />
+                          <YAxis stroke="#6b7280" fontSize={10} tickLine={false} domain={[15, 35]} />
+                          <Tooltip 
+                            contentStyle={{ backgroundColor: '#18181b', borderColor: '#27272a', borderRadius: '8px' }}
+                            labelStyle={{ color: '#a1a1aa', fontWeight: 'bold', fontSize: '11px' }}
+                            itemStyle={{ color: '#f5a623', fontSize: '12px' }}
+                          />
+                          <Area type="monotone" dataKey="suhu" name="Suhu" stroke="#f5a623" strokeWidth={1.5} fillOpacity={1} fill="url(#colorTemp)" />
+                        </AreaChart>
+                      </ResponsiveContainer>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* CATATAN MITIGASI SAAT CHECK SUITABILITY */}
+              {selectedLahan.catatanMitigasi && (
+                <div className="bg-bg-dark border border-border-light rounded-3xl p-5">
+                  <h4 className="font-bold text-text-main mb-3 text-xs uppercase tracking-wider text-text-muted border-b border-border-light/40 pb-2">Instruksi Tanam Awal</h4>
+                  <p className="text-xs text-text-muted whitespace-pre-line leading-relaxed">{selectedLahan.catatanMitigasi}</p>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* TAB CONTENT 2: WEATHER & CLIMATE */}
+          {innerTab === 'weather' && (
+            <div className="space-y-6">
+              <KalenderTanam savedLahans={[selectedLahan]} cropsDbList={cropsList} />
+              
+              <div className="bg-bg-dark border border-border-medium rounded-2xl p-4 text-xs text-amber-300 flex items-center gap-2">
+                <span>💡 Dibandingkan rata-rata historis 5 tahun terakhir: <strong>+1.2°C lebih panas</strong> akibat pergeseran iklim lokal.</span>
+              </div>
+            </div>
+          )}
+
+          {/* TAB CONTENT 3: CHECKLIST PEMELIHARAAN */}
+          {innerTab === 'checklist' && (
+            <div className="space-y-6">
+              {(() => {
+                const requiredItems = isExtremeWeather 
+                  ? ['Buka katup drainase sawah', 'Pemangkasan daun terbawah', 'Semprotkan fungisida organik', 'Monitor tanggul bedengan']
+                  : ['Irigasi Harian Terjadwal', 'Pembersihan Parit', 'Pengecekan Mulsa Lahan'];
+                const completedCount = requiredItems.filter(item => checkedActivities[item]).length;
+                const progressPercent = requiredItems.length > 0 ? Math.round((completedCount / requiredItems.length) * 100) : 0;
+
+                return (
+                  <div className="bg-bg-dark border border-border-light rounded-3xl p-5">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-3 pb-2 border-b border-border-light/40">
+                      <h3 className="font-bold text-text-main text-sm flex items-center gap-2">
+                        <CheckCircle2 className={`w-4.5 h-4.5 ${isExtremeWeather ? 'text-amber-500' : 'text-primary'}`} />
+                        <span>{isExtremeWeather ? 'Checklist Tindakan Penyelamatan Lahan' : 'Checklist Tindakan Pemeliharaan Rutin'}</span>
+                      </h3>
+                      <div className="flex items-center gap-2">
+                        <span className="text-[10px] text-text-muted">Progres:</span>
+                        <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${
+                          progressPercent === 100 ? 'bg-primary/10 text-primary border border-primary/20' : 'bg-white/5 text-text-muted border border-white/10'
+                        }`}>
+                          {progressPercent}%
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Progress Bar */}
+                    <div className="w-full bg-bg-card h-2 rounded-full overflow-hidden mb-4 border border-white/5 p-[1px] relative">
+                      <div 
+                        className="h-full rounded-full transition-all duration-500 bg-primary"
+                        style={{ width: `${progressPercent}%` }}
+                      />
+                    </div>
+                    
+                    <p className="text-xs text-text-muted mb-4 leading-relaxed">
+                      {isExtremeWeather 
+                        ? `Kami mendeteksi anomali cuaca berupa curah hujan ekstrim (${selectedLahan.curahHujan} mm/bln) di ketinggian lahan ${selectedLahan.ketinggian} mdpl. Jalankan rekomendasi taktis berikut segera:`
+                        : `Kondisi curah hujan (${selectedLahan.curahHujan} mm/bln) dan suhu udara (${selectedLahan.suhu}°C) stabil di batas optimal. Jalankan perawatan harian berikut untuk memaksimalkan pertumbuhan varietas ${selectedLahan.varietasDitanam}:`}
+                    </p>
+
+                    <div className="space-y-2.5">
+                      {isExtremeWeather ? (
+                        <>
+                          <div className="flex items-start gap-3 p-3 bg-bg-card border border-border-medium rounded-xl text-xs hover:border-amber-500/20 transition-all">
+                            <input 
+                              type="checkbox" 
+                              checked={checkedActivities['Buka katup drainase sawah'] || false}
+                              onChange={(e) => handleToggleActivity('Buka katup drainase sawah', e.target.checked)}
+                              className="mt-0.5 rounded border-white/10 text-amber-500 focus:ring-0 focus:ring-offset-0 bg-transparent cursor-pointer" 
+                            />
+                            <div className="text-text-main">
+                              <strong className={checkedActivities['Buka katup drainase sawah'] ? 'line-through text-text-muted' : ''}>Buka katup drainase sawah</strong>
+                              <p className="text-[10px] text-text-muted mt-0.5">Keluarkan limpahan air berlebih untuk mencegah busuk akar.</p>
+                            </div>
+                          </div>
+                          <div className="flex items-start gap-3 p-3 bg-bg-card border border-border-medium rounded-xl text-xs hover:border-amber-500/20 transition-all">
+                            <input 
+                              type="checkbox" 
+                              checked={checkedActivities['Pemangkasan daun terbawah'] || false}
+                              onChange={(e) => handleToggleActivity('Pemangkasan daun terbawah', e.target.checked)}
+                              className="mt-0.5 rounded border-white/10 text-amber-500 focus:ring-0 focus:ring-offset-0 bg-transparent cursor-pointer" 
+                            />
+                            <div className="text-text-main">
+                              <strong className={checkedActivities['Pemangkasan daun terbawah'] ? 'line-through text-text-muted' : ''}>Pemangkasan daun terbawah</strong>
+                              <p className="text-[10px] text-text-muted mt-0.5">Kurangi kelembapan rumpun tanaman varietas {selectedLahan.varietasDitanam}.</p>
+                            </div>
+                          </div>
+                          <div className="flex items-start gap-3 p-3 bg-bg-card border border-border-medium rounded-xl text-xs hover:border-amber-500/20 transition-all">
+                            <input 
+                              type="checkbox" 
+                              checked={checkedActivities['Semprotkan fungisida organik'] || false}
+                              onChange={(e) => handleToggleActivity('Semprotkan fungisida organik', e.target.checked)}
+                              className="mt-0.5 rounded border-white/10 text-amber-500 focus:ring-0 focus:ring-offset-0 bg-transparent cursor-pointer" 
+                            />
+                            <div className="text-text-main">
+                              <strong className={checkedActivities['Semprotkan fungisida organik'] ? 'line-through text-text-muted' : ''}>Semprotkan fungisida organik</strong>
+                              <p className="text-[10px] text-text-muted mt-0.5">Lakukan pencegahan awal terhadap serangan jamur patogen.</p>
+                            </div>
+                          </div>
+                          <div className="flex items-start gap-3 p-3 bg-bg-card border border-border-medium rounded-xl text-xs hover:border-amber-500/20 transition-all">
+                            <input 
+                              type="checkbox" 
+                              checked={checkedActivities['Monitor tanggul bedengan'] || false}
+                              onChange={(e) => handleToggleActivity('Monitor tanggul bedengan', e.target.checked)}
+                              className="mt-0.5 rounded border-white/10 text-amber-500 focus:ring-0 focus:ring-offset-0 bg-transparent cursor-pointer" 
+                            />
+                            <div className="text-text-main">
+                              <strong className={checkedActivities['Monitor tanggul bedengan'] ? 'line-through text-text-muted' : ''}>Monitor tanggul bedengan</strong>
+                              <p className="text-[10px] text-text-muted mt-0.5">Pastikan tidak terjadi sumbatan aliran air di saluran irigasi utama.</p>
+                            </div>
+                          </div>
+                        </>
+                      ) : (
+                        <>
+                          <div className="flex items-start gap-3 p-3 bg-bg-card border border-border-medium rounded-xl text-xs hover:border-primary/20 transition-all">
+                            <input 
+                              type="checkbox" 
+                              checked={checkedActivities['Irigasi Harian Terjadwal'] || false}
+                              onChange={(e) => handleToggleActivity('Irigasi Harian Terjadwal', e.target.checked)}
+                              className="mt-0.5 rounded border-white/10 text-primary focus:ring-0 focus:ring-offset-0 bg-transparent cursor-pointer" 
+                            />
+                            <div className="text-text-main">
+                              <strong className={checkedActivities['Irigasi Harian Terjadwal'] ? 'line-through text-text-muted' : ''}>Irigasi Harian Terjadwal</strong>
+                              <p className="text-[10px] text-text-muted mt-0.5">Salurkan air irigasi sebanyak {(selectedLahan.kebutuhanAirDaily || 5) * selectedLahan.luas} Liter di pagi hari.</p>
+                            </div>
+                          </div>
+                          <div className="flex items-start gap-3 p-3 bg-bg-card border border-border-medium rounded-xl text-xs hover:border-primary/20 transition-all">
+                            <input 
+                              type="checkbox" 
+                              checked={checkedActivities['Pembersihan Parit'] || false}
+                              onChange={(e) => handleToggleActivity('Pembersihan Parit', e.target.checked)}
+                              className="mt-0.5 rounded border-white/10 text-primary focus:ring-0 focus:ring-offset-0 bg-transparent cursor-pointer" 
+                            />
+                            <div className="text-text-main">
+                              <strong className={checkedActivities['Pembersihan Parit'] ? 'line-through text-text-muted' : ''}>Pembersihan Parit</strong>
+                              <p className="text-[10px] text-text-muted mt-0.5">Bersihkan parit irigasi dari sisa gulma atau lumpur penyumbat.</p>
+                            </div>
+                          </div>
+                          <div className="flex items-start gap-3 p-3 bg-bg-card border border-border-medium rounded-xl text-xs hover:border-primary/20 transition-all">
+                            <input 
+                              type="checkbox" 
+                              checked={checkedActivities['Pengecekan Mulsa Lahan'] || false}
+                              onChange={(e) => handleToggleActivity('Pengecekan Mulsa Lahan', e.target.checked)}
+                              className="mt-0.5 rounded border-white/10 text-primary focus:ring-0 focus:ring-offset-0 bg-transparent cursor-pointer" 
+                            />
+                            <div className="text-text-main">
+                              <strong className={checkedActivities['Pengecekan Mulsa Lahan'] ? 'line-through text-text-muted' : ''}>Pengecekan Mulsa Lahan</strong>
+                              <p className="text-[10px] text-text-muted mt-0.5">Pastikan mulsa organik/jerami penutup tanah tidak tergeser.</p>
+                            </div>
+                          </div>
+                        </>
+                      )}
+                    </div>
+                  </div>
+                );
+              })()}
             </div>
           )}
 
           {/* ACTIONS */}
-          <div className="flex gap-4 border-t border-border-light pt-6">
+          <div className="flex gap-4 border-t border-border-light pt-6 mt-6">
             <button 
               onClick={() => {
                 setCurrentView('dashboard');
@@ -1275,7 +1809,7 @@ export default function DashboardClient({ initialUser }: DashboardClientProps) {
               }}
               className="flex-1 py-3.5 px-4 rounded-xl border border-border-medium hover:bg-border-light text-text-muted font-bold text-sm transition-all text-center cursor-pointer"
             >
-              Kembali
+              Kembali ke Dashboard
             </button>
 
             <button 
@@ -1285,12 +1819,11 @@ export default function DashboardClient({ initialUser }: DashboardClientProps) {
                 const hargaDef = 7000; // standard average default
                 
                 setBeratPanen(0);
-                
                 setHargaJual(hargaDef);
                 setStatusHasil('sukses');
                 setCurrentView('panen');
               }}
-              className="flex-1 py-3.5 px-4 rounded-xl bg-primary-dark hover:bg-primary text-white font-bold text-sm transition-all text-center shadow-lg shadow-primary/10 cursor-pointer"
+              className="flex-1 py-3.5 px-4 rounded-xl bg-primary hover:bg-primary-dark text-text-inverse font-bold text-sm transition-all text-center shadow-lg shadow-primary/20 cursor-pointer animate-pulse-soft"
             >
               Panen Lahan Sekarang
             </button>
@@ -1563,15 +2096,6 @@ export default function DashboardClient({ initialUser }: DashboardClientProps) {
               {activeTab === 'lahan' && <span className="absolute -bottom-2.5 left-0 right-0 h-0.5 bg-primary-light shadow-[0_0_8px_rgba(52,211,153,0.8)]"></span>}
             </button>
             <button 
-              onClick={() => setActiveTab('kalender')}
-              className={`py-2 px-1 text-sm font-bold relative transition-all whitespace-nowrap ${
-                activeTab === 'kalender' ? 'text-primary' : 'text-gray-500 hover:text-gray-300'
-              }`}
-            >
-              <span className="flex items-center gap-2"><Calendar className="w-4 h-4"/> Kalender & Cuaca</span>
-              {activeTab === 'kalender' && <span className="absolute -bottom-2.5 left-0 right-0 h-0.5 bg-primary-light shadow-[0_0_8px_rgba(52,211,153,0.8)]"></span>}
-            </button>
-            <button 
               onClick={() => setActiveTab('panen')}
               className={`py-2 px-1 text-sm font-bold relative transition-all whitespace-nowrap ${
                 activeTab === 'panen' ? 'text-primary' : 'text-gray-500 hover:text-gray-300'
@@ -1642,7 +2166,7 @@ export default function DashboardClient({ initialUser }: DashboardClientProps) {
                           </button>
                         </div>
                       ) : lahan.status === 'sedang-ditanam' ? (
-                        <span className="px-2 py-0.5 rounded-full text-[10px] bg-primary/10 text-primary border border-primary/20 font-bold uppercase tracking-wider">Ditanami</span>
+                        <span className="px-2 py-0.5 rounded-full text-[10px] bg-primary/10 text-primary border border-primary/20 font-bold uppercase tracking-wider">Sedang Ditanam</span>
                       ) : (
                         <span className="px-2 py-0.5 rounded-full text-[10px] bg-amber-500/10 text-amber-400 border border-amber-500/20 font-bold uppercase tracking-wider">Siap Panen</span>
                       )}
@@ -1684,6 +2208,10 @@ export default function DashboardClient({ initialUser }: DashboardClientProps) {
                           <strong className="text-text-main">{lahan.varietasDitanam}</strong>
                         </div>
                         <div className="flex justify-between">
+                          <span className="text-text-muted">Tanggal Tanam:</span>
+                          <strong className="text-text-main">{lahan.tanggalTanam || 'Tidak tersedia'}</strong>
+                        </div>
+                        <div className="flex justify-between">
                           <span className="text-text-muted">Estimasi Panen:</span>
                           <strong className="text-orange-400">{lahan.estimasiPanenDate}</strong>
                         </div>
@@ -1704,45 +2232,46 @@ export default function DashboardClient({ initialUser }: DashboardClientProps) {
                         onClick={() => {
                           setSelectedLahan(lahan);
                           setCurrentView('suitability');
+                          setActiveStep(1);
                         }}
-                        className="flex-1 text-xs font-bold py-2.5 rounded-xl border border-primary/30 text-primary hover:bg-primary/10 transition-colors text-center"
+                        className="flex-1 text-xs font-bold py-2.5 rounded-xl border border-primary/30 text-primary hover:bg-primary/10 transition-colors text-center cursor-pointer"
                       >
                         Cek Kelayakan
                       </button>
+                    ) : lahan.status === 'sedang-ditanam' ? (
+                      <button 
+                        onClick={() => {
+                          setSelectedLahan(lahan);
+                          setCurrentView('monitoring');
+                          setInnerTab('overview');
+                        }}
+                        className="flex-1 text-xs font-bold py-2.5 rounded-xl bg-primary/10 hover:bg-primary/20 text-primary border border-primary/30 transition-colors text-center flex items-center justify-center gap-1 cursor-pointer"
+                      >
+                        <Activity className="w-3.5 h-3.5" />
+                        <span>Pantau Lahan</span>
+                      </button>
                     ) : (
-                      <>
-                        <button 
-                          onClick={() => {
+                      <button 
+                        onClick={async () => {
+                          const confirmed = await showConfirmModal(
+                            'Catat Hasil Panen',
+                            'Apakah Anda yakin ingin mencatat hasil panen untuk lahan ini? Tindakan ini akan mengarahkan Anda ke formulir pencatatan hasil.',
+                            'Ya, Catat Sekarang',
+                            'Batalkan'
+                          );
+                          if (confirmed) {
                             setSelectedLahan(lahan);
-                            setCurrentView('monitoring');
-                          }}
-                          className="flex-1 text-xs font-bold py-2.5 rounded-xl bg-primary/10 hover:bg-primary/20 text-primary transition-colors text-center flex items-center justify-center gap-1"
-                        >
-                          <Activity className="w-3.5 h-3.5" />
-                          <span>Pantau Lahan</span>
-                        </button>
-                        
-                        {lahan.status === 'sedang-ditanam' && (
-                          <button 
-                            onClick={async () => {
-                              const confirmed = await showConfirmModal(
-                                'Tandai Siap Panen',
-                                'Apakah Anda yakin ingin memanen lahan ini? Tindakan ini akan menandai status lahan siap panen.',
-                                'Ya, Panen Sekarang',
-                                'Batalkan'
-                              );
-                              if (confirmed) {
-                                await handleUpdateStatusTanam(lahan.id, 'siap-panen');
-                                await showAlertModal('Berhasil', 'Status lahan berhasil diubah menjadi Siap Panen!', 'success');
-                              }
-                            }}
-                            className="px-3 bg-amber-500 hover:bg-amber-600 text-text-main font-bold py-2.5 rounded-xl text-xs transition-all flex items-center justify-center cursor-pointer"
-                            title="Tandai Siap Panen"
-                          >
-                            Siap Panen
-                          </button>
-                        )}
-                      </>
+                            const hargaDef = 7000;
+                            setBeratPanen(0);
+                            setHargaJual(hargaDef);
+                            setStatusHasil('sukses');
+                            setCurrentView('panen');
+                          }
+                        }}
+                        className="flex-1 text-xs font-bold py-2.5 rounded-xl bg-amber-500 hover:bg-amber-600 text-text-inverse transition-colors text-center flex items-center justify-center gap-1 cursor-pointer font-bold"
+                      >
+                        Catat Hasil Panen
+                      </button>
                     )}
                   </div>
 
@@ -1886,18 +2415,7 @@ export default function DashboardClient({ initialUser }: DashboardClientProps) {
           </motion.div>
         )}
 
-        {/* TAB CONTENT: KALENDER & CUACA */}
-        {activeTab === 'kalender' && (
-          <motion.div 
-            key="kalender"
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: 20 }}
-            transition={{ duration: 0.3 }}
-          >
-            <KalenderTanam savedLahans={lahans} />
-          </motion.div>
-        )}
+
         </AnimatePresence>
 
       </main>

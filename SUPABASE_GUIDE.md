@@ -71,12 +71,22 @@ CREATE TABLE public.riwayat_panen (
   created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
 );
 
--- 4. Aktifkan Row Level Security (RLS) agar data aman per petani
+-- 4. Membuat Tabel Log Aktivitas (Activity Logs)
+CREATE TABLE public.activity_logs (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  land_id UUID REFERENCES public.lahan(id) ON DELETE CASCADE NOT NULL,
+  activity_name TEXT NOT NULL,
+  is_completed BOOLEAN DEFAULT FALSE NOT NULL,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
+);
+
+-- 5. Aktifkan Row Level Security (RLS) agar data aman per petani
 ALTER TABLE public.petani ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.lahan ENABLE ROW LEVEL SECURITY;
 ALTER TABLE public.riwayat_panen ENABLE ROW LEVEL SECURITY;
+ALTER TABLE public.activity_logs ENABLE ROW LEVEL SECURITY;
 
--- 5. Kebijakan Keamanan (RLS Policies)
+-- 6. Kebijakan Keamanan (RLS Policies)
 -- Pengguna hanya bisa membaca dan mengubah data mereka sendiri
 
 CREATE POLICY "Petani dapat mengelola data profilnya sendiri" 
@@ -87,6 +97,15 @@ ON public.lahan FOR ALL USING (auth.uid() = petani_id);
 
 CREATE POLICY "Petani dapat mengelola riwayat panennya sendiri" 
 ON public.riwayat_panen FOR ALL USING (auth.uid() = petani_id);
+
+CREATE POLICY "Petani dapat mengelola log aktivitas lahannya sendiri" 
+ON public.activity_logs FOR ALL USING (
+  EXISTS (
+    SELECT 1 FROM public.lahan 
+    WHERE public.lahan.id = public.activity_logs.land_id 
+    AND public.lahan.petani_id = auth.uid()
+  )
+);
 ```
 
 4. Klik tombol **Run** di kanan bawah. Anda akan melihat pesan **Success** jika tabel berhasil dibuat.

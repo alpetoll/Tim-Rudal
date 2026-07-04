@@ -263,44 +263,98 @@ export function cariAlternatif(lahan: Lahan): { tanaman: Tanaman; evaluasi: Hasi
 // Fitur Kalender Tanam: Evaluasi skor tanam harian berdasarkan curah hujan dan suhu
 export function evaluasiTanggalTanam(tanamanId: string, forecast14Hari: { date: string, temperature_2m_mean: number, precipitation_sum: number }[]) {
   const tanaman = TANAMAN_DATABASE.find(t => t.id === tanamanId) || TANAMAN_DATABASE[0];
+  return evaluasiTanggalTanamDinamis(null, tanaman, forecast14Hari);
+}
+
+// Evaluasi Tanggal Tanam Dinamis: Menggabungkan kesesuaian lahan (static) dan kelayakan cuaca harian (dynamic)
+export function evaluasiTanggalTanamDinamis(
+  lahan: Lahan | null | undefined,
+  cropDb: any,
+  forecast14Hari: { date: string, temperature_2m_mean: number, precipitation_sum: number }[]
+) {
+  if (!cropDb) {
+    return forecast14Hari.map(day => ({
+      date: day.date,
+      score: 100,
+      weatherScore: 100,
+      landScore: 100,
+      status: 'optimal',
+      temp: day.temperature_2m_mean,
+      rain: day.precipitation_sum
+    }));
+  }
+
+  // Hitung skor kesesuaian lahan (static)
+  let landScore = 100;
+  if (lahan) {
+    if (cropDb.kriteria_tanaman) {
+      const landEvalResult = evaluasiLahanDinamis(lahan, cropDb);
+      landScore = landEvalResult.skor;
+    } else {
+      const landEvalResult = cekKelayakan(lahan, cropDb.id);
+      landScore = landEvalResult.skor;
+    }
+  }
+
+  // Ekstrak kriteria suhu & curah hujan secara dinamis
+  const tempCriterion = cropDb.kriteria_tanaman?.find((c: any) => c.parameter === 'temperatur');
+  const rainCriterion = cropDb.kriteria_tanaman?.find((c: any) => c.parameter === 'curah_hujan');
+
+  // Fallbacks untuk suhu
+  const tempMin = tempCriterion ? (tempCriterion.s3_min ?? tempCriterion.s2_min ?? tempCriterion.s1_min ?? 20) : (cropDb.kebutuhanSuhu?.min ?? 20);
+  const tempMax = tempCriterion ? (tempCriterion.s3_max ?? tempCriterion.s2_max ?? tempCriterion.s1_max ?? 32) : (cropDb.kebutuhanSuhu?.max ?? 32);
+  const tempIdealMin = tempCriterion ? (tempCriterion.s1_min ?? 24) : (cropDb.kebutuhanSuhu?.min ?? 24);
+  const tempIdealMax = tempCriterion ? (tempCriterion.s1_max ?? 29) : (cropDb.kebutuhanSuhu?.max ?? 29);
+
+  // Fallbacks untuk curah hujan
+  const rainMin = rainCriterion ? (rainCriterion.s3_min ?? rainCriterion.s2_min ?? rainCriterion.s1_min ?? 100) : (cropDb.kebutuhanCurahHujan?.min ?? 100);
+  const rainMax = rainCriterion ? (rainCriterion.s3_max ?? rainCriterion.s2_max ?? rainCriterion.s1_max ?? 300) : (cropDb.kebutuhanCurahHujan?.max ?? 300);
+  
+  const dailyOptimalMin = rainMin / 30;
+  const dailyOptimalMax = rainMax / 30;
 
   return forecast14Hari.map(day => {
-    let score = 100;
+    let weatherScore = 100;
     
-    // Penalize if temperature is out of bounds
-    if (day.temperature_2m_mean < tanaman.kebutuhanSuhu.min) {
-      score -= 30; // Terlalu dingin untuk berkecambah
-    } else if (day.temperature_2m_mean > tanaman.kebutuhanSuhu.max) {
-      score -= 20; // Terlalu panas, risiko kering
+    // Penalti jika suhu di luar batas toleransi
+    if (day.temperature_2m_mean < tempMin) {
+      weatherScore -= 30; // Terlalu dingin untuk berkecambah
+    } else if (day.temperature_2m_mean > tempMax) {
+      weatherScore -= 20; // Terlalu panas, risiko kering
+    } else if (day.temperature_2m_mean < tempIdealMin || day.temperature_2m_mean > tempIdealMax) {
+      weatherScore -= 10; // Suhu sub-optimal (S2/S3)
     }
 
-    // Penalize if rain is extremely high (flood risk for seeds) or zero (drought risk)
-    // Curah hujan harian (mm/hari). Kebutuhan curah hujan di DB adalah mm/bulan. 
-    // Rata-rata curah hujan harian optimal = mm_bulan / 30
-    const dailyOptimalMin = tanaman.kebutuhanCurahHujan.min / 30;
-    const dailyOptimalMax = tanaman.kebutuhanCurahHujan.max / 30;
-
+    // Penalti jika curah hujan ekstrem atau nol (risiko kekeringan)
     if (day.precipitation_sum === 0 && dailyOptimalMin > 2) {
-      score -= 25; // Tidak ada hujan padahal butuh air
+      weatherScore -= 25; // Tidak ada hujan padahal butuh air
     } else if (day.precipitation_sum > dailyOptimalMax * 3) {
-      score -= 40; // Hujan sangat ekstrem, benih bisa hanyut/busuk
+      weatherScore -= 40; // Hujan sangat ekstrem, benih bisa hanyut/busuk
     } else if (day.precipitation_sum > dailyOptimalMax * 1.5) {
-      score -= 15; // Hujan lumayan deras
+      weatherScore -= 15; // Hujan lumayan deras
     }
+
+    weatherScore = Math.max(0, weatherScore);
+
+    // Gabungkan skor: 40% kelayakan cuaca, 60% kesesuaian lahan
+    const combinedScore = Math.round(weatherScore * 0.4 + landScore * 0.6);
 
     let status = 'optimal';
-    if (score < 60) status = 'hindari';
-    else if (score < 85) status = 'kurang-optimal';
+    if (combinedScore < 60) status = 'hindari';
+    else if (combinedScore < 85) status = 'kurang-optimal';
 
     return {
       date: day.date,
-      score,
+      score: combinedScore,
+      weatherScore,
+      landScore,
       status, // 'optimal' | 'kurang-optimal' | 'hindari'
       temp: day.temperature_2m_mean,
       rain: day.precipitation_sum
     };
   });
 }
+
 
 // -------------------------------------------------------------
 // DYNAMIC DATABASE EVALUATORS FOR 25 CROPS

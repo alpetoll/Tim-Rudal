@@ -49,7 +49,7 @@ export async function POST(request: Request) {
         email: email.trim(),
         password,
         options: {
-          emailRedirectTo: `${requestUrl.origin}/dashboard`,
+          emailRedirectTo: `${requestUrl.origin}/dashboard?confirmed=true`,
         }
       });
 
