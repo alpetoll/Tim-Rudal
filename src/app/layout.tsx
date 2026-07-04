@@ -7,7 +7,7 @@ import { cn } from "@/lib/utils";
 const geist = Geist({subsets:['latin'],variable:'--font-sans'});
 
 export const metadata: Metadata = {
-  title: "EcoTani - Solusi Mitigasi Risiko Gagal Panen & Geospatial Pertanian",
+  title: "EcoTani",
   description: "EcoTani menghadirkan platform pemetaan sawah berbasis data geospasial dan satelit real-time untuk mendeteksi anomali cuaca, cek kelayakan lahan, dan mengamankan panen Anda.",
   manifest: "/manifest.json",
   icons: {
