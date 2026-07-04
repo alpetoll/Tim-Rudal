@@ -277,7 +277,7 @@ export default function PetaLahan({ onSaveLahan, savedLahans, onClose, initialLa
                 throw new Error(`API responded with status: ${res.status}`);
               }
             } catch (err) {
-              console.warn('SoilGrids API error or timeout (8s), generating simulated fallback data:', err);
+              console.log('Catatan: Server SoilGrids lambat/timeout. Menggunakan data simulasi offline agar aplikasi tetap berjalan.');
               // SoilGrids API failed, simulate values based on location coordinates so auto-detection works offline!
               const latDiff = Math.abs(lat - (-7.0));
               pHFloat = Math.round((6.0 + (latDiff * 5) % 1.5) * 10) / 10;
