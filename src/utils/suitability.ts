@@ -1,6 +1,6 @@
 import { Lahan, Tanaman } from '../types';
 
-export const TANAMAN_DATABASE: Tanaman[] = [
+export const TANAMAN_DATABASE: any[] = [
   {
     id: 'padi',
     nama: 'Padi Sawah',
