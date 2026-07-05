@@ -66,3 +66,45 @@ Ikuti langkah-langkah berikut untuk menjalankan proyek ini di komputer Anda (Loc
    ```bash
    git clone https://github.com/username-anda/smart-agrimap-tic.git
    cd smart-agrimap-tic
+   ```
+
+2. **Install Dependencies**
+   ```bash
+   npm install
+   # atau menggunakan yarn
+   yarn install
+   ```
+
+3. **Konfigurasi Environment Variables**
+   Buat file `.env.local` di root folder aplikasi Anda dan masukkan kredensial Supabase Anda:
+   ```env
+   NEXT_PUBLIC_SUPABASE_URL=https://[PROJECT-ID].supabase.co
+   NEXT_PUBLIC_SUPABASE_ANON_KEY=[KUNCI-ANON-ANDA]
+   ```
+
+4. **Jalankan Development Server**
+   ```bash
+   npm run dev
+   # atau menggunakan yarn
+   yarn dev
+   ```
+
+5. **Buka Aplikasi**
+   Buka browser Anda dan kunjungi [http://localhost:3000](http://localhost:3000).
+
+---
+
+## 📂 Struktur Database Utama (Supabase)
+Sistem ini menggunakan *relational database* dengan tabel utama sebagai berikut:
+- `lahan`: Menyimpan data geometri lahan, luas, lokasi, dan properti fisik tanah.
+- `tanaman`: Menyimpan profil, usia panen, potensi hasil, dan harga pasar komoditas.
+- `kriteria_tanaman`: Menyimpan ambang batas toleransi (S1, S2, S3, N) untuk suhu, hujan, pH, dan kemiringan tiap tanaman.
+- `riwayat_panen`: Sistem pencatatan historis hasil tani dan pendapatan.
+
+---
+
+## 🏆 Dikembangkan Untuk
+**Lomba TIC (Tech Innovation Challenge)**
+*Inovasi Teknologi Digital untuk Mendukung Ketahanan Pangan dan Pertanian Cerdas Masa Depan.*
+
+> *"Membawa Presisi Agroklimatologi ke Genggaman Petani."*
