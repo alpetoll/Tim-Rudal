@@ -1,13 +1,48 @@
 'use client';
 
 import { useState, useEffect, useRef } from 'react';
-import Map, { Source, Layer, NavigationControl, Marker, Popup, MapLayerMouseEvent } from 'react-map-gl/maplibre';
-import 'maplibre-gl/dist/maplibre-gl.css';
-
+import { MapContainer, TileLayer, Polygon, Marker, Popup, useMapEvents, useMap } from 'react-leaflet';
+import L from 'leaflet';
 import { Lahan } from '../types';
 import { MapPin, Check, RefreshCw, Layers, ChevronUp, ChevronDown } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { showAlertModal } from '../utils/swal';
+
+// Fix Leaflet marker icon issue in Next.js/Webpack
+const getMarkerIcon = () => {
+  return new L.Icon({
+    iconUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon.png',
+    iconRetinaUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-icon-2x.png',
+    shadowUrl: 'https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/images/marker-shadow.png',
+    iconSize: [25, 41],
+    iconAnchor: [12, 41],
+    popupAnchor: [1, -34],
+    shadowSize: [41, 41]
+  });
+};
+
+// Map Resizer component to fix Leaflet size container glitches
+function MapResizer() {
+  const map = useMap();
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      map.invalidateSize();
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [map]);
+  return null;
+}
+
+// Map Click Handler Component
+function MapClickHandler({ setPoints }: { setPoints: React.Dispatch<React.SetStateAction<[number, number][]>> }) {
+  useMapEvents({
+    click(e) {
+      const newPoint: [number, number] = [e.latlng.lat, e.latlng.lng];
+      setPoints(prev => [...prev, newPoint]);
+    }
+  });
+  return null;
+}
 
 interface PetaLahanProps {
   onSaveLahan: (lahanData: Omit<Lahan, 'id' | 'status'>) => void;
@@ -36,10 +71,9 @@ export default function PetaLahan({ onSaveLahan, savedLahans, onClose, initialLa
   const lastDetectedCentroid = useRef<string | null>(null);
   const hasShownError = useRef<boolean>(false);
   
+  // Custom Map Layer Toggle State
   const [isSatellite, setIsSatellite] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
-  const [clickedLahanId, setClickedLahanId] = useState<string | null>(null);
-  const [popupLngLat, setPopupLngLat] = useState<[number, number] | null>(null);
 
   // Simulated geospasial stats calculated from drawn points
   const [stats, setStats] = useState<{
@@ -366,28 +400,6 @@ export default function PetaLahan({ onSaveLahan, savedLahans, onClose, initialLa
     }
   };
 
-  const handleMapClick = (e: MapLayerMouseEvent) => {
-    if (e.features && e.features.length > 0) {
-      const clickedFeature = e.features[0];
-      if (clickedFeature.properties && clickedFeature.properties.id) {
-        setClickedLahanId(clickedFeature.properties.id);
-        setPopupLngLat([e.lngLat.lng, e.lngLat.lat]);
-        return; // Don't add point if clicking on existing polygon
-      }
-    }
-    
-    // Otherwise add a point
-    if (e.lngLat) {
-      setClickedLahanId(null);
-      setPoints(prev => [...prev, [e.lngLat.lat, e.lngLat.lng]]);
-    }
-  };
-
-  const currentPolygonCoords = [...points.map(p => [p[1], p[0]])];
-  if (currentPolygonCoords.length >= 3) {
-    currentPolygonCoords.push(currentPolygonCoords[0]);
-  }
-
   return (
     <div className="relative w-full h-[calc(100vh-4rem)] lg:grid lg:grid-cols-3 lg:gap-6 lg:h-[calc(100vh-12rem)] lg:min-h-[500px]">
       <style>{`
@@ -443,146 +455,66 @@ export default function PetaLahan({ onSaveLahan, savedLahans, onClose, initialLa
           <span>{isSatellite ? 'Ubah ke Peta Jalan' : 'Ubah ke Satelit'}</span>
         </button>
 
-        <Map 
-          initialViewState={{
-            longitude: initialLahan ? initialLahan.centroid[1] : 110.140,
-            latitude: initialLahan ? initialLahan.centroid[0] : -7.150,
-            zoom: initialLahan ? 15 : 10,
-            pitch: 0
-          }}
-          mapStyle={isSatellite 
-            ? {
-                version: 8,
-                sources: {
-                  'satellite': {
-                    type: 'raster',
-                    tiles: ['https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'],
-                    tileSize: 256
-                  }
-                },
-                layers: [{
-                  id: 'satellite-layer',
-                  type: 'raster',
-                  source: 'satellite',
-                  minzoom: 0,
-                  maxzoom: 22
-                }]
-              }
-            : 'https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json'
-          }
+        <MapContainer 
+          center={initialLahan ? initialLahan.centroid : [-7.150, 110.140]} 
+          zoom={initialLahan ? 15 : 10} 
+          maxZoom={22}
+          scrollWheelZoom={true}
           style={{ width: '100%', height: '100%' }}
-          onClick={handleMapClick}
-          interactiveLayerIds={savedLahans.map(l => `saved-polygon-${l.id}`)}
-          terrain={{ source: 'terrain-source', exaggeration: 1.5 }}
+          className={isSatellite ? "satellite-mode" : "osm-mode"}
         >
-          {/* Navigation controls including Pitch/3D button */}
-          <NavigationControl position="bottom-right" visualizePitch={true} />
-
-          {/* 3D Terrain Source (Free Mapzen AWS Terrarium) */}
-          <Source
-            id="terrain-source"
-            type="raster-dem"
-            tiles={['https://s3.amazonaws.com/elevation-tiles-prod/terrarium/{z}/{x}/{y}.png']}
-            encoding="terrarium"
-            tileSize={256}
+          <TileLayer
+            key={isSatellite ? 'sat' : 'osm'}
+            attribution={isSatellite 
+              ? 'Tiles &copy; Esri &mdash; Source: Esri, i-cubed, USDA, USGS, AEX, GeoEye, Getmapping, Aerogrid, IGN, IGP, UPR-EGP, and the GIS User Community'
+              : '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+            }
+            url={isSatellite 
+              ? 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'
+              : 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png'
+            }
+            maxZoom={22}
+            maxNativeZoom={19}
           />
-          <Layer
-            id="terrain-layer"
-            type="hillshade"
-            source="terrain-source"
-            paint={{
-              'hillshade-exaggeration': 1.0,
-              'hillshade-shadow-color': '#1a1a1a',
-              'hillshade-highlight-color': '#404040'
-            }}
-          />
+          <MapResizer />
+          <MapClickHandler setPoints={setPoints} />
 
-          {/* Drawn Points and Polygon */}
-          <Source id="draw-source" type="geojson" data={{
-            type: 'FeatureCollection',
-            features: [
-              ...(points.length >= 3 ? [{
-                type: 'Feature',
-                geometry: { type: 'Polygon', coordinates: [currentPolygonCoords] }
-              }] as any : []),
-              ...points.map((p, i) => ({
-                type: 'Feature',
-                geometry: { type: 'Point', coordinates: [p[1], p[0]] },
-                properties: { id: i }
-              }))
-            ]
-          }}>
-            {points.length >= 3 && (
-              <Layer
-                id="draw-polygon-fill"
-                type="fill"
-                paint={{ 'fill-color': '#00a859', 'fill-opacity': 0.25 }}
-              />
-            )}
-            {points.length >= 3 && (
-              <Layer
-                id="draw-polygon-stroke"
-                type="line"
-                paint={{ 'line-color': '#22c55e', 'line-width': 3 }}
-              />
-            )}
-            <Layer
-              id="draw-points"
-              type="circle"
-              paint={{ 'circle-radius': 6, 'circle-color': '#ffffff', 'circle-stroke-width': 2, 'circle-stroke-color': '#00a859' }}
+          {/* Render markers for currently being drawn points */}
+          {points.map((pt, idx) => (
+            <Marker 
+              key={`new-pt-${idx}`} 
+              position={pt} 
+              icon={getMarkerIcon()}
+            >
+              <Popup>Titik {idx + 1}</Popup>
+            </Marker>
+          ))}
+
+          {/* Render polygon line representing current shape */}
+          {points.length >= 3 && (
+            <Polygon 
+              positions={points} 
+              pathOptions={{ fillColor: '#00a859', fillOpacity: 0.25, color: '#22c55e', weight: 3 }} 
             />
-          </Source>
+          )}
 
           {/* Render previously saved lands */}
           {savedLahans.map((lahan) => (
-            <Source key={lahan.id} id={`saved-source-${lahan.id}`} type="geojson" data={{
-              type: 'Feature',
-              properties: {
-                id: lahan.id,
-                nama: lahan.nama,
-                status: lahan.status
-              },
-              geometry: {
-                type: 'Polygon',
-                coordinates: [[...lahan.koordinat.map(p => [p[1], p[0]]), [lahan.koordinat[0][1], lahan.koordinat[0][0]]]]
-              }
-            }}>
-              <Layer
-                id={`saved-polygon-fill-${lahan.id}`}
-                type="fill"
-                paint={{
-                  'fill-color': lahan.status === 'sedang-ditanam' ? '#22c55e' : lahan.status === 'siap-panen' ? '#f59e0b' : '#3b82f6',
-                  'fill-opacity': 0.15
-                }}
-              />
-              <Layer
-                id={`saved-polygon-stroke-${lahan.id}`}
-                type="line"
-                paint={{
-                  'line-color': lahan.status === 'sedang-ditanam' ? '#10b981' : lahan.status === 'siap-panen' ? '#f59e0b' : '#3b82f6',
-                  'line-width': 2,
-                  'line-dasharray': [2, 2]
-                }}
-              />
-            </Source>
-          ))}
-
-          {/* Popup for clicked lahan */}
-          {clickedLahanId && popupLngLat && (() => {
-            const lahan = savedLahans.find(l => l.id === clickedLahanId);
-            if (!lahan) return null;
-            return (
-              <Popup
-                longitude={popupLngLat[0]}
-                latitude={popupLngLat[1]}
-                closeButton={true}
-                closeOnClick={false}
-                onClose={() => setClickedLahanId(null)}
-                anchor="bottom"
-              >
-                <div className="text-sm p-1">
+            <Polygon
+              key={lahan.id}
+              positions={lahan.koordinat}
+              pathOptions={{
+                fillColor: lahan.status === 'sedang-ditanam' ? '#22c55e' : lahan.status === 'siap-panen' ? '#f59e0b' : '#3b82f6',
+                fillOpacity: 0.15,
+                color: lahan.status === 'sedang-ditanam' ? '#10b981' : lahan.status === 'siap-panen' ? '#f59e0b' : '#3b82f6',
+                weight: 2,
+                dashArray: '4'
+              }}
+            >
+              <Popup>
+                <div className="text-sm">
                   <h4 className="font-bold text-gray-900">{lahan.nama}</h4>
-                  <p className="text-gray-600 text-xs mt-1">Luas: {lahan.luas.toLocaleString('id-ID')} m²</p>
+                  <p className="text-gray-600 text-xs">Luas: {lahan.luas.toLocaleString('id-ID')} m²</p>
                   <p className="text-gray-600 text-xs">
                     Status:{' '}
                     <span className={`font-bold ${
@@ -595,9 +527,10 @@ export default function PetaLahan({ onSaveLahan, savedLahans, onClose, initialLa
                   </p>
                 </div>
               </Popup>
-            );
-          })()}
-        </Map>
+            </Polygon>
+          ))}
+        </MapContainer>
+        
         {points.length > 0 && (
           <button 
             onClick={handleReset}
