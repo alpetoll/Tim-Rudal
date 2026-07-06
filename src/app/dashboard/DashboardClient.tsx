@@ -2767,13 +2767,13 @@ export default function DashboardClient({ initialUser }: DashboardClientProps) {
               transition={{ duration: 0.3 }}
             >
               <EarlyWarning lahans={lahans} />
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <div className="flex overflow-x-auto no-scrollbar gap-4 pb-4 md:grid md:grid-cols-2 lg:grid-cols-3 md:gap-6 snap-x snap-mandatory">
             {lahans.map((lahan) => {
               const isExtreme = lahan.ketinggian > 800 && lahan.curahHujan > 250;
               return (
                 <div 
                   key={lahan.id}
-                  className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-6 hover:border-primary/30 hover:bg-white/10 hover:shadow-[0_0_25px_rgba(16,185,129,0.1)] transition-all duration-300 flex flex-col justify-between group relative overflow-hidden"
+                  className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-6 hover:border-primary/30 hover:bg-white/10 hover:shadow-[0_0_25px_rgba(16,185,129,0.1)] transition-all duration-300 flex flex-col justify-between group relative overflow-hidden shrink-0 w-[85vw] sm:w-[350px] md:w-auto snap-start"
                 >
                   <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full blur-3xl -mr-10 -mt-10 pointer-events-none group-hover:bg-primary/10 transition-colors"></div>
                   <div className="relative z-10">
