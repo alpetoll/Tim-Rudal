@@ -47,6 +47,7 @@ export interface Lahan {
   kebutuhanAirDaily?: number; // liter
   estimasiPanenDate?: string;
   catatanMitigasi?: string;
+  created_at?: string;
 }
 
 export interface RiwayatPanen {
@@ -58,4 +59,5 @@ export interface RiwayatPanen {
   statusHasil: 'sukses' | 'gagal' | 'sebagian';
   beratPanen: number; // kg
   pendapatanEstimasi: number; // Rupiah
+  created_at?: string;
 }

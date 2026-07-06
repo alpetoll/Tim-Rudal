@@ -58,7 +58,8 @@ export async function getLahans(petaniId: string): Promise<Lahan[]> {
     tanggalTanam: row.tanggal_tanam || undefined,
     kebutuhanAirDaily: row.kebutuhan_air_daily ? Number(row.kebutuhan_air_daily) : undefined,
     estimasiPanenDate: row.estimasi_panen_date || undefined,
-    catatanMitigasi: row.catatan_mitigasi || undefined
+    catatanMitigasi: row.catatan_mitigasi || undefined,
+    created_at: row.created_at
   }));
 }
 
@@ -114,7 +115,8 @@ export async function insertLahan(lahan: Omit<Lahan, 'id' | 'status'>, petaniId:
     sand: row.sand ? Number(row.sand) : undefined,
     cec: row.cec ? Number(row.cec) : undefined,
     tanaman_id: row.tanaman_id || undefined,
-    status: row.status
+    status: row.status,
+    created_at: row.created_at
   };
 }
 
@@ -184,7 +186,8 @@ export async function getRiwayatPanens(petaniId: string): Promise<RiwayatPanen[]
     tanggalPanen: row.tanggal_panen,
     statusHasil: row.status_hasil,
     beratPanen: Number(row.berat_panen),
-    pendapatanEstimasi: Number(row.pendapatan_estimasi)
+    pendapatanEstimasi: Number(row.pendapatan_estimasi),
+    created_at: row.created_at
   }));
 }
 
@@ -405,4 +408,38 @@ export async function getClimateScenarios(): Promise<any[]> {
   }
   return data || [];
 }
+
+// ==========================================
+// 7. QUERY TIMELINE ACTIVITIES (activity_logs & stress_test_results)
+// ==========================================
+export async function getActivityLogsForLands(landIds: string[]): Promise<any[]> {
+  if (!landIds || landIds.length === 0) return [];
+  const { data, error } = await supabase
+    .from('activity_logs')
+    .select('*')
+    .in('land_id', landIds)
+    .order('created_at', { ascending: false });
+
+  if (error) {
+    console.error('Gagal mengambil log aktivitas lahan:', error.message);
+    return [];
+  }
+  return data || [];
+}
+
+export async function getStressTestResultsForLands(landIds: string[]): Promise<any[]> {
+  if (!landIds || landIds.length === 0) return [];
+  const { data, error } = await supabase
+    .from('stress_test_results')
+    .select('*')
+    .in('lahan_id', landIds)
+    .order('created_at', { ascending: false });
+
+  if (error) {
+    console.error('Gagal mengambil hasil stress test lahan:', error.message);
+    return [];
+  }
+  return data || [];
+}
+
 

@@ -21,7 +21,9 @@ import {
   getTanamanList,
   getTodayActivityLogs,
   upsertActivityLog,
-  getClimateScenarios
+  getClimateScenarios,
+  getActivityLogsForLands,
+  getStressTestResultsForLands
 } from '@/utils/supabaseQueries';
 import { runStressTest, saveStressTestResult, updateUserDecision, applyScenarioDelta } from '@/utils/climateStressTest';
 import { 
@@ -56,7 +58,10 @@ import {
   EyeOff,
   Sparkles,
   Lightbulb,
-  Check
+  Check,
+  ClipboardCheck,
+  Clock,
+  X
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -128,6 +133,154 @@ export default function DashboardClient({ initialUser }: DashboardClientProps) {
   const [stressTestResult, setStressTestResult] = useState<any | null>(null);
   const [stressTestId, setStressTestId] = useState<string | null>(null);
   const [isSimulating, setIsSimulating] = useState<boolean>(false);
+
+  // --- RECENT ACTIVITIES STATES ---
+  const [allActivityLogs, setAllActivityLogs] = useState<any[]>([]);
+  const [allStressTests, setAllStressTests] = useState<any[]>([]);
+  const [isActivitiesModalOpen, setIsActivitiesModalOpen] = useState<boolean>(false);
+  const [activitiesPage, setActivitiesPage] = useState<number>(1);
+
+  // --- HELPER: FORMAT RELATIVE TIME ---
+  const formatRelativeTime = (dateString: string): string => {
+    try {
+      const date = new Date(dateString);
+      const now = new Date();
+      const diffMs = now.getTime() - date.getTime();
+      const diffMins = Math.floor(diffMs / 60000);
+      const diffHours = Math.floor(diffMins / 60);
+      const diffDays = Math.floor(diffHours / 24);
+
+      if (diffMins < 1) return 'Baru saja';
+      if (diffMins < 60) return `${diffMins} menit lalu`;
+      if (diffHours < 24) return `${diffHours} jam lalu`;
+      if (diffDays === 1) return 'Kemarin';
+      if (diffDays < 7) return `${diffDays} hari lalu`;
+      
+      return date.toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
+    } catch (e) {
+      return '';
+    }
+  };
+
+  // --- HELPER: GENERATE TIMELINE FROM VARIOUS DATA SOURCES ---
+  const generateTimeline = (): any[] => {
+    const items: any[] = [];
+
+    // 1. Lahan Baru Ditambahkan
+    lahans.forEach(l => {
+      const timestamp = l.created_at || (l.tanggalTanam ? new Date(l.tanggalTanam).toISOString() : new Date().toISOString());
+      items.push({
+        id: `lahan_baru_${l.id}`,
+        type: 'lahan_baru',
+        lahan_id: l.id,
+        lahan_name: l.nama,
+        message: l.varietasDitanam 
+          ? `${l.nama} ditambahkan — ${l.varietasDitanam} mulai ditanam` 
+          : `${l.nama} ditambahkan — siap untuk ditanami`,
+        timestamp: timestamp,
+        severity: 'info'
+      });
+
+      // 2. Anomali cuaca terdeteksi
+      const isExtreme = l.status === 'sedang-ditanam' && l.ketinggian > 800 && l.curahHujan > 250;
+      if (isExtreme) {
+        items.push({
+          id: `anomali_${l.id}`,
+          type: 'anomali',
+          lahan_id: l.id,
+          lahan_name: l.nama,
+          message: `Anomali cuaca terdeteksi di ${l.nama}`,
+          timestamp: l.tanggalTanam ? new Date(l.tanggalTanam).toISOString() : timestamp,
+          severity: 'warning'
+        });
+      }
+    });
+
+    // 3. Riwayat Panen
+    panens.forEach(p => {
+      const timestamp = p.created_at || (p.tanggalPanen ? new Date(p.tanggalPanen).toISOString() : new Date().toISOString());
+      let statusStr = 'sukses';
+      if (p.statusHasil === 'gagal') statusStr = 'Gagal';
+      else if (p.statusHasil === 'sebagian') statusStr = 'Sebagian';
+      else statusStr = 'Selesai';
+      
+      items.push({
+        id: `panen_${p.id}`,
+        type: 'panen',
+        lahan_id: p.lahanId,
+        lahan_name: p.namaLahan,
+        message: `Panen ${p.varietas} di ${p.namaLahan} selesai — ${p.beratPanen} kg, kualitas ${statusStr}`,
+        timestamp: timestamp,
+        severity: 'success'
+      });
+    });
+
+    // 4. Checklist mitigasi selesai
+    const completedLogsByLandAndDate: Record<string, Record<string, { logs: any[], maxTime: string }>> = {};
+
+    allActivityLogs.forEach(log => {
+      if (!log.is_completed) return;
+      const landId = log.land_id;
+      const dateStr = new Date(log.created_at).toISOString().split('T')[0];
+      
+      if (!completedLogsByLandAndDate[landId]) {
+        completedLogsByLandAndDate[landId] = {};
+      }
+      if (!completedLogsByLandAndDate[landId][dateStr]) {
+        completedLogsByLandAndDate[landId][dateStr] = { logs: [], maxTime: log.created_at };
+      }
+      
+      completedLogsByLandAndDate[landId][dateStr].logs.push(log);
+      if (new Date(log.created_at) > new Date(completedLogsByLandAndDate[landId][dateStr].maxTime)) {
+        completedLogsByLandAndDate[landId][dateStr].maxTime = log.created_at;
+      }
+    });
+
+    Object.entries(completedLogsByLandAndDate).forEach(([landId, dates]) => {
+      const land = lahans.find(l => l.id === landId);
+      if (!land) return;
+
+      const isExtremeWeather = land.ketinggian > 800 && land.curahHujan > 250;
+      const requiredItems = isExtremeWeather 
+        ? ['Buka katup drainase sawah', 'Pemangkasan daun terbawah', 'Semprotkan fungisida organik', 'Monitor tanggul bedengan']
+        : ['Irigasi Harian Terjadwal', 'Pembersihan Parit', 'Pengecekan Mulsa Lahan'];
+
+      Object.entries(dates).forEach(([dateStr, data]) => {
+        const completedRequired = requiredItems.filter(item => 
+          data.logs.some(log => log.activity_name === item)
+        ).length;
+
+        if (completedRequired === requiredItems.length) {
+          items.push({
+            id: `checklist_${landId}_${dateStr}`,
+            type: 'checklist',
+            lahan_id: landId,
+            lahan_name: land.nama,
+            message: `Checklist mitigasi ${land.nama} diselesaikan`,
+            timestamp: data.maxTime,
+            severity: 'success'
+          });
+        }
+      });
+    });
+
+    // 5. Analisis kelayakan selesai
+    allStressTests.forEach(test => {
+      const landName = lahans.find(l => l.id === test.lahan_id)?.nama || 'Lahan';
+      items.push({
+        id: `analisis_${test.id}`,
+        type: 'analisis',
+        lahan_id: test.lahan_id,
+        lahan_name: landName,
+        message: `Analisis kelayakan ${landName} selesai — Skor: ${Math.round(test.skor_skenario)}%`,
+        timestamp: test.created_at,
+        severity: test.skor_skenario >= 75 ? 'success' : test.skor_skenario >= 50 ? 'info' : 'warning'
+      });
+    });
+
+    return items.sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime());
+  };
+
 
   // Fetch live weather for suitability check and monitoring
   useEffect(() => {
@@ -303,13 +456,26 @@ export default function DashboardClient({ initialUser }: DashboardClientProps) {
         getTanamanList(),
         getClimateScenarios()
       ]);
+
+      const landIds = fetchedLahans.map(l => l.id);
+      let fetchedLogs: any[] = [];
+      let fetchedStressTests: any[] = [];
+      
+      if (landIds.length > 0) {
+        const [logs, stressTests] = await Promise.all([
+          getActivityLogsForLands(landIds),
+          getStressTestResultsForLands(landIds)
+        ]);
+        fetchedLogs = logs;
+        fetchedStressTests = stressTests;
+      }
+
       setLahans(fetchedLahans);
       setPanens(fetchedPanens);
       setCropsList(fetchedCrops);
       setClimateScenarios(fetchedScenarios);
-      // if (fetchedCrops.length > 0) {
-      //   setSelectedCropId(fetchedCrops[0].id);
-      // }
+      setAllActivityLogs(fetchedLogs);
+      setAllStressTests(fetchedStressTests);
     } catch (e) {
       console.error('Gagal memuat data:', e);
     } finally {
@@ -2770,6 +2936,101 @@ export default function DashboardClient({ initialUser }: DashboardClientProps) {
               </div>
             )}
             </div>
+
+            {/* SECTION: AKTIVITAS TERBARU */}
+            {(() => {
+              const timelineItems = generateTimeline();
+              const displayItems = timelineItems.slice(0, 5);
+
+              return (
+                <div className="bg-white/5 backdrop-blur-md border border-white/10 rounded-2xl p-4 md:p-6 mt-8 shadow-lg shadow-black/20">
+                  <div className="flex items-center justify-between pb-3 mb-4 border-b border-white/10">
+                    <h3 className="font-bold text-text-main text-sm md:text-base flex items-center gap-2">
+                      <Clock className="w-4.5 h-4.5 text-primary-light" />
+                      <span>Aktivitas Terbaru</span>
+                    </h3>
+                    {timelineItems.length > 0 && (
+                      <span className="bg-primary/10 text-primary-light border border-primary/20 text-[10px] font-bold px-2 py-0.5 rounded-full">
+                        {timelineItems.length} Aktivitas
+                      </span>
+                    )}
+                  </div>
+
+                  {timelineItems.length === 0 ? (
+                    <div className="text-center py-6 text-xs text-text-muted">
+                      Belum ada aktivitas — mulai dengan menambah lahan pertama Anda.
+                    </div>
+                  ) : (
+                    <div className="space-y-0 divide-y divide-white/5">
+                      {displayItems.map((item: any) => {
+                        let IconComponent = Sprout;
+                        let iconColor = 'text-blue-400';
+                        let accentBorder = 'border-l-2 border-l-gray-500/30 pl-3';
+
+                        if (item.type === 'anomali') {
+                          IconComponent = AlertTriangle;
+                          iconColor = 'text-red-400';
+                          accentBorder = 'border-l-2 border-l-red-500 pl-3';
+                        } else if (item.type === 'panen') {
+                          IconComponent = CheckCircle2;
+                          iconColor = 'text-emerald-400';
+                          accentBorder = 'border-l-2 border-l-emerald-500 pl-3';
+                        } else if (item.type === 'checklist') {
+                          IconComponent = ClipboardCheck;
+                          iconColor = 'text-green-400';
+                          accentBorder = 'border-l-2 border-l-green-500 pl-3';
+                        } else if (item.type === 'analisis') {
+                          IconComponent = FileSpreadsheet;
+                          iconColor = 'text-amber-400';
+                          accentBorder = item.severity === 'success' 
+                            ? 'border-l-2 border-l-emerald-500 pl-3' 
+                            : item.severity === 'warning' 
+                            ? 'border-l-2 border-l-red-500 pl-3' 
+                            : 'border-l-2 border-l-blue-400 pl-3';
+                        }
+
+                        return (
+                          <div 
+                            key={item.id} 
+                            className={`flex items-start md:items-center gap-3 py-3.5 transition-all first:pt-0 last:pb-0 ${accentBorder}`}
+                          >
+                            <div className="p-1.5 rounded-lg bg-white/5 flex items-center justify-center shrink-0">
+                              <IconComponent className={`w-4 h-4 ${iconColor}`} />
+                            </div>
+                            <div className="flex-grow min-w-0 pr-2">
+                              <p className="text-xs text-text-main font-medium leading-relaxed break-words">
+                                {item.message}
+                              </p>
+                              <span className="text-[10px] text-text-muted md:hidden block mt-1">
+                                {formatRelativeTime(item.timestamp)}
+                              </span>
+                            </div>
+                            <span className="text-[10px] text-text-muted shrink-0 hidden md:block ml-auto font-medium">
+                              {formatRelativeTime(item.timestamp)}
+                            </span>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  )}
+
+                  {timelineItems.length > 0 && (
+                    <div className="mt-4 pt-3 border-t border-white/5 flex justify-center">
+                      <button 
+                        onClick={() => {
+                          setActivitiesPage(1);
+                          setIsActivitiesModalOpen(true);
+                        }} 
+                        className="text-xs text-primary-light hover:text-primary font-bold transition-all flex items-center gap-1 hover:translate-x-0.5 cursor-pointer"
+                      >
+                        <span>Lihat Semua Aktivitas</span>
+                        <ArrowRight className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                  )}
+                </div>
+              );
+            })()}
             </motion.div>
           )}
 
@@ -2890,6 +3151,134 @@ export default function DashboardClient({ initialUser }: DashboardClientProps) {
         )}
 
 
+        </AnimatePresence>
+
+        {/* MODAL: SEMUA AKTIVITAS */}
+        <AnimatePresence>
+          {isActivitiesModalOpen && (
+            <div className="fixed inset-0 z-[999] flex items-center justify-center bg-black/70 backdrop-blur-sm p-4">
+              <motion.div 
+                initial={{ opacity: 0, scale: 0.95, y: 20 }}
+                animate={{ opacity: 1, scale: 1, y: 0 }}
+                exit={{ opacity: 0, scale: 0.95, y: 20 }}
+                transition={{ duration: 0.3, ease: 'easeOut' }}
+                className="bg-zinc-950 border border-white/10 w-full max-w-2xl rounded-2xl flex flex-col max-h-[80vh] shadow-2xl overflow-hidden"
+              >
+                {/* Modal Header */}
+                <div className="flex items-center justify-between p-5 border-b border-white/10">
+                  <h3 className="font-bold text-text-main text-base flex items-center gap-2">
+                    <Clock className="w-5 h-5 text-primary-light" />
+                    <span>Semua Riwayat Aktivitas</span>
+                  </h3>
+                  <button 
+                    onClick={() => setIsActivitiesModalOpen(false)}
+                    className="p-1.5 hover:bg-white/10 rounded-full transition-all text-text-muted hover:text-white cursor-pointer"
+                  >
+                    <X className="w-5 h-5" />
+                  </button>
+                </div>
+
+                {/* Modal Body */}
+                <div className="flex-grow p-5 overflow-y-auto no-scrollbar">
+                  {(() => {
+                    const timeline = generateTimeline();
+                    const itemsPerPage = 10;
+                    const totalPages = Math.ceil(timeline.length / itemsPerPage);
+                    const paginatedItems = timeline.slice((activitiesPage - 1) * itemsPerPage, activitiesPage * itemsPerPage);
+
+                    if (timeline.length === 0) {
+                      return (
+                        <div className="text-center py-12 text-xs text-text-muted">
+                          Belum ada aktivitas.
+                        </div>
+                      );
+                    }
+
+                    return (
+                      <div className="flex flex-col h-full justify-between">
+                        <div className="space-y-0 divide-y divide-white/5">
+                          {paginatedItems.map((item: any) => {
+                            let IconComponent = Sprout;
+                            let iconColor = 'text-blue-400';
+                            let accentBorder = 'border-l-2 border-l-gray-500/30 pl-3';
+
+                            if (item.type === 'anomali') {
+                              IconComponent = AlertTriangle;
+                              iconColor = 'text-red-400';
+                              accentBorder = 'border-l-2 border-l-red-500 pl-3';
+                            } else if (item.type === 'panen') {
+                              IconComponent = CheckCircle2;
+                              iconColor = 'text-emerald-400';
+                              accentBorder = 'border-l-2 border-l-emerald-500 pl-3';
+                            } else if (item.type === 'checklist') {
+                              IconComponent = ClipboardCheck;
+                              iconColor = 'text-green-400';
+                              accentBorder = 'border-l-2 border-l-green-500 pl-3';
+                            } else if (item.type === 'analisis') {
+                              IconComponent = FileSpreadsheet;
+                              iconColor = 'text-amber-400';
+                              accentBorder = item.severity === 'success' 
+                                ? 'border-l-2 border-l-emerald-500 pl-3' 
+                                : item.severity === 'warning' 
+                                ? 'border-l-2 border-l-red-500 pl-3' 
+                                : 'border-l-2 border-l-blue-400 pl-3';
+                            }
+
+                            return (
+                              <div 
+                                key={item.id} 
+                                className={`flex items-start md:items-center gap-3 py-3.5 transition-all first:pt-0 last:pb-0 ${accentBorder}`}
+                              >
+                                <div className="p-1.5 rounded-lg bg-white/5 flex items-center justify-center shrink-0">
+                                  <IconComponent className={`w-4 h-4 ${iconColor}`} />
+                                </div>
+                                <div className="flex-grow min-w-0 pr-2">
+                                  <p className="text-xs text-text-main font-medium leading-relaxed break-words">
+                                    {item.message}
+                                  </p>
+                                  <span className="text-[10px] text-text-muted md:hidden block mt-1">
+                                    {formatRelativeTime(item.timestamp)}
+                                  </span>
+                                </div>
+                                <span className="text-[10px] text-text-muted shrink-0 hidden md:block ml-auto font-medium">
+                                  {formatRelativeTime(item.timestamp)}
+                                </span>
+                              </div>
+                            );
+                          })}
+                        </div>
+
+                        {/* Modal Footer / Pagination Controls */}
+                        {totalPages > 1 && (
+                          <div className="flex items-center justify-between pt-5 mt-4 border-t border-white/10 shrink-0">
+                            <button
+                              disabled={activitiesPage === 1}
+                              onClick={() => setActivitiesPage(prev => Math.max(prev - 1, 1))}
+                              className="px-3 py-1.5 bg-white/5 border border-white/10 hover:bg-white/10 disabled:opacity-40 disabled:hover:bg-white/5 rounded-lg text-xs font-bold text-white transition-all cursor-pointer flex items-center gap-1"
+                            >
+                              <ChevronLeft className="w-3.5 h-3.5" />
+                              <span>Sebelumnya</span>
+                            </button>
+                            <span className="text-xs text-text-muted">
+                              Halaman {activitiesPage} dari {totalPages}
+                            </span>
+                            <button
+                              disabled={activitiesPage === totalPages}
+                              onClick={() => setActivitiesPage(prev => Math.min(prev + 1, totalPages))}
+                              className="px-3 py-1.5 bg-white/5 border border-white/10 hover:bg-white/10 disabled:opacity-40 disabled:hover:bg-white/5 rounded-lg text-xs font-bold text-white transition-all cursor-pointer flex items-center gap-1"
+                            >
+                              <span>Berikutnya</span>
+                              <ChevronRight className="w-3.5 h-3.5" />
+                            </button>
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })()}
+                </div>
+              </motion.div>
+            </div>
+          )}
         </AnimatePresence>
 
       </main>
