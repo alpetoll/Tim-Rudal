@@ -31,6 +31,29 @@ export default function AuthPage() {
   const [authError, setAuthError] = useState<string>('');
   const [authLoading, setAuthLoading] = useState<boolean>(false);
 
+  const translateAuthError = (message: string): string => {
+    const lowercase = message.toLowerCase();
+    if (lowercase.includes('invalid login credentials')) {
+      return 'Email atau kata sandi yang Anda masukkan salah.';
+    }
+    if (lowercase.includes('email not confirmed')) {
+      return 'Email Anda belum dikonfirmasi. Silakan periksa kotak masuk email Anda.';
+    }
+    if (lowercase.includes('user already registered') || lowercase.includes('already exists')) {
+      return 'Alamat email ini sudah terdaftar. Silakan gunakan email lain atau masuk.';
+    }
+    if (lowercase.includes('password should be at least 6 characters')) {
+      return 'Kata sandi harus terdiri dari minimal 6 karakter.';
+    }
+    if (lowercase.includes('rate limit exceeded')) {
+      return 'Batas permintaan terlampaui. Silakan coba beberapa saat lagi.';
+    }
+    if (lowercase.includes('invalid email')) {
+      return 'Format email tidak valid.';
+    }
+    return message;
+  };
+
   // --- SUBMIT HANDLER ---
   const handleAuthSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -76,7 +99,7 @@ export default function AuthPage() {
         router.push('/dashboard');
       }
     } catch (err: any) {
-      setAuthError(err.message || 'Terjadi kesalahan autentikasi.');
+      setAuthError(translateAuthError(err.message || 'Terjadi kesalahan autentikasi.'));
     } finally {
       setAuthLoading(false);
     }
@@ -99,7 +122,7 @@ export default function AuthPage() {
             <span className="font-extrabold text-2xl text-gray-900 dark:text-white tracking-tight">EcoTani</span>
           </Link>
         </motion.div>
-
+ 
         {/* Form Container */}
         <div className="flex-grow flex flex-col justify-center max-w-md w-full mx-auto">
           <motion.div
@@ -116,9 +139,14 @@ export default function AuthPage() {
           </motion.div>
 
           {authError && (
-            <div className="bg-red-500/10 border border-red-500/20 text-red-500 p-3.5 rounded-xl text-xs font-semibold mb-4 leading-relaxed">
-              ⚠️ {authError}
-            </div>
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.3 }}
+              className="bg-red-500/10 border border-red-500/20 text-red-500 px-4 py-3 rounded-xl text-sm font-semibold mb-6 leading-relaxed shadow-lg shadow-red-500/5"
+            >
+              {authError}
+            </motion.div>
           )}
 
           <form onSubmit={handleAuthSubmit} className="space-y-5 relative z-50">

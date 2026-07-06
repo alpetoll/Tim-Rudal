@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { AlertTriangle, CloudLightning, Wind } from 'lucide-react';
 import { Lahan } from '../types';
+import { checkWeatherAnomaly } from '../../supabase/functions/_shared/anomalyDetection';
 
 export default function EarlyWarning({ lahans }: { lahans: Lahan[] }) {
   const [warning, setWarning] = useState<{ message: string; date: string } | null>(null);
@@ -33,24 +34,13 @@ export default function EarlyWarning({ lahans }: { lahans: Lahan[] }) {
             const temp = data.daily.temperature_2m_max[i];
             const wind = data.daily.windspeed_10m_max[i];
 
-            if (rain > 50) {
+            const check = checkWeatherAnomaly(rain, temp, wind, targetLahan.nama);
+            if (check.isAnomaly) {
               setWarning({
-                message: `Peringatan Curah Hujan Ekstrem (${rain} mm) terdeteksi pada lahan ${targetLahan.nama}. Risiko banjir/genangan tinggi! Segera siapkan sistem drainase darurat.`,
+                message: check.message,
                 date
               });
               return;
-            } else if (temp > 36) {
-              setWarning({
-                message: `Peringatan Suhu Panas Ekstrem (${temp}°C) terdeteksi pada lahan ${targetLahan.nama}. Risiko kekeringan! Siapkan suplai air tambahan.`,
-                date
-              });
-              return;
-            } else if (wind > 30) {
-                setWarning({
-                  message: `Peringatan Angin Kencang (${wind} km/h) terdeteksi pada lahan ${targetLahan.nama}. Waspada kerusakan tanaman tinggi.`,
-                  date
-                });
-                return;
             }
           }
         }

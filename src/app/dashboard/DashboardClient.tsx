@@ -69,6 +69,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 const PetaLahan = dynamic(() => import('@/components/PetaLahan'), { ssr: false });
 import KalenderTanam from '@/components/KalenderTanam';
 import EarlyWarning from '@/components/EarlyWarning';
+import { useNotificationSubscription } from '@/hooks/useNotificationSubscription';
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from 'recharts';
 
 interface DashboardClientProps {
@@ -79,6 +80,9 @@ export default function DashboardClient({ initialUser }: DashboardClientProps) {
   // --- AUTH STATES ---
   const [user, setUser] = useState<any>(initialUser);
   const [authLoading, setAuthLoading] = useState<boolean>(false);
+
+  const { isSubscribed, subscribe, unsubscribe } = useNotificationSubscription(user?.id);
+  const [notifLoading, setNotifLoading] = useState(false);
 
   // --- PROFILE & BUSINESS STATES ---
   const [petaniName, setPetaniName] = useState<string>('');
@@ -526,6 +530,7 @@ export default function DashboardClient({ initialUser }: DashboardClientProps) {
   const handleAddLahan = async (lahanData: Omit<Lahan, 'id' | 'status'>) => {
     if (!user) return;
     
+    const isFirstLahan = lahans.length === 0;
     setDataLoading(true);
     const result = await insertLahan(lahanData, user.id);
     setDataLoading(false);
@@ -534,6 +539,18 @@ export default function DashboardClient({ initialUser }: DashboardClientProps) {
       setLahans(prev => [...prev, result]);
       setCurrentView('dashboard');
       await showAlertModal('Berhasil', 'Lahan sawah berhasil disimpan!', 'success');
+      
+      if (isFirstLahan) {
+        const confirmPush = await showConfirmModal(
+          'Aktifkan Notifikasi',
+          'Aktifkan notifikasi supaya kami bisa memberi tahu Anda kalau ada cuaca ekstrem terdeteksi di lahan Anda',
+          'Aktifkan',
+          'Nanti saja'
+        );
+        if (confirmPush) {
+          await subscribe();
+        }
+      }
     } else {
       await showAlertModal('Gagal', 'Gagal menyimpan lahan. Silakan coba kembali.', 'error');
     }
@@ -595,6 +612,33 @@ export default function DashboardClient({ initialUser }: DashboardClientProps) {
       setCurrentView('dashboard');
     } else {
       await showAlertModal('Gagal', 'Gagal memperbarui profil.', 'error');
+    }
+  };
+
+  const handleToggleNotification = async () => {
+    if (notifLoading) return;
+    setNotifLoading(true);
+
+    try {
+      if (isSubscribed) {
+        const success = await unsubscribe();
+        if (success) {
+          await showAlertModal('Dinonaktifkan', 'Notifikasi push berhasil dinonaktifkan.', 'success');
+        } else {
+          await showAlertModal('Gagal', 'Gagal menonaktifkan notifikasi push.', 'error');
+        }
+      } else {
+        const success = await subscribe();
+        if (success) {
+          await showAlertModal('Diaktifkan', 'Notifikasi push berhasil diaktifkan!', 'success');
+        } else {
+          await showAlertModal('Peringatan', 'Gagal mengaktifkan notifikasi push. Pastikan izin notifikasi diberikan pada browser Anda.', 'warning');
+        }
+      }
+    } catch (err) {
+      console.error('Error toggling push notifications:', err);
+    } finally {
+      setNotifLoading(false);
     }
   };
 
@@ -2592,6 +2636,30 @@ export default function DashboardClient({ initialUser }: DashboardClientProps) {
                 required
                 className="w-full bg-bg-dark border border-border-medium rounded-xl px-4 py-3 text-text-main focus:outline-none focus:border-primary transition-all text-sm font-bold"
               />
+            </div>
+
+            {/* Toggle Notifikasi Push */}
+            <div className="border-t border-border-medium pt-4 mt-4">
+              <label className="block text-xs font-semibold text-text-muted uppercase tracking-wider mb-2">Notifikasi Dini Cuaca</label>
+              <div className="flex items-center justify-between p-3 bg-bg-dark border border-border-medium rounded-xl">
+                <span className="text-sm font-semibold text-text-main">Aktifkan Notifikasi Push</span>
+                <button
+                  type="button"
+                  disabled={notifLoading}
+                  onClick={handleToggleNotification}
+                  className={`w-12 h-6 flex items-center rounded-full p-1 cursor-pointer transition-all duration-300 ${
+                    isSubscribed ? "bg-emerald-500 justify-end" : "bg-white/10 justify-start"
+                  }`}
+                >
+                  <motion.div 
+                    layout 
+                    className="bg-white w-4 h-4 rounded-full shadow-md"
+                  />
+                </button>
+              </div>
+              <p className="text-xs text-text-muted mt-2 leading-relaxed">
+                Terima pemberitahuan langsung di perangkat Anda ketika ada anomali cuaca ekstrem terdeteksi pada lahan yang Anda tanam.
+              </p>
             </div>
             
             <div className="flex gap-3 pt-6">
