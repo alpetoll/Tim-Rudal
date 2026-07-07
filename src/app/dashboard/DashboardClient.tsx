@@ -2154,166 +2154,183 @@ export default function DashboardClient({ initialUser }: DashboardClientProps) {
     ];
 
     return (
-      <div className="min-h-screen bg-bg-dark py-8 px-4">
-        <div className="max-w-4xl mx-auto bg-bg-card border border-border-medium rounded-3xl p-6 md:p-8 shadow-2xl">
+      <div className="min-h-screen bg-[#050505] py-12 px-4 relative overflow-hidden">
+        {/* Ambient background glow */}
+        <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-primary/5 rounded-full blur-[120px] pointer-events-none"></div>
+
+        <div className="max-w-4xl mx-auto bg-gradient-to-br from-white/10 to-white/[0.02] backdrop-blur-2xl border border-white/10 rounded-[32px] p-6 md:p-10 shadow-[0_20px_50px_rgba(0,0,0,0.6)] relative z-10">
           
           <button 
             onClick={() => {
               setCurrentView('dashboard');
               setSelectedLahan(null);
             }}
-            className="inline-flex items-center gap-2 text-sm text-text-muted hover:text-text-main mb-6"
+            className="inline-flex items-center gap-2 text-xs font-semibold text-gray-400 hover:text-white bg-white/5 hover:bg-white/10 border border-white/5 px-4 py-2 rounded-full transition-all mb-8 cursor-pointer"
           >
-            <ArrowLeft className="w-4 h-4" />
+            <ArrowLeft className="w-3.5 h-3.5" />
             <span>Kembali ke Dashboard</span>
           </button>
 
           {/* Land Card Header */}
-          <div className="flex justify-between items-start mb-6 border-b border-border-light pb-4">
+          <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8 border-b border-white/10 pb-6">
             <div>
-              <span className="text-xs bg-primary-dark/30 text-primary font-bold px-2.5 py-1 rounded-full uppercase tracking-wider">Sedang Ditanam</span>
-              <h2 className="text-2xl font-bold text-text-main mt-2">{selectedLahan.nama}</h2>
-              <p className="text-sm text-text-muted mt-1">
-                Varietas: <strong className="text-text-main">{selectedLahan.varietasDitanam}</strong>
-                <span className="mx-2">•</span>
-                Tanggal Tanam: <strong className="text-text-main">{selectedLahan.tanggalTanam || 'Tidak tersedia'}</strong>
+              <div className="flex items-center gap-2">
+                <span className="text-[10px] bg-primary/10 text-primary border border-primary/20 font-bold px-2.5 py-0.5 rounded-full uppercase tracking-wider">Sedang Ditanam</span>
+                {isExtremeWeather && (
+                  <div className="bg-red-500/10 border border-red-500/20 text-red-400 rounded-full px-2.5 py-0.5 flex items-center gap-1 text-[10px] font-bold">
+                    <AlertTriangle className="w-3 h-3" />
+                    <span>Peringatan Cuaca</span>
+                  </div>
+                )}
+              </div>
+              <h2 className="text-3xl font-extrabold text-white tracking-tight mt-2">{selectedLahan.nama}</h2>
+              <p className="text-xs text-gray-400 mt-1.5 flex items-center gap-1.5 flex-wrap">
+                <span>Varietas:</span> <strong className="text-white font-semibold">{selectedLahan.varietasDitanam}</strong>
+                <span className="text-white/20">•</span>
+                <span>Tanggal Tanam:</span> <strong className="text-white font-semibold">{selectedLahan.tanggalTanam || 'Tidak tersedia'}</strong>
               </p>
             </div>
-            {isExtremeWeather && (
-              <div className="bg-red-500/10 border border-red-500/20 text-red-500 rounded-full px-3 py-1 flex items-center gap-1.5 text-xs font-bold">
-                <AlertTriangle className="w-3.5 h-3.5" />
-                <span>Peringatan Cuaca</span>
-              </div>
-            )}
           </div>
 
-          {/* INNER TABS SELECTOR */}
-          <div className="flex border-b border-white/10 gap-6 mb-6 overflow-x-auto no-scrollbar">
+          {/* INNER TABS SELECTOR (Premium Capsule) */}
+          <div className="inline-flex bg-white/5 backdrop-blur-md border border-white/10 rounded-full p-1.5 mb-8 overflow-x-auto no-scrollbar max-w-full">
             <button
               onClick={() => setInnerTab('overview')}
-              className={`pb-3 text-xs font-extrabold relative transition-colors whitespace-nowrap ${
-                innerTab === 'overview' ? 'text-primary' : 'text-gray-500 hover:text-gray-300'
+              className={`py-2 px-5 rounded-full text-xs font-semibold transition-all whitespace-nowrap cursor-pointer ${
+                innerTab === 'overview' 
+                  ? 'bg-white text-black shadow-md' 
+                  : 'text-gray-400 hover:text-white hover:bg-white/5'
               }`}
             >
-              <span>Overview Lahan</span>
-              {innerTab === 'overview' && <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary shadow-[0_0_8px_rgba(52,211,153,0.8)]"></span>}
+              Overview Lahan
             </button>
             <button
               onClick={() => setInnerTab('weather')}
-              className={`pb-3 text-xs font-extrabold relative transition-colors whitespace-nowrap ${
-                innerTab === 'weather' ? 'text-primary' : 'text-gray-500 hover:text-gray-300'
+              className={`py-2 px-5 rounded-full text-xs font-semibold transition-all whitespace-nowrap cursor-pointer ${
+                innerTab === 'weather' 
+                  ? 'bg-white text-black shadow-md' 
+                  : 'text-gray-400 hover:text-white hover:bg-white/5'
               }`}
             >
-              <span>Pemantauan Iklim & Cuaca</span>
-              {innerTab === 'weather' && <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary shadow-[0_0_8px_rgba(52,211,153,0.8)]"></span>}
+              Pemantauan Iklim & Cuaca
             </button>
             <button
               onClick={() => setInnerTab('checklist')}
-              className={`pb-3 text-xs font-extrabold relative transition-colors whitespace-nowrap ${
-                innerTab === 'checklist' ? 'text-primary' : 'text-gray-500 hover:text-gray-300'
+              className={`py-2 px-5 rounded-full text-xs font-semibold transition-all whitespace-nowrap cursor-pointer ${
+                innerTab === 'checklist' 
+                  ? 'bg-white text-black shadow-md' 
+                  : 'text-gray-400 hover:text-white hover:bg-white/5'
               }`}
             >
-              <span>Checklist Pemeliharaan</span>
-              {innerTab === 'checklist' && <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary shadow-[0_0_8px_rgba(52,211,153,0.8)]"></span>}
+              Checklist Pemeliharaan
             </button>
           </div>
 
           {/* TAB CONTENT 1: OVERVIEW */}
           {innerTab === 'overview' && (
-            <div className="space-y-6">
-              {/* METRICS SUMMARY GRID */}
+            <div className="space-y-8">
+              {/* METRICS SUMMARY GRID (Bento Mini) */}
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div className="bg-bg-dark p-5 rounded-2xl border border-border-light">
-                  <span className="text-text-muted text-[11px] block mb-1 uppercase tracking-wider font-semibold">Sensor Kelembapan</span>
-                  <div className="flex items-baseline gap-1 mt-1">
-                    <strong className="text-2xl font-bold text-text-main">78%</strong>
-                    <span className="text-[10px] text-primary font-semibold bg-emerald-955/20 px-1.5 py-0.5 rounded border border-primary/10">Optimal</span>
-                  </div>
-                  <p className="text-[10px] text-text-muted mt-2">Kondisi media tanam optimal untuk perakaran.</p>
-                </div>
-
-                <div className="bg-bg-dark p-5 rounded-2xl border border-border-light">
-                  <span className="text-text-muted text-[11px] block mb-1 uppercase tracking-wider font-semibold">Suhu & Cuaca</span>
-                  <div className="flex items-center gap-2 mt-1">
-                    <CloudRain className="w-5 h-5 text-blue-400" />
-                    <strong className="text-lg font-bold text-text-main">
-                      {liveWeather ? `${liveWeather.currentTemp}°C` : '24°C'}
-                    </strong>
-                    <span className="text-[10px] text-text-muted font-normal">
-                      ({liveWeather ? liveWeather.weatherDesc : 'Hujan Ringan'})
-                    </span>
-                  </div>
-                  <p className="text-[10px] text-text-muted mt-2">Suhu rata-rata harian terpantau stabil.</p>
-                </div>
-
-                <div className="bg-bg-dark p-5 rounded-2xl border border-border-light flex flex-col justify-between">
+                
+                {/* Kelembapan */}
+                <div className="bg-white/5 backdrop-blur-md border border-white/5 p-5 rounded-2xl flex flex-col justify-between group hover:bg-white/10 transition-colors shadow-lg">
                   <div>
-                    <span className="text-text-muted text-[11px] block mb-1 uppercase tracking-wider font-semibold">Proyeksi Panen</span>
-                    <div className="flex items-baseline gap-1 mt-1">
-                      <strong className="text-base font-bold text-text-main">{selectedLahan.estimasiPanenDate}</strong>
+                    <span className="text-[10px] text-gray-400 uppercase tracking-widest font-semibold">Sensor Kelembapan</span>
+                    <div className="flex items-baseline gap-2 mt-2">
+                      <strong className="text-3xl font-extrabold text-white tracking-tight">78%</strong>
+                      <span className="text-[9px] text-emerald-400 font-extrabold bg-emerald-500/10 px-2 py-0.5 rounded-full border border-emerald-500/20">Optimal</span>
                     </div>
                   </div>
-                  <div className="mt-3 border-t border-border-light/40 pt-2 flex justify-between items-center text-[10px]">
-                    <span className="text-text-muted">Tanggal Tanam:</span>
-                    <span className="font-semibold text-text-main">{selectedLahan.tanggalTanam || 'Tidak tersedia'}</span>
+                  <p className="text-[11px] text-gray-400 mt-4 leading-relaxed">Kondisi media tanam optimal untuk perakaran.</p>
+                </div>
+
+                {/* Suhu */}
+                <div className="bg-white/5 backdrop-blur-md border border-white/5 p-5 rounded-2xl flex flex-col justify-between group hover:bg-white/10 transition-colors shadow-lg">
+                  <div>
+                    <span className="text-[10px] text-gray-400 uppercase tracking-widest font-semibold">Suhu & Cuaca</span>
+                    <div className="flex items-center gap-2 mt-2">
+                      <CloudRain className="w-5 h-5 text-blue-400 shrink-0" />
+                      <strong className="text-2xl font-extrabold text-white tracking-tight">
+                        {liveWeather ? `${liveWeather.currentTemp}°C` : '24°C'}
+                      </strong>
+                      <span className="text-[10px] text-gray-400 font-medium">
+                        ({liveWeather ? liveWeather.weatherDesc : 'Hujan Ringan'})
+                      </span>
+                    </div>
+                  </div>
+                  <p className="text-[11px] text-gray-400 mt-4 leading-relaxed">Suhu rata-rata harian terpantau stabil.</p>
+                </div>
+
+                {/* Proyeksi Panen */}
+                <div className="bg-white/5 backdrop-blur-md border border-white/5 p-5 rounded-2xl flex flex-col justify-between group hover:bg-white/10 transition-colors shadow-lg">
+                  <div>
+                    <span className="text-[10px] text-gray-400 uppercase tracking-widest font-semibold">Proyeksi Panen</span>
+                    <div className="mt-2">
+                      <strong className="text-lg font-bold text-amber-400 tracking-tight block truncate">{selectedLahan.estimasiPanenDate}</strong>
+                    </div>
+                  </div>
+                  <div className="mt-4 pt-2 border-t border-white/5 flex justify-between items-center text-[10px] text-gray-400">
+                    <span>Mulai Tanam:</span>
+                    <span className="font-semibold text-white">{selectedLahan.tanggalTanam || 'Tidak tersedia'}</span>
                   </div>
                 </div>
+
               </div>
 
               {/* HISTORICAL TREND CHARTS */}
-              <div className="bg-bg-dark border border-border-light rounded-3xl p-5">
-                <h3 className="font-bold text-text-main text-sm mb-4 flex items-center gap-2 border-b border-border-light/40 pb-2">
+              <div className="bg-white/5 border border-white/10 rounded-[24px] p-5 md:p-6 shadow-xl">
+                <h3 className="font-bold text-white text-sm mb-5 flex items-center gap-2 border-b border-white/5 pb-3">
                   <Activity className="w-4.5 h-4.5 text-primary" />
                   <span>Tren Sensor Lahan (7 Hari Terakhir)</span>
                 </h3>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   {/* Chart 1: Kelembapan */}
-                  <div className="space-y-2">
-                    <span className="text-xs font-semibold text-text-muted block">Status Kelembapan Lahan (%)</span>
-                    <div className="bg-bg-card/50 border border-border-medium rounded-2xl p-3">
+                  <div className="space-y-3">
+                    <span className="text-xs font-semibold text-gray-400 block">Status Kelembapan Lahan (%)</span>
+                    <div className="bg-black/30 border border-white/5 rounded-2xl p-3">
                       <ResponsiveContainer width="100%" height={160}>
-                        <AreaChart data={mockTrendData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                        <AreaChart data={mockTrendData} margin={{ top: 10, right: 10, left: -25, bottom: 0 }}>
                           <defs>
                             <linearGradient id="colorMoisture" x1="0" y1="0" x2="0" y2="1">
                               <stop offset="5%" stopColor="#10b981" stopOpacity={0.2}/>
                               <stop offset="95%" stopColor="#10b981" stopOpacity={0}/>
                             </linearGradient>
                           </defs>
-                          <CartesianGrid strokeDasharray="3 3" stroke="#ffffff/5" vertical={false} />
-                          <XAxis dataKey="name" stroke="#6b7280" fontSize={10} tickLine={false} />
-                          <YAxis stroke="#6b7280" fontSize={10} tickLine={false} domain={[60, 100]} />
+                          <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.03)" vertical={false} />
+                          <XAxis dataKey="name" stroke="#6b7280" fontSize={10} tickLine={false} axisLine={false} />
+                          <YAxis stroke="#6b7280" fontSize={10} tickLine={false} axisLine={false} domain={[60, 100]} />
                           <Tooltip 
-                            contentStyle={{ backgroundColor: '#18181b', borderColor: '#27272a', borderRadius: '8px' }}
+                            contentStyle={{ backgroundColor: '#09090b', borderColor: 'rgba(255,255,255,0.1)', borderRadius: '12px' }}
                             labelStyle={{ color: '#a1a1aa', fontWeight: 'bold', fontSize: '11px' }}
                             itemStyle={{ color: '#10b981', fontSize: '12px' }}
                           />
-                          <Area type="monotone" dataKey="kelembapan" name="Kelembapan" stroke="#10b981" strokeWidth={1.5} fillOpacity={1} fill="url(#colorMoisture)" />
+                          <Area type="monotone" dataKey="kelembapan" name="Kelembapan" stroke="#10b981" strokeWidth={2} fillOpacity={1} fill="url(#colorMoisture)" />
                         </AreaChart>
                       </ResponsiveContainer>
                     </div>
                   </div>
 
                   {/* Chart 2: Suhu */}
-                  <div className="space-y-2">
-                    <span className="text-xs font-semibold text-text-muted block">Suhu Udara (°C)</span>
-                    <div className="bg-bg-card/50 border border-border-medium rounded-2xl p-3">
+                  <div className="space-y-3">
+                    <span className="text-xs font-semibold text-gray-400 block">Suhu Udara (°C)</span>
+                    <div className="bg-black/30 border border-white/5 rounded-2xl p-3">
                       <ResponsiveContainer width="100%" height={160}>
-                        <AreaChart data={mockTrendData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                        <AreaChart data={mockTrendData} margin={{ top: 10, right: 10, left: -25, bottom: 0 }}>
                           <defs>
                             <linearGradient id="colorTemp" x1="0" y1="0" x2="0" y2="1">
                               <stop offset="5%" stopColor="#f5a623" stopOpacity={0.2}/>
                               <stop offset="95%" stopColor="#f5a623" stopOpacity={0}/>
                             </linearGradient>
                           </defs>
-                          <CartesianGrid strokeDasharray="3 3" stroke="#ffffff/5" vertical={false} />
-                          <XAxis dataKey="name" stroke="#6b7280" fontSize={10} tickLine={false} />
-                          <YAxis stroke="#6b7280" fontSize={10} tickLine={false} domain={[15, 35]} />
+                          <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.03)" vertical={false} />
+                          <XAxis dataKey="name" stroke="#6b7280" fontSize={10} tickLine={false} axisLine={false} />
+                          <YAxis stroke="#6b7280" fontSize={10} tickLine={false} axisLine={false} domain={[15, 35]} />
                           <Tooltip 
-                            contentStyle={{ backgroundColor: '#18181b', borderColor: '#27272a', borderRadius: '8px' }}
+                            contentStyle={{ backgroundColor: '#09090b', borderColor: 'rgba(255,255,255,0.1)', borderRadius: '12px' }}
                             labelStyle={{ color: '#a1a1aa', fontWeight: 'bold', fontSize: '11px' }}
                             itemStyle={{ color: '#f5a623', fontSize: '12px' }}
                           />
-                          <Area type="monotone" dataKey="suhu" name="Suhu" stroke="#f5a623" strokeWidth={1.5} fillOpacity={1} fill="url(#colorTemp)" />
+                          <Area type="monotone" dataKey="suhu" name="Suhu" stroke="#f5a623" strokeWidth={2} fillOpacity={1} fill="url(#colorTemp)" />
                         </AreaChart>
                       </ResponsiveContainer>
                     </div>
@@ -2323,9 +2340,9 @@ export default function DashboardClient({ initialUser }: DashboardClientProps) {
 
               {/* CATATAN MITIGASI SAAT CHECK SUITABILITY */}
               {selectedLahan.catatanMitigasi && (
-                <div className="bg-bg-dark border border-border-light rounded-3xl p-5">
-                  <h4 className="font-bold text-text-main mb-3 text-xs uppercase tracking-wider text-text-muted border-b border-border-light/40 pb-2">Instruksi Tanam Awal</h4>
-                  <p className="text-xs text-text-muted whitespace-pre-line leading-relaxed">{selectedLahan.catatanMitigasi}</p>
+                <div className="bg-white/5 border border-white/5 rounded-[24px] p-5 md:p-6 shadow-xl">
+                  <h4 className="font-bold text-white mb-3 text-xs uppercase tracking-widest text-gray-400 border-b border-white/5 pb-2">Instruksi Tanam Awal</h4>
+                  <p className="text-xs text-gray-300 whitespace-pre-line leading-relaxed">{selectedLahan.catatanMitigasi}</p>
                 </div>
               )}
             </div>
@@ -2336,9 +2353,9 @@ export default function DashboardClient({ initialUser }: DashboardClientProps) {
             <div className="space-y-6">
               <KalenderTanam savedLahans={[selectedLahan]} cropsDbList={cropsList} />
               
-              <div className="bg-bg-dark border border-border-medium rounded-2xl p-4 text-xs text-amber-300 flex items-center gap-2">
-                <Lightbulb className="w-4 h-4 text-amber-300 shrink-0" />
-                <span>Dibandingkan rata-rata historis 5 tahun terakhir: <strong>+1.2°C lebih panas</strong> akibat pergeseran iklim lokal.</span>
+              <div className="bg-amber-500/10 border border-amber-500/20 rounded-2xl p-5 text-xs text-amber-300 flex items-center gap-3 shadow-lg">
+                <Lightbulb className="w-5 h-5 text-amber-400 shrink-0" />
+                <p className="leading-relaxed">Dibandingkan rata-rata historis 5 tahun terakhir: <strong className="text-white">+1.2°C lebih panas</strong> akibat pergeseran iklim lokal.</p>
               </div>
             </div>
           )}
@@ -2354,16 +2371,16 @@ export default function DashboardClient({ initialUser }: DashboardClientProps) {
                 const progressPercent = requiredItems.length > 0 ? Math.round((completedCount / requiredItems.length) * 100) : 0;
 
                 return (
-                  <div className="bg-bg-dark border border-border-light rounded-3xl p-5">
-                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-3 pb-2 border-b border-border-light/40">
-                      <h3 className="font-bold text-text-main text-sm flex items-center gap-2">
-                        <CheckCircle2 className={`w-4.5 h-4.5 ${isExtremeWeather ? 'text-amber-500' : 'text-primary'}`} />
+                  <div className="bg-white/5 border border-white/5 rounded-[24px] p-5 md:p-6 shadow-xl">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4 pb-3 border-b border-white/5">
+                      <h3 className="font-bold text-white text-sm flex items-center gap-2">
+                        <CheckCircle2 className={`w-5 h-5 ${isExtremeWeather ? 'text-amber-500' : 'text-primary'}`} />
                         <span>{isExtremeWeather ? 'Checklist Tindakan Penyelamatan Lahan' : 'Checklist Tindakan Pemeliharaan Rutin'}</span>
                       </h3>
                       <div className="flex items-center gap-2">
-                        <span className="text-[10px] text-text-muted">Progres:</span>
-                        <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${
-                          progressPercent === 100 ? 'bg-primary/10 text-primary border border-primary/20' : 'bg-white/5 text-text-muted border border-white/10'
+                        <span className="text-[10px] text-gray-400 uppercase tracking-wider">Progres:</span>
+                        <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-extrabold ${
+                          progressPercent === 100 ? 'bg-primary/10 text-primary border border-primary/20' : 'bg-white/5 text-gray-400 border border-white/10'
                         }`}>
                           {progressPercent}%
                         </span>
@@ -2371,107 +2388,107 @@ export default function DashboardClient({ initialUser }: DashboardClientProps) {
                     </div>
 
                     {/* Progress Bar */}
-                    <div className="w-full bg-bg-card h-2 rounded-full overflow-hidden mb-4 border border-white/5 p-[1px] relative">
+                    <div className="w-full bg-black/40 h-2.5 rounded-full overflow-hidden mb-6 border border-white/5 p-[1px] relative">
                       <div 
                         className="h-full rounded-full transition-all duration-500 bg-primary"
                         style={{ width: `${progressPercent}%` }}
                       />
                     </div>
                     
-                    <p className="text-xs text-text-muted mb-4 leading-relaxed">
+                    <p className="text-xs text-gray-300 mb-6 leading-relaxed">
                       {isExtremeWeather 
                         ? `Kami mendeteksi anomali cuaca berupa curah hujan ekstrim (${selectedLahan.curahHujan} mm/bln) di ketinggian lahan ${selectedLahan.ketinggian} mdpl. Jalankan rekomendasi taktis berikut segera:`
                         : `Kondisi curah hujan (${selectedLahan.curahHujan} mm/bln) dan suhu udara (${selectedLahan.suhu}°C) stabil di batas optimal. Jalankan perawatan harian berikut untuk memaksimalkan pertumbuhan varietas ${selectedLahan.varietasDitanam}:`}
                     </p>
 
-                    <div className="space-y-2.5">
+                    <div className="space-y-3">
                       {isExtremeWeather ? (
                         <>
-                          <div className="flex items-start gap-3 p-3 bg-bg-card border border-border-medium rounded-xl text-xs hover:border-amber-500/20 transition-all">
+                          <div className="flex items-start gap-3 p-4 bg-black/20 border border-white/5 rounded-2xl text-xs hover:border-amber-500/20 transition-all">
                             <input 
                               type="checkbox" 
                               checked={checkedActivities['Buka katup drainase sawah'] || false}
                               onChange={(e) => handleToggleActivity('Buka katup drainase sawah', e.target.checked)}
                               className="mt-0.5 rounded border-white/10 text-amber-500 focus:ring-0 focus:ring-offset-0 bg-transparent cursor-pointer" 
                             />
-                            <div className="text-text-main">
-                              <strong className={checkedActivities['Buka katup drainase sawah'] ? 'line-through text-text-muted' : ''}>Buka katup drainase sawah</strong>
-                              <p className="text-[10px] text-text-muted mt-0.5">Keluarkan limpahan air berlebih untuk mencegah busuk akar.</p>
+                            <div className="text-white">
+                              <strong className={checkedActivities['Buka katup drainase sawah'] ? 'line-through text-gray-500 font-semibold' : 'font-semibold'}>Buka katup drainase sawah</strong>
+                              <p className="text-[10px] text-gray-400 mt-1">Keluarkan limpahan air berlebih untuk mencegah busuk akar.</p>
                             </div>
                           </div>
-                          <div className="flex items-start gap-3 p-3 bg-bg-card border border-border-medium rounded-xl text-xs hover:border-amber-500/20 transition-all">
+                          <div className="flex items-start gap-3 p-4 bg-black/20 border border-white/5 rounded-2xl text-xs hover:border-amber-500/20 transition-all">
                             <input 
                               type="checkbox" 
                               checked={checkedActivities['Pemangkasan daun terbawah'] || false}
                               onChange={(e) => handleToggleActivity('Pemangkasan daun terbawah', e.target.checked)}
                               className="mt-0.5 rounded border-white/10 text-amber-500 focus:ring-0 focus:ring-offset-0 bg-transparent cursor-pointer" 
                             />
-                            <div className="text-text-main">
-                              <strong className={checkedActivities['Pemangkasan daun terbawah'] ? 'line-through text-text-muted' : ''}>Pemangkasan daun terbawah</strong>
-                              <p className="text-[10px] text-text-muted mt-0.5">Kurangi kelembapan rumpun tanaman varietas {selectedLahan.varietasDitanam}.</p>
+                            <div className="text-white">
+                              <strong className={checkedActivities['Pemangkasan daun terbawah'] ? 'line-through text-gray-500 font-semibold' : 'font-semibold'}>Pemangkasan daun terbawah</strong>
+                              <p className="text-[10px] text-gray-400 mt-1">Kurangi kelembapan rumpun tanaman varietas {selectedLahan.varietasDitanam}.</p>
                             </div>
                           </div>
-                          <div className="flex items-start gap-3 p-3 bg-bg-card border border-border-medium rounded-xl text-xs hover:border-amber-500/20 transition-all">
+                          <div className="flex items-start gap-3 p-4 bg-black/20 border border-white/5 rounded-2xl text-xs hover:border-amber-500/20 transition-all">
                             <input 
                               type="checkbox" 
                               checked={checkedActivities['Semprotkan fungisida organik'] || false}
                               onChange={(e) => handleToggleActivity('Semprotkan fungisida organik', e.target.checked)}
                               className="mt-0.5 rounded border-white/10 text-amber-500 focus:ring-0 focus:ring-offset-0 bg-transparent cursor-pointer" 
                             />
-                            <div className="text-text-main">
-                              <strong className={checkedActivities['Semprotkan fungisida organik'] ? 'line-through text-text-muted' : ''}>Semprotkan fungisida organik</strong>
-                              <p className="text-[10px] text-text-muted mt-0.5">Lakukan pencegahan awal terhadap serangan jamur patogen.</p>
+                            <div className="text-white">
+                              <strong className={checkedActivities['Semprotkan fungisida organik'] ? 'line-through text-gray-500 font-semibold' : 'font-semibold'}>Semprotkan fungisida organik</strong>
+                              <p className="text-[10px] text-gray-400 mt-1">Lakukan pencegahan awal terhadap serangan jamur patogen.</p>
                             </div>
                           </div>
-                          <div className="flex items-start gap-3 p-3 bg-bg-card border border-border-medium rounded-xl text-xs hover:border-amber-500/20 transition-all">
+                          <div className="flex items-start gap-3 p-4 bg-black/20 border border-white/5 rounded-2xl text-xs hover:border-amber-500/20 transition-all">
                             <input 
                               type="checkbox" 
                               checked={checkedActivities['Monitor tanggul bedengan'] || false}
                               onChange={(e) => handleToggleActivity('Monitor tanggul bedengan', e.target.checked)}
                               className="mt-0.5 rounded border-white/10 text-amber-500 focus:ring-0 focus:ring-offset-0 bg-transparent cursor-pointer" 
                             />
-                            <div className="text-text-main">
-                              <strong className={checkedActivities['Monitor tanggul bedengan'] ? 'line-through text-text-muted' : ''}>Monitor tanggul bedengan</strong>
-                              <p className="text-[10px] text-text-muted mt-0.5">Pastikan tidak terjadi sumbatan aliran air di saluran irigasi utama.</p>
+                            <div className="text-white">
+                              <strong className={checkedActivities['Monitor tanggul bedengan'] ? 'line-through text-gray-500 font-semibold' : 'font-semibold'}>Monitor tanggul bedengan</strong>
+                              <p className="text-[10px] text-gray-400 mt-1">Pastikan tidak terjadi sumbatan aliran air di saluran irigasi utama.</p>
                             </div>
                           </div>
                         </>
                       ) : (
                         <>
-                          <div className="flex items-start gap-3 p-3 bg-bg-card border border-border-medium rounded-xl text-xs hover:border-primary/20 transition-all">
+                          <div className="flex items-start gap-3 p-4 bg-black/20 border border-white/5 rounded-2xl text-xs hover:border-primary/20 transition-all">
                             <input 
                               type="checkbox" 
                               checked={checkedActivities['Irigasi Harian Terjadwal'] || false}
                               onChange={(e) => handleToggleActivity('Irigasi Harian Terjadwal', e.target.checked)}
                               className="mt-0.5 rounded border-white/10 text-primary focus:ring-0 focus:ring-offset-0 bg-transparent cursor-pointer" 
                             />
-                            <div className="text-text-main">
-                              <strong className={checkedActivities['Irigasi Harian Terjadwal'] ? 'line-through text-text-muted' : ''}>Irigasi Harian Terjadwal</strong>
-                              <p className="text-[10px] text-text-muted mt-0.5">Salurkan air irigasi sebanyak {(selectedLahan.kebutuhanAirDaily || 5) * selectedLahan.luas} Liter di pagi hari.</p>
+                            <div className="text-white">
+                              <strong className={checkedActivities['Irigasi Harian Terjadwal'] ? 'line-through text-gray-500 font-semibold' : 'font-semibold'}>Irigasi Harian Terjadwal</strong>
+                              <p className="text-[10px] text-gray-400 mt-1">Salurkan air irigasi sebanyak {(selectedLahan.kebutuhanAirDaily || 5) * selectedLahan.luas} Liter di pagi hari.</p>
                             </div>
                           </div>
-                          <div className="flex items-start gap-3 p-3 bg-bg-card border border-border-medium rounded-xl text-xs hover:border-primary/20 transition-all">
+                          <div className="flex items-start gap-3 p-4 bg-black/20 border border-white/5 rounded-2xl text-xs hover:border-primary/20 transition-all">
                             <input 
                               type="checkbox" 
                               checked={checkedActivities['Pembersihan Parit'] || false}
                               onChange={(e) => handleToggleActivity('Pembersihan Parit', e.target.checked)}
                               className="mt-0.5 rounded border-white/10 text-primary focus:ring-0 focus:ring-offset-0 bg-transparent cursor-pointer" 
                             />
-                            <div className="text-text-main">
-                              <strong className={checkedActivities['Pembersihan Parit'] ? 'line-through text-text-muted' : ''}>Pembersihan Parit</strong>
-                              <p className="text-[10px] text-text-muted mt-0.5">Bersihkan parit irigasi dari sisa gulma atau lumpur penyumbat.</p>
+                            <div className="text-white">
+                              <strong className={checkedActivities['Pembersihan Parit'] ? 'line-through text-gray-500 font-semibold' : 'font-semibold'}>Pembersihan Parit</strong>
+                              <p className="text-[10px] text-gray-400 mt-1">Bersihkan parit irigasi dari sisa gulma atau lumpur penyumbat.</p>
                             </div>
                           </div>
-                          <div className="flex items-start gap-3 p-3 bg-bg-card border border-border-medium rounded-xl text-xs hover:border-primary/20 transition-all">
+                          <div className="flex items-start gap-3 p-4 bg-black/20 border border-white/5 rounded-2xl text-xs hover:border-primary/20 transition-all">
                             <input 
                               type="checkbox" 
                               checked={checkedActivities['Pengecekan Mulsa Lahan'] || false}
                               onChange={(e) => handleToggleActivity('Pengecekan Mulsa Lahan', e.target.checked)}
                               className="mt-0.5 rounded border-white/10 text-primary focus:ring-0 focus:ring-offset-0 bg-transparent cursor-pointer" 
                             />
-                            <div className="text-text-main">
-                              <strong className={checkedActivities['Pengecekan Mulsa Lahan'] ? 'line-through text-text-muted' : ''}>Pengecekan Mulsa Lahan</strong>
-                              <p className="text-[10px] text-text-muted mt-0.5">Pastikan mulsa organik/jerami penutup tanah tidak tergeser.</p>
+                            <div className="text-white">
+                              <strong className={checkedActivities['Pengecekan Mulsa Lahan'] ? 'line-through text-gray-500 font-semibold' : 'font-semibold'}>Pengecekan Mulsa Lahan</strong>
+                              <p className="text-[10px] text-gray-400 mt-1">Pastikan mulsa organik/jerami penutup tanah tidak tergeser.</p>
                             </div>
                           </div>
                         </>
@@ -2484,13 +2501,13 @@ export default function DashboardClient({ initialUser }: DashboardClientProps) {
           )}
 
           {/* ACTIONS */}
-          <div className="flex gap-4 border-t border-border-light pt-6 mt-6">
+          <div className="flex flex-col sm:flex-row gap-4 border-t border-white/10 pt-6 mt-8">
             <button 
               onClick={() => {
                 setCurrentView('dashboard');
                 setSelectedLahan(null);
               }}
-              className="flex-1 py-3.5 px-4 rounded-xl border border-border-medium hover:bg-border-light text-text-muted font-bold text-sm transition-all text-center cursor-pointer"
+              className="flex-1 py-3.5 px-6 rounded-full border border-white/10 hover:bg-white/5 text-gray-300 hover:text-white font-bold text-xs tracking-wider uppercase transition-all text-center cursor-pointer"
             >
               Kembali ke Dashboard
             </button>
@@ -2506,7 +2523,7 @@ export default function DashboardClient({ initialUser }: DashboardClientProps) {
                 setStatusHasil('sukses');
                 setCurrentView('panen');
               }}
-              className="flex-1 py-3.5 px-4 rounded-xl bg-primary hover:bg-primary-dark text-text-inverse font-bold text-sm transition-all text-center shadow-lg shadow-primary/20 cursor-pointer animate-pulse-soft"
+              className="flex-1 py-3.5 px-6 rounded-full bg-primary hover:bg-primary-dark text-black font-bold text-xs tracking-wider uppercase transition-all text-center shadow-[0_0_20px_rgba(16,185,129,0.3)] cursor-pointer"
             >
               Panen Lahan Sekarang
             </button>
