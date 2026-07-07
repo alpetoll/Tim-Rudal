@@ -52,6 +52,8 @@ export default function LandingPage() {
     }
   };
 
+  const [isScrolled, setIsScrolled] = useState(false);
+
   useEffect(() => {
     const handleResize = () => {
       setIsMobile(window.innerWidth < 768);
@@ -66,11 +68,19 @@ export default function LandingPage() {
     document.documentElement.classList.add('dark');
     localStorage.setItem('ecotani_theme', 'dark');
 
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 10);
+    };
+    window.addEventListener('scroll', handleScroll);
+
     // Loading screen timer
     const timer = setTimeout(() => {
       setIsLoading(false);
     }, 3500); // 3.5 detik agar animasi beres
-    return () => clearTimeout(timer);
+    return () => {
+      clearTimeout(timer);
+      window.removeEventListener('scroll', handleScroll);
+    };
   }, []);
 
   const toggleMobileMenu = () => {
@@ -118,7 +128,11 @@ export default function LandingPage() {
 
         {/* NAVBAR CONTAINER (FLOATING OVAL) */}
         <div className="fixed top-4 left-4 right-4 z-50 flex justify-center">
-          <header className="w-full max-w-6xl bg-white/5 backdrop-blur-xl rounded-full shadow-2xl border border-white/10 px-6 py-2 flex items-center justify-between h-16 transition-all duration-300">
+          <header className={`w-full max-w-6xl rounded-full px-6 py-2 flex items-center justify-between h-16 transition-all duration-300 ${
+            isScrolled 
+              ? 'bg-white/5 backdrop-blur-xl border border-white/10 shadow-[0_10px_30px_rgba(0,0,0,0.8)] shadow-black/80' 
+              : 'bg-white/5 backdrop-blur-xl border border-white/10 shadow-none'
+          }`}>
 
             {/* Logo */}
             <Link href="/" className="flex items-center gap-3 pl-2">
