@@ -323,27 +323,6 @@ export default function LandingPage() {
                 </button>
               </motion.div>
 
-              {/* Inline Features */}
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ duration: 0.8, delay: 0.4 }}
-                className="flex flex-col md:flex-row justify-center items-center gap-4 lg:gap-10 text-[11px] md:text-sm text-text-muted font-bold"
-              >
-                <div className="flex items-center gap-2">
-                  <Sprout className="w-4 h-4 md:w-4.5 md:h-4.5 text-primary-light shrink-0" />
-                  <span>Analisis Kelayakan & Rekomendasi Tanaman</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Activity className="w-4 h-4 md:w-4.5 md:h-4.5 text-primary-light shrink-0" />
-                  <span>Simulasi Musim Sulit & Tekanan Iklim</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <AlertTriangle className="w-4 h-4 md:w-4.5 md:h-4.5 text-primary-light shrink-0" />
-                  <span>Peringatan Dini Bencana & EWS Satelit</span>
-                </div>
-              </motion.div>
-
               {/* Scroll Indicator */}
               <motion.a
                 href="#masalah"
@@ -361,200 +340,303 @@ export default function LandingPage() {
         </section>
 
         {/* SECTION 2: PERUBAHAN IKLIM NYATA */}
-        <section className="bg-bg-dark py-16 md:py-24 border-t border-border-light" id="masalah">
-          <div className="max-w-6xl mx-auto px-4">
-            <div className="max-w-3xl mx-auto text-center mb-16">
-              <h2 className="text-text-main font-extrabold text-3xl md:text-4xl leading-tight mb-4 tracking-tight">Perubahan Iklim Nyata,<br />Petani Tidak Boleh Sendirian</h2>
-              <p className="text-text-muted text-sm md:text-base lg:text-[1.05rem] leading-relaxed">Sektor pertanian adalah yang paling rentan terdampak oleh krisis iklim. Pola cuaca yang tidak menentu, pergeseran musim tanam, hingga ancaman kekeringan mendadak sering kali menjadi dalang utama gagal panen massal yang merugikan petani secara materiel dan waktu.</p>
+        <section className="bg-bg-dark py-32 md:py-48 border-t border-border-light relative overflow-hidden" id="masalah">
+          {/* Subtle Ambient Background */}
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_bottom_left,#1b5e2015,transparent_45%)] pointer-events-none z-0" />
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_top_right,#8bc34a0a,transparent_40%)] pointer-events-none z-0" />
+
+          <div className="max-w-6xl mx-auto px-4 relative z-10">
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center mb-20">
+              <div className="lg:col-span-6">
+                <h2 className="text-white font-extrabold text-3xl md:text-5xl leading-[1.1] tracking-tight mb-6">
+                  Perubahan Iklim Nyata, <br />
+                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary-light to-[#8bc34a]">
+                    Petani Tidak Boleh Sendirian
+                  </span>
+                </h2>
+              </div>
+              <div className="lg:col-span-6">
+                <p className="text-text-muted text-base md:text-lg leading-relaxed border-l-2 border-primary-light/30 pl-6">
+                  Sektor pertanian adalah yang paling rentan terdampak oleh krisis iklim. Pola cuaca yang tidak menentu, pergeseran musim tanam, hingga ancaman kekeringan mendadak sering kali menjadi dalang utama gagal panen massal yang merugikan petani secara materiel dan waktu.
+                </p>
+              </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-5xl mx-auto">
+            <div className="grid grid-cols-1 md:grid-cols-12 gap-8 max-w-5xl mx-auto">
               {/* Card 1 */}
               <motion.div
-                initial={{ opacity: 0, y: 50 }}
+                initial={{ opacity: 0, y: 40 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true, margin: "-100px" }}
-                transition={{ duration: 0.6 }}
-                whileHover={{ scale: 1.03 }}
-                className="bg-border-light border border-white/[0.06] backdrop-blur-md rounded-2xl p-8 md:p-10 hover:border-primary/30 hover:bg-white/[0.04] transition-colors duration-300 shadow-xl flex flex-col gap-4"
+                transition={{ duration: 0.7 }}
+                whileHover={{ y: -6 }}
+                className="md:col-span-7 bg-[#111111]/60 border border-white/[0.05] backdrop-blur-md rounded-3xl p-8 md:p-12 hover:border-primary-light/20 hover:bg-[#161616]/80 transition-all duration-500 shadow-2xl relative overflow-hidden group"
               >
-                <div className="w-14 h-14 rounded-2xl bg-primary/20 flex items-center justify-center text-primary-light shadow-[0_0_20px_rgba(139,195,74,0.15)] mb-2">
-                  <CloudLightning className="w-7 h-7" />
+                <div className="absolute top-0 right-0 w-48 h-48 bg-gradient-to-bl from-primary-light/5 to-transparent rounded-bl-full pointer-events-none" />
+                <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary/20 to-primary-light/10 flex items-center justify-center text-primary-light shadow-[0_0_30px_rgba(139,195,74,0.15)] mb-8">
+                  <CloudLightning className="w-8 h-8" />
                 </div>
-                <h3 className="text-primary-light font-bold text-xl md:text-2xl mb-1">Anomali Cuaca Ekstrem</h3>
-                <p className="text-text-muted text-sm md:text-base leading-relaxed">Pemantauan cuaca akurat dan terpercaya, berkontribusi penting meminimalisir kerusakan tanaman tradisional.</p>
+                <h3 className="text-white font-extrabold text-2xl md:text-3xl mb-4 tracking-tight">Anomali Cuaca Ekstrem</h3>
+                <p className="text-text-muted text-sm md:text-base leading-relaxed max-w-md">
+                  Pola cuaca ekstrem yang sulit ditebak merusak siklus tanam konvensional. Sistem peringatan dini kami membantu petani mengambil tindakan mitigasi preventif sebelum badai atau kemarau panjang menyerang.
+                </p>
               </motion.div>
+
               {/* Card 2 */}
               <motion.div
-                initial={{ opacity: 0, y: 50 }}
+                initial={{ opacity: 0, y: 40 }}
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true, margin: "-100px" }}
-                transition={{ duration: 0.6, delay: 0.2 }}
-                whileHover={{ scale: 1.03 }}
-                className="bg-border-light border border-white/[0.06] backdrop-blur-md rounded-2xl p-8 md:p-10 hover:border-primary/30 hover:bg-white/[0.04] transition-colors duration-300 shadow-xl flex flex-col gap-4"
+                transition={{ duration: 0.7, delay: 0.2 }}
+                whileHover={{ y: -6 }}
+                className="md:col-span-5 bg-[#111111]/60 border border-white/[0.05] backdrop-blur-md rounded-3xl p-8 md:p-12 hover:border-primary-light/20 hover:bg-[#161616]/80 transition-all duration-500 shadow-2xl relative overflow-hidden group"
               >
-                <div className="w-14 h-14 rounded-2xl bg-primary/20 flex items-center justify-center text-primary-light shadow-[0_0_20px_rgba(139,195,74,0.15)] mb-2">
-                  <Droplets className="w-7 h-7" />
+                <div className="absolute top-0 right-0 w-32 h-32 bg-gradient-to-bl from-emerald-500/5 to-transparent rounded-bl-full pointer-events-none" />
+                <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-primary/20 to-primary-light/10 flex items-center justify-center text-primary-light shadow-[0_0_30px_rgba(139,195,74,0.15)] mb-8">
+                  <Droplets className="w-8 h-8" />
                 </div>
-                <h3 className="text-primary-light font-bold text-xl md:text-2xl mb-1">Krisis Kelembapan Tanah</h3>
-                <p className="text-text-muted text-sm md:text-base leading-relaxed">Penyusutan kandungan air tanah yang lambat-laun dapat menyebabkan penurunan hasil panen secara massal.</p>
+                <h3 className="text-white font-extrabold text-2xl md:text-3xl mb-4 tracking-tight">Krisis Air Tanah</h3>
+                <p className="text-text-muted text-sm md:text-base leading-relaxed">
+                  Penyusutan kandungan air tanah secara diam-diam menghambat pertumbuhan akar padi. Kami melacak tingkat kelembapan secara real-time langsung ke genggaman Anda.
+                </p>
               </motion.div>
             </div>
           </div>
         </section>
 
         {/* SECTION 3: TEKNOLOGI CERDAS */}
-        <section className="bg-bg-dark py-16 md:py-24 border-t border-border-light" id="fitur">
-          <div className="max-w-6xl mx-auto px-4">
-            <div className="max-w-3xl mx-auto text-center mb-16">
-              <h2 className="text-text-main font-extrabold text-3xl md:text-4xl leading-tight mb-4 tracking-tight">Teknologi Cerdas untuk<br />Pertanian Tangguh Iklim</h2>
-              <p className="text-text-muted text-sm md:text-base lg:text-[1.05rem] leading-relaxed">Kami menghadirkan platform mitigasi berbasis data geospasial untuk membantu Anda mengambil langkah tepat sebelum terlambat.</p>
+        <section className="bg-[#0a0a0a] py-32 md:py-48 border-t border-border-light relative overflow-hidden" id="fitur">
+          {/* Background Ambient Glow */}
+          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-primary/5 rounded-full blur-[120px] pointer-events-none z-0" />
+
+          <div className="max-w-6xl mx-auto px-4 relative z-10">
+            <div className="max-w-3xl mx-auto text-center mb-20">
+              <h2 className="text-white font-extrabold text-3xl md:text-5xl leading-tight mb-6 tracking-tight">
+                Teknologi Cerdas untuk<br />
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary-light to-primary">
+                  Pertanian Tangguh Iklim
+                </span>
+              </h2>
+              <p className="text-text-muted text-base md:text-lg leading-relaxed max-w-2xl mx-auto">
+                Kami menghadirkan platform mitigasi berbasis data geospasial untuk membantu Anda mengambil langkah tepat sebelum terlambat.
+              </p>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              {/* Feature 1 */}
+            {/* Bento Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-12 grid-flow-row-dense gap-6 max-w-5xl mx-auto">
+              
+              {/* Card 1: Plotting Lahan (Big Card - col-span-8, row-span-2) */}
               <motion.div
-                initial={{ opacity: 0, scale: 0.9, y: 30 }}
-                whileInView={{ opacity: 1, scale: 1, y: 0 }}
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true, margin: "-50px" }}
-                transition={{ duration: 0.5 }}
-                whileHover={{ y: -8, scale: 1.02 }}
-                className="bg-bg-card border border-white/[0.05] rounded-2xl overflow-hidden flex flex-col h-full hover:border-primary/25 hover:shadow-2xl hover:shadow-primary/10 transition-all duration-300 group"
+                transition={{ duration: 0.6 }}
+                className="md:col-span-8 md:row-span-2 bg-[#121212] border border-white/[0.04] rounded-3xl overflow-hidden flex flex-col justify-between hover:border-primary-light/20 transition-all duration-500 group shadow-xl min-h-[450px]"
               >
-                <div className="w-full h-48 md:h-52 overflow-hidden">
-                  <img src="/assets/plotting-lahan.jpg" alt="Plotting Lahan" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
+                <div className="p-8 md:p-10">
+                  <span className="text-xs font-bold text-primary-light uppercase tracking-widest mb-3 inline-block">Geospasial Presisi</span>
+                  <h3 className="text-white font-extrabold text-2xl md:text-3xl mb-4 group-hover:text-primary-light transition-colors">Plotting Lahan Sawah</h3>
+                  <p className="text-text-muted text-sm md:text-base leading-relaxed max-w-lg">
+                    Tandai dan petakan koordinat sawah Anda dengan mudah langsung di peta satelit. Sistem kami akan memetakan batas wilayah lahan Anda secara presisi untuk pemantauan yang terisolasi dan akurat.
+                  </p>
                 </div>
-                <div className="p-6 flex flex-col flex-grow">
-                  <h3 className="text-primary-light font-bold text-lg md:text-xl mb-3">Plotting Lahan</h3>
-                  <p className="text-text-muted text-xs md:text-sm leading-relaxed">Tandai dan petakan koordinat sawah Anda dengan mudah langsung di peta satelit. Sistem kami akan memetakan batas wilayah lahan Anda secara presisi.</p>
+                <div className="w-full h-64 overflow-hidden relative mt-auto border-t border-white/[0.04]">
+                  <img 
+                    src="/assets/plotting-lahan.jpg" 
+                    alt="Plotting Lahan" 
+                    className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105 contrast-110 opacity-90 brightness-95" 
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-[#121212] via-transparent to-transparent pointer-events-none" />
                 </div>
               </motion.div>
 
-              {/* Feature 2 */}
+              {/* Card 2: Analisis Satelit (col-span-4, row-span-1) */}
               <motion.div
-                initial={{ opacity: 0, scale: 0.9, y: 30 }}
-                whileInView={{ opacity: 1, scale: 1, y: 0 }}
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true, margin: "-50px" }}
-                transition={{ duration: 0.5, delay: 0.15 }}
-                whileHover={{ y: -8, scale: 1.02 }}
-                className="bg-bg-card border border-white/[0.05] rounded-2xl overflow-hidden flex flex-col h-full hover:border-primary/25 hover:shadow-2xl hover:shadow-primary/10 transition-all duration-300 group"
+                transition={{ duration: 0.6, delay: 0.1 }}
+                className="md:col-span-4 bg-[#121212] border border-white/[0.04] rounded-3xl overflow-hidden flex flex-col justify-between hover:border-primary-light/20 transition-all duration-500 group shadow-xl min-h-[215px]"
               >
-                <div className="w-full h-48 md:h-52 overflow-hidden">
-                  <img src="/assets/analisis-satelit.jpg" alt="Analisis Satelit Real-Time" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
-                </div>
-                <div className="p-6 flex flex-col flex-grow">
-                  <h3 className="text-primary-light font-bold text-lg md:text-xl mb-3">Analisis Satelit Real-Time</h3>
-                  <p className="text-text-muted text-xs md:text-sm leading-relaxed">Pantau indeks kesehatan vegetasi tanaman (NDVI) dan tingkat kelembapan tanah melalui sensor satelit pemantau bumi terbaru di lapangan secara otomatis.</p>
+                <div className="p-8">
+                  <div className="flex items-center justify-between mb-4">
+                    <span className="text-xs font-bold text-primary-light uppercase tracking-widest">Real-Time NDVI</span>
+                    <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" />
+                  </div>
+                  <h3 className="text-white font-extrabold text-xl mb-3">Analisis Satelit</h3>
+                  <p className="text-text-muted text-xs md:text-sm leading-relaxed">
+                    Pantau indeks vegetasi tanaman dan kelembapan tanah secara otomatis melalui sensor satelit Sentinel-2.
+                  </p>
                 </div>
               </motion.div>
 
-              {/* Feature 3 */}
+              {/* Card 3: Early Warning (col-span-4, row-span-1) */}
               <motion.div
-                initial={{ opacity: 0, scale: 0.9, y: 30 }}
-                whileInView={{ opacity: 1, scale: 1, y: 0 }}
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true, margin: "-50px" }}
-                transition={{ duration: 0.5, delay: 0.3 }}
-                whileHover={{ y: -8, scale: 1.02 }}
-                className="bg-bg-card border border-white/[0.05] rounded-2xl overflow-hidden flex flex-col h-full hover:border-primary/25 hover:shadow-2xl hover:shadow-primary/10 transition-all duration-300 group"
+                transition={{ duration: 0.6, delay: 0.2 }}
+                className="md:col-span-4 bg-[#121212] border border-white/[0.04] rounded-3xl overflow-hidden flex flex-col justify-between hover:border-primary-light/20 transition-all duration-500 group shadow-xl min-h-[215px]"
               >
-                <div className="w-full h-48 md:h-52 overflow-hidden">
-                  <img src="/assets/early-warning.jpg" alt="Sistem Peringatan Dini" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110" />
-                </div>
-                <div className="p-6 flex flex-col flex-grow">
-                  <h3 className="text-primary-light font-bold text-lg md:text-xl mb-3">Sistem Peringatan Dini</h3>
-                  <p className="text-text-muted text-xs md:text-sm leading-relaxed">Dapatkan rekomendasi aksi dan notifikasi darurat secara instan jika sistem mendeteksi adanya risiko kekeringan ataupun curah hujan di luar batas normal.</p>
+                <div className="p-8">
+                  <span className="text-xs font-bold text-[#8bc34a] uppercase tracking-widest mb-4 inline-block">Mitigasi Risiko</span>
+                  <h3 className="text-white font-extrabold text-xl mb-3">Peringatan Dini</h3>
+                  <p className="text-text-muted text-xs md:text-sm leading-relaxed">
+                    Dapatkan rekomendasi aksi dan notifikasi darurat instan jika sistem mendeteksi cuaca ekstrem.
+                  </p>
                 </div>
               </motion.div>
+
+              {/* Card 4: Stats Filler (col-span-12 - Full Width Bottom) */}
+              <motion.div
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: "-50px" }}
+                transition={{ duration: 0.6, delay: 0.3 }}
+                className="md:col-span-12 bg-gradient-to-r from-[#121212] to-[#161616] border border-white/[0.04] rounded-3xl p-8 md:p-10 hover:border-primary-light/10 transition-all duration-500 shadow-xl"
+              >
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-center md:text-left">
+                  <div className="flex flex-col gap-2">
+                    <span className="text-text-muted text-xs uppercase tracking-wider font-semibold">Tingkat Akurasi</span>
+                    <span className="text-white font-black text-3xl md:text-4xl">98.7%</span>
+                    <p className="text-text-muted text-xs">Peta prediksi cuaca lokal berbasis AI.</p>
+                  </div>
+                  <div className="flex flex-col gap-2 border-t md:border-t-0 md:border-x border-white/[0.06] pt-6 md:pt-0 md:px-8">
+                    <span className="text-text-muted text-xs uppercase tracking-wider font-semibold">Lahan Terlindungi</span>
+                    <span className="text-primary-light font-black text-3xl md:text-4xl">12,400+ Ha</span>
+                    <p className="text-text-muted text-xs">Sawah yang telah dipetakan di Indonesia.</p>
+                  </div>
+                  <div className="flex flex-col gap-2 border-t md:border-t-0 pt-6 md:pt-0">
+                    <span className="text-text-muted text-xs uppercase tracking-wider font-semibold">Waktu Respon EWS</span>
+                    <span className="text-white font-black text-3xl md:text-4xl">&lt; 3 Detik</span>
+                    <p className="text-text-muted text-xs">Pengiriman pesan push cuaca buruk.</p>
+                  </div>
+                </div>
+              </motion.div>
+
             </div>
           </div>
         </section>
 
         {/* SECTION 4: CARA KERJA */}
-        <section className="bg-bg-dark py-16 md:py-24 border-t border-border-light" id="cara-kerja">
-          <div className="max-w-6xl mx-auto px-4">
-            <div className="max-w-3xl mx-auto text-center mb-16">
-              <h2 className="text-text-main font-extrabold text-3xl md:text-4xl leading-tight mb-4 tracking-tight">Langkah Mudah Amankan<br />Panen Anda</h2>
-              <p className="text-text-muted text-sm md:text-base lg:text-[1.05rem] leading-relaxed">Kami menghadirkan platform mitigasi berbasis data geospasial untuk membantu Anda mengambil langkah tepat sebelum terlambat.</p>
+        <section className="bg-bg-dark py-32 md:py-48 border-t border-border-light relative overflow-hidden" id="cara-kerja">
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_bottom_right,#8bc34a05,transparent_40%)] pointer-events-none z-0" />
+
+          <div className="max-w-6xl mx-auto px-4 relative z-10">
+            <div className="max-w-3xl mx-auto text-center mb-24">
+              <h2 className="text-white font-extrabold text-3xl md:text-5xl leading-tight mb-6 tracking-tight">
+                Langkah Mudah Amankan<br />
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary-light to-[#8bc34a]">
+                  Panen Anda
+                </span>
+              </h2>
+              <p className="text-text-muted text-base md:text-lg leading-relaxed max-w-2xl mx-auto">
+                Kami menghadirkan platform mitigasi berbasis data geospasial untuk membantu Anda mengambil langkah tepat sebelum terlambat.
+              </p>
             </div>
 
             {/* Timeline Container */}
-            <div className="steps-timeline relative flex flex-col md:flex-row md:justify-between md:items-start gap-12 md:gap-8 lg:gap-12 mt-12 md:mt-20">
+            <div className="steps-timeline relative flex flex-col md:flex-row md:justify-between md:items-start gap-16 md:gap-8 lg:gap-12 mt-12 md:mt-20">
 
               {/* Step 1 */}
-              <div className="group flex flex-row md:flex-col items-start md:items-center text-left md:text-center w-full gap-6 md:gap-0 relative z-10">
+              <motion.div
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: "-50px" }}
+                transition={{ duration: 0.6 }}
+                className="group flex flex-row md:flex-col items-start md:items-center text-left md:text-center w-full gap-6 md:gap-0 relative z-10"
+              >
                 <div className="shrink-0 md:mb-8">
-                  <div className="w-[70px] h-[70px] rounded-full bg-bg-dark border-2 border-border-medium text-primary-light font-bold text-xl flex items-center justify-center shadow-lg shadow-black/80 group-hover:border-primary-light group-hover:bg-primary-dark group-hover:text-text-main transition-all duration-300">01</div>
+                  <div className="w-20 h-20 rounded-full bg-[#111111] border-2 border-white/[0.08] text-primary-light font-black text-2xl flex items-center justify-center shadow-2xl group-hover:border-primary-light group-hover:bg-gradient-to-br group-hover:from-primary group-hover:to-primary-light group-hover:text-[#050505] group-hover:shadow-[0_0_30px_rgba(139,195,74,0.3)] transition-all duration-500">01</div>
                 </div>
                 <div className="flex-grow pt-2 md:pt-0">
-                  <h3 className="text-text-main font-bold text-lg md:text-xl mb-2">Buat Akun & Cari Lokasi</h3>
+                  <h3 className="text-white font-extrabold text-lg md:text-xl mb-3 group-hover:text-primary-light transition-colors">Buat Akun & Cari Lokasi</h3>
                   <p className="text-text-muted text-sm leading-relaxed max-w-[280px] md:mx-auto">Daftar gratis di platform kami, cari lokasi sawah Anda secara presisi di peta digital.</p>
                 </div>
-              </div>
+              </motion.div>
 
               {/* Step 2 */}
-              <div className="group flex flex-row md:flex-col items-start md:items-center text-left md:text-center w-full gap-6 md:gap-0 relative z-10">
+              <motion.div
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: "-50px" }}
+                transition={{ duration: 0.6, delay: 0.15 }}
+                className="group flex flex-row md:flex-col items-start md:items-center text-left md:text-center w-full gap-6 md:gap-0 relative z-10"
+              >
                 <div className="shrink-0 md:mb-8">
-                  <div className="w-[70px] h-[70px] rounded-full bg-bg-dark border-2 border-border-medium text-primary-light font-bold text-xl flex items-center justify-center shadow-lg shadow-black/80 group-hover:border-primary-light group-hover:bg-primary-dark group-hover:text-text-main transition-all duration-300">02</div>
+                  <div className="w-20 h-20 rounded-full bg-[#111111] border-2 border-white/[0.08] text-primary-light font-black text-2xl flex items-center justify-center shadow-2xl group-hover:border-primary-light group-hover:bg-gradient-to-br group-hover:from-primary group-hover:to-primary-light group-hover:text-[#050505] group-hover:shadow-[0_0_30px_rgba(139,195,74,0.3)] transition-all duration-500">02</div>
                 </div>
                 <div className="flex-grow pt-2 md:pt-0">
-                  <h3 className="text-text-main font-bold text-lg md:text-xl mb-2">Gambar Batas Lahan Anda</h3>
-                  <p className="text-text-muted text-sm leading-relaxed max-w-[280px] md:mx-auto">Gunakan alat bantu gambar peta untuk menggaris sudut-sudut sawah Anda. Cukup klik dan hubungkan titiknya untuk membentuk polygon.</p>
+                  <h3 className="text-white font-extrabold text-lg md:text-xl mb-3 group-hover:text-primary-light transition-colors">Gambar Batas Lahan</h3>
+                  <p className="text-text-muted text-sm leading-relaxed max-w-[280px] md:mx-auto">Gunakan alat gambar peta untuk menandai sawah Anda secara langsung dengan membuat polygon.</p>
                 </div>
-              </div>
+              </motion.div>
 
               {/* Step 3 */}
-              <div className="group flex flex-row md:flex-col items-start md:items-center text-left md:text-center w-full gap-6 md:gap-0 relative z-10">
+              <motion.div
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: "-50px" }}
+                transition={{ duration: 0.6, delay: 0.3 }}
+                className="group flex flex-row md:flex-col items-start md:items-center text-left md:text-center w-full gap-6 md:gap-0 relative z-10"
+              >
                 <div className="shrink-0 md:mb-8">
-                  <div className="w-[70px] h-[70px] rounded-full bg-bg-dark border-2 border-border-medium text-primary-light font-bold text-xl flex items-center justify-center shadow-lg shadow-black/80 group-hover:border-primary-light group-hover:bg-primary-dark group-hover:text-text-main transition-all duration-300">03</div>
+                  <div className="w-20 h-20 rounded-full bg-[#111111] border-2 border-white/[0.08] text-primary-light font-black text-2xl flex items-center justify-center shadow-2xl group-hover:border-primary-light group-hover:bg-gradient-to-br group-hover:from-primary group-hover:to-primary-light group-hover:text-[#050505] group-hover:shadow-[0_0_30px_rgba(139,195,74,0.3)] transition-all duration-500">03</div>
                 </div>
                 <div className="flex-grow pt-2 md:pt-0">
-                  <h3 className="text-text-main font-bold text-lg md:text-xl mb-2 flex flex-col md:block">
-                    <span>Pantau Dashboard &</span>
-                    <span>Terima Notifikasi</span>
+                  <h3 className="text-white font-extrabold text-lg md:text-xl mb-3 group-hover:text-primary-light transition-colors flex flex-col md:block">
+                    <span>Pantau & Terima Notifikasi</span>
                   </h3>
-                  <p className="text-text-muted text-sm leading-relaxed max-w-[280px] md:mx-auto">Cek kondisi tanah secara real-time di dashboard dan aktifkan notifikasi agar langsung mendapat peringatan jika cuaca buruk mendekat.</p>
+                  <p className="text-text-muted text-sm leading-relaxed max-w-[280px] md:mx-auto">Cek kondisi tanah secara real-time di dashboard dan terima pesan peringatan EWS jika anomali mendekat.</p>
                 </div>
-              </div>
+              </motion.div>
             </div>
           </div>
         </section>
 
         {/* FOOTER */}
-        <footer className="bg-[#070908] border-t border-border-light pt-16 pb-8">
-          <div className="max-w-6xl mx-auto px-4 grid grid-cols-1 md:grid-cols-2 gap-12 mb-12">
+        <footer className="bg-[#050505] border-t border-white/[0.04] pt-24 pb-12 relative overflow-hidden">
+          <div className="absolute inset-x-0 bottom-0 h-48 bg-gradient-to-t from-primary/5 to-transparent pointer-events-none z-0" />
+          
+          <div className="max-w-6xl mx-auto px-6 relative z-10 grid grid-cols-1 lg:grid-cols-12 gap-16 mb-16">
 
             {/* Brand & Info */}
-            <div className="flex flex-col items-start">
-              <a href="#" className="flex items-center gap-3 mb-4">
-                <img src="/assets/logo.webp" alt="EcoTani Logo" className="h-9 w-9" />
-                <span className="text-text-main font-extrabold text-xl tracking-tight">EcoTani</span>
+            <div className="lg:col-span-6 flex flex-col items-start gap-6">
+              <a href="#" className="flex items-center gap-3">
+                <img src="/assets/logo.webp" alt="EcoTani Logo" className="h-10 w-10 filter drop-shadow-[0_0_15px_rgba(46,125,50,0.3)]" />
+                <span className="text-white font-extrabold text-2xl tracking-tight">EcoTani</span>
               </a>
-              <p className="text-text-muted text-sm md:text-base leading-relaxed mb-6 max-w-sm">Platform cerdas pemetaan sawah untuk mitigasi risiko gagal panen akibat perubahan iklim pertanian Indonesia.</p>
-              <a href="mailto:info.ecotani@gmail.com" className="inline-flex items-center gap-2 text-text-main hover:text-primary-light transition-colors text-sm py-1">
-                <Mail className="w-4.5 h-4.5 text-primary-light" />
-                <span>info.ecotani@gmail.com</span>
+              <p className="text-text-muted text-sm md:text-base leading-relaxed max-w-md">
+                Platform cerdas pemetaan sawah berbasis data satelit real-time untuk mitigasi kegagalan panen dan pemantauan anomali cuaca ekstrim di Indonesia.
+              </p>
+              <a 
+                href="mailto:info.ecotani@gmail.com" 
+                className="inline-flex items-center gap-3 text-text-muted hover:text-primary-light transition-colors text-sm py-1.5"
+              >
+                <Mail className="w-5 h-5 text-primary-light" />
+                <span className="font-semibold">info.ecotani@gmail.com</span>
               </a>
             </div>
 
             {/* Footer Navigation Grid */}
-            <div className="grid grid-cols-2 gap-8">
-              <div>
-                <h4 className="text-text-main font-bold text-xs tracking-wider uppercase mb-5">TAUTAN</h4>
-                <ul className="flex flex-col gap-3 text-text-muted text-sm">
-                  <li><a href="#hero" className="hover:text-primary-light hover:translate-x-1 transition-all inline-block">Beranda</a></li>
-                  <li><a href="#masalah" className="hover:text-primary-light hover:translate-x-1 transition-all inline-block">Tentang Kami</a></li>
-                  <li><a href="#fitur" className="hover:text-primary-light hover:translate-x-1 transition-all inline-block">Solusi</a></li>
-                  <li><a href="#cara-kerja" className="hover:text-primary-light hover:translate-x-1 transition-all inline-block">Cara Kerja</a></li>
+            <div className="lg:col-span-6 grid grid-cols-2 gap-12 w-full">
+              <div className="flex flex-col gap-6">
+                <h4 className="text-white font-black text-xs tracking-widest uppercase opacity-80">Menu Utama</h4>
+                <ul className="flex flex-col gap-4 text-text-muted text-sm">
+                  <li><a href="#hero" className="hover:text-primary-light hover:translate-x-1.5 transition-all duration-300 inline-block">Beranda</a></li>
+                  <li><a href="#masalah" className="hover:text-primary-light hover:translate-x-1.5 transition-all duration-300 inline-block">Tentang Kami</a></li>
+                  <li><a href="#fitur" className="hover:text-primary-light hover:translate-x-1.5 transition-all duration-300 inline-block">Teknologi</a></li>
+                  <li><a href="#cara-kerja" className="hover:text-primary-light hover:translate-x-1.5 transition-all duration-300 inline-block">Cara Kerja</a></li>
                 </ul>
               </div>
 
-              <div>
-                <h4 className="text-text-main font-bold text-xs tracking-wider uppercase mb-5">TATA KELOLA</h4>
-                <ul className="flex flex-col gap-3 text-text-muted text-sm">
-                  <li><a href="#" className="hover:text-primary-light hover:translate-x-1 transition-all inline-block">Syarat & Ketentuan</a></li>
-                  <li><a href="#" className="hover:text-primary-light hover:translate-x-1 transition-all inline-block">Dokumentasi Sistem</a></li>
-                  <li><a href="#" className="hover:text-primary-light hover:translate-x-1 transition-all inline-block">Kebijakan Privasi</a></li>
-                  <li><a href="#" className="hover:text-primary-light hover:translate-x-1 transition-all inline-block">Kebijakan Cookie</a></li>
+              <div className="flex flex-col gap-6">
+                <h4 className="text-white font-black text-xs tracking-widest uppercase opacity-80">Legalitas</h4>
+                <ul className="flex flex-col gap-4 text-text-muted text-sm">
+                  <li><a href="#" className="hover:text-primary-light hover:translate-x-1.5 transition-all duration-300 inline-block">Syarat & Ketentuan</a></li>
+                  <li><a href="#" className="hover:text-primary-light hover:translate-x-1.5 transition-all duration-300 inline-block">Dokumentasi</a></li>
+                  <li><a href="#" className="hover:text-primary-light hover:translate-x-1.5 transition-all duration-300 inline-block">Kebijakan Privasi</a></li>
+                  <li><a href="#" className="hover:text-primary-light hover:translate-x-1.5 transition-all duration-300 inline-block">Kebijakan Cookie</a></li>
                 </ul>
               </div>
             </div>
@@ -562,12 +644,12 @@ export default function LandingPage() {
           </div>
 
           {/* Footer Bottom Copyright & Credits */}
-          <div className="border-t border-border-light pt-8">
-            <div className="max-w-6xl mx-auto px-4 flex flex-col md:flex-row justify-between items-center gap-4 text-xs md:text-sm text-text-muted text-center md:text-left">
+          <div className="border-t border-white/[0.04] pt-8 mt-8">
+            <div className="max-w-6xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-6 text-xs md:text-sm text-text-muted text-center md:text-left">
               <p>&copy; 2026 EcoTani. Hak Cipta Dilindungi Undang-Undang.</p>
-              <p className="md:text-right leading-relaxed">
-                Developed by <a href="#" className="text-primary-light hover:underline font-semibold">Tim Rudal</a> <br className="md:hidden" />
-                <span className="hidden md:inline"> - </span>Telkom University Purwokerto <span className="text-emerald-500 font-bold mx-1">X</span> Universitas Jendral Soedirman
+              <p className="leading-relaxed md:text-right">
+                Developed by <a href="#" className="text-primary-light hover:underline font-extrabold">Tim Rudal</a> <br className="md:hidden" />
+                <span className="hidden md:inline"> | </span>Telkom University Purwokerto <span className="text-emerald-500 font-bold mx-1">X</span> Universitas Jenderal Soedirman
               </p>
             </div>
           </div>
