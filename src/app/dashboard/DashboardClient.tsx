@@ -96,10 +96,17 @@ export default function DashboardClient({ initialUser }: DashboardClientProps) {
   const [currentView, setCurrentView] = useState<'dashboard' | 'add-lahan' | 'edit-lahan' | 'suitability' | 'monitoring' | 'panen' | 'profile'>('dashboard');
   
   // Theme state removed - app is strictly dark mode
+  const [isScrolled, setIsScrolled] = useState(false);
   
   useEffect(() => {
     document.documentElement.classList.add('dark');
     localStorage.setItem('ecotani_theme', 'dark');
+
+    const handleScroll = () => {
+      setIsScrolled(window.scrollY > 10);
+    };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
   }, []);
   
   // Selected entities for drill-down
@@ -2696,7 +2703,11 @@ export default function DashboardClient({ initialUser }: DashboardClientProps) {
       
       {/* Navbar (Oval Floating - Premium Dark Glass) */}
       <div className="fixed top-4 left-4 right-4 z-50 flex justify-center">
-        <header className="w-full max-w-6xl bg-white/5 backdrop-blur-xl rounded-full shadow-2xl border border-white/10 px-4 md:px-6 py-2 flex items-center justify-between h-16 transition-all duration-300">
+        <header className={`w-full max-w-6xl rounded-full px-4 md:px-6 py-2 flex items-center justify-between h-16 transition-all duration-300 ${
+          isScrolled 
+            ? 'bg-white/5 backdrop-blur-xl border border-white/10 shadow-[0_10px_30px_rgba(0,0,0,0.8)] shadow-black/80' 
+            : 'bg-white/5 backdrop-blur-xl border border-white/10 shadow-none'
+        }`}>
           <div className="flex items-center gap-2 md:gap-3 pl-1 md:pl-2">
             <img src="/assets/logo.webp" alt="EcoTani" className="h-8 w-8 drop-shadow-[0_0_8px_rgba(0,168,89,0.5)]" />
             <span className="font-extrabold text-lg text-white tracking-tight">EcoTani</span>
@@ -2731,95 +2742,94 @@ export default function DashboardClient({ initialUser }: DashboardClientProps) {
       <main className="flex-grow pt-24 pb-12 max-w-6xl w-full mx-auto px-4 relative z-10">
         
         {/* Summary Stats grid (Premium Glassmorphism) */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 mb-6 md:mb-8">
-          <div className="bg-white/5 backdrop-blur-md border border-white/10 p-3 md:p-5 rounded-xl md:rounded-2xl flex flex-col md:flex-row items-start md:items-center gap-2 md:gap-4 hover:bg-white/10 transition-colors shadow-lg shadow-black/20">
-            <div className="p-2 md:p-3 bg-primary/10 text-primary rounded-lg md:rounded-xl border border-primary/20 shadow-[0_0_15px_rgba(16,185,129,0.15)]">
-              <Map className="w-5 h-5 md:w-6 md:h-6" />
-            </div>
+        {/* Bento Stats Grid (Premium Modern) */}
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-4 md:gap-6 mb-10">
+          
+          {/* Lahan Summary - Large Bento Cell */}
+          <div className="md:col-span-8 bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-2xl border border-white/10 p-6 md:p-8 rounded-3xl flex flex-col md:flex-row items-start md:items-center justify-between gap-6 hover:border-white/20 transition-all shadow-[0_8px_32px_rgba(0,0,0,0.4)] overflow-hidden relative group">
+            <div className="absolute top-0 right-0 w-64 h-64 bg-primary/10 rounded-full blur-[80px] -mr-20 -mt-20 pointer-events-none transition-all group-hover:bg-primary/20"></div>
             <div>
-              <span className="text-[10px] md:text-xs text-gray-400 block mb-0.5 leading-tight">Jumlah Lahan</span>
-              <strong className="text-sm md:text-xl text-white block truncate">{lahans.length} Bidang</strong>
+              <span className="text-xs font-semibold text-gray-400 uppercase tracking-[0.2em] mb-2 block">Portofolio Lahan</span>
+              <div className="flex items-end gap-3">
+                <strong className="text-5xl md:text-6xl font-extrabold text-white tracking-tighter leading-none">{lahans.length}</strong>
+                <span className="text-lg text-gray-400 font-medium mb-1">Bidang Aktif</span>
+              </div>
             </div>
-          </div>
-
-          <div className="bg-white/5 backdrop-blur-md border border-white/10 p-3 md:p-5 rounded-xl md:rounded-2xl flex flex-col md:flex-row items-start md:items-center gap-2 md:gap-4 hover:bg-white/10 transition-colors shadow-lg shadow-black/20">
-            <div className="p-2 md:p-3 bg-blue-500/10 text-blue-400 rounded-lg md:rounded-xl border border-blue-500/20 shadow-[0_0_15px_rgba(59,130,246,0.15)]">
-              <Activity className="w-5 h-5 md:w-6 md:h-6" />
-            </div>
-            <div>
-              <span className="text-[10px] md:text-xs text-gray-400 block mb-0.5 leading-tight">Total Luas</span>
-              <strong className="text-sm md:text-xl text-white block truncate">
-                {lahans.reduce((sum, l) => sum + l.luas, 0).toLocaleString('id-ID')} m²
+            
+            <div className="h-full w-full md:w-px md:h-16 bg-white/10"></div>
+            
+            <div className="flex-1">
+              <span className="text-[10px] text-gray-400 uppercase tracking-wider mb-1 block">Total Luas Kelolaan</span>
+              <strong className="text-2xl md:text-3xl text-white font-bold tracking-tight">
+                {lahans.reduce((sum, l) => sum + l.luas, 0).toLocaleString('id-ID')} <span className="text-lg text-primary">m²</span>
               </strong>
             </div>
           </div>
 
-          <div className="bg-white/5 backdrop-blur-md border border-white/10 p-3 md:p-5 rounded-xl md:rounded-2xl flex flex-col md:flex-row items-start md:items-center gap-2 md:gap-4 hover:bg-white/10 transition-colors shadow-lg shadow-black/20">
-            <div className="p-2 md:p-3 bg-amber-500/10 text-amber-400 rounded-lg md:rounded-xl border border-amber-500/20 shadow-[0_0_15px_rgba(245,158,11,0.15)]">
-              <TrendingUp className="w-5 h-5 md:w-6 md:h-6" />
+          {/* Panen Sukses - Small Bento Cell */}
+          <div className="md:col-span-4 bg-white/5 backdrop-blur-xl border border-white/10 p-6 md:p-8 rounded-3xl flex flex-col justify-between gap-4 hover:bg-white/10 transition-colors shadow-xl group">
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-semibold text-gray-400 uppercase tracking-[0.15em]">Panen Sukses</span>
+              <div className="p-2.5 bg-emerald-500/10 text-emerald-400 rounded-xl border border-emerald-500/20 group-hover:scale-110 transition-transform">
+                <TrendingUp className="w-5 h-5" />
+              </div>
             </div>
             <div>
-              <span className="text-[10px] md:text-xs text-gray-400 block mb-0.5 leading-tight">Panen Sukses</span>
-              <strong className="text-sm md:text-xl text-white block truncate">
-                {panens.filter(p => p.statusHasil === 'sukses').length} Kali
-              </strong>
+              <strong className="text-4xl text-white font-extrabold tracking-tighter block">{panens.filter(p => p.statusHasil === 'sukses').length}</strong>
+              <span className="text-sm text-gray-400 mt-1 block">Siklus Diselesaikan</span>
             </div>
           </div>
 
-          <div className="bg-white/5 backdrop-blur-md border border-white/10 p-3 md:p-5 rounded-xl md:rounded-2xl flex flex-col md:flex-row items-start md:items-center gap-2 md:gap-4 hover:bg-white/10 transition-colors shadow-lg shadow-black/20">
-            <div className="p-2 md:p-3 bg-red-500/10 text-red-400 rounded-lg md:rounded-xl border border-red-500/20 shadow-[0_0_15px_rgba(239,68,68,0.15)] animate-pulse">
-              <AlertTriangle className="w-5 h-5 md:w-6 md:h-6" />
-            </div>
-            <div>
-              <span className="text-[10px] md:text-xs text-gray-400 block mb-0.5 leading-tight">Peringatan</span>
-              <strong className="text-sm md:text-xl text-white block truncate">{activeAlerts.length} Bahaya</strong>
-            </div>
-          </div>
         </div>
 
         {/* ALERTS SECTION (CUACA BURUK) */}
         {activeAlerts.length > 0 && (
-          <div className="bg-red-600/15 border border-red-500/20 rounded-2xl p-5 mb-8 flex items-start gap-4">
-            <AlertTriangle className="w-6 h-6 text-red-500 shrink-0 mt-0.5" />
+          <div className="bg-gradient-to-r from-red-500/10 to-transparent border-l-4 border-l-red-500 border-y border-r border-white/5 backdrop-blur-md rounded-r-2xl p-6 mb-10 flex items-start gap-4 shadow-lg">
+            <div className="p-2 bg-red-500/20 rounded-xl border border-red-500/30 shrink-0 animate-pulse">
+              <AlertTriangle className="w-6 h-6 text-red-500" />
+            </div>
             <div>
-              <h3 className="font-bold text-text-main text-sm">Peringatan Dini Cuaca Ekstrem Terdeteksi</h3>
-              <p className="text-xs text-text-muted leading-relaxed mt-1">
-                Kami mendeteksi <strong>{activeAlerts.length} Lahan Anda</strong> berada di dataran tinggi dengan curah hujan melebihi batas toleransi. Silakan klik tombol "Pantau Lahan" di lahan yang bersangkutan untuk mendapatkan rincian panduan mitigasi bencana pertanian.
+              <h3 className="font-bold text-white tracking-tight text-base mb-1.5">Peringatan Dini Cuaca Ekstrem Terdeteksi</h3>
+              <p className="text-sm text-gray-300 leading-relaxed max-w-3xl">
+                Terdapat <strong>{activeAlerts.length} Lahan</strong> Anda berada di profil cuaca ekstrem. Silakan klik tombol "Pantau Lahan" di lahan yang bersangkutan untuk mendapatkan rincian panduan mitigasi bencana pertanian.
               </p>
             </div>
           </div>
         )}
 
         {/* TABS (Lahan Sawah vs Riwayat Panen) */}
-        <div className="border-b border-white/10 flex flex-col md:flex-row md:items-center justify-between mb-6 pb-2 gap-4">
-          <div className="flex gap-6 overflow-x-auto no-scrollbar w-full md:w-auto pb-2 md:pb-0">
+        {/* MODERN NAVIGATION PILLS */}
+        <div className="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-5">
+          <div className="inline-flex bg-white/5 backdrop-blur-md border border-white/10 rounded-full p-1.5">
             <button 
               onClick={() => setActiveTab('lahan')}
-              className={`py-2 px-1 text-sm font-bold relative transition-all whitespace-nowrap ${
-                activeTab === 'lahan' ? 'text-primary' : 'text-gray-500 hover:text-gray-300'
+              className={`py-2.5 px-6 rounded-full text-sm font-semibold transition-all flex items-center gap-2 ${
+                activeTab === 'lahan' 
+                  ? 'bg-white text-black shadow-md' 
+                  : 'text-gray-400 hover:text-white hover:bg-white/5'
               }`}
             >
-              <span className="flex items-center gap-2"><Map className="w-4 h-4"/> Daftar Lahan Sawah</span>
-              {activeTab === 'lahan' && <span className="absolute -bottom-2.5 left-0 right-0 h-0.5 bg-primary-light shadow-[0_0_8px_rgba(52,211,153,0.8)]"></span>}
+              <MapIcon className="w-4 h-4"/> Daftar Lahan
             </button>
             <button 
               onClick={() => setActiveTab('panen')}
-              className={`py-2 px-1 text-sm font-bold relative transition-all whitespace-nowrap ${
-                activeTab === 'panen' ? 'text-primary' : 'text-gray-500 hover:text-gray-300'
+              className={`py-2.5 px-6 rounded-full text-sm font-semibold transition-all flex items-center gap-2 ${
+                activeTab === 'panen' 
+                  ? 'bg-white text-black shadow-md' 
+                  : 'text-gray-400 hover:text-white hover:bg-white/5'
               }`}
             >
-              <span className="flex items-center gap-2"><FileSpreadsheet className="w-4 h-4"/> Riwayat Panen</span>
-              {activeTab === 'panen' && <span className="absolute -bottom-2.5 left-0 right-0 h-0.5 bg-primary-light shadow-[0_0_8px_rgba(52,211,153,0.8)]"></span>}
+              <FileSpreadsheet className="w-4 h-4"/> Riwayat Panen
             </button>
           </div>
 
           {activeTab === 'lahan' && (
             <button 
               onClick={() => setCurrentView('add-lahan')}
-              className="bg-primary/10 hover:bg-primary/20 text-primary border border-primary/30 font-bold py-3 md:py-2 px-5 rounded-xl md:rounded-full text-xs transition-all flex justify-center items-center gap-1.5 shadow-[0_0_15px_rgba(16,185,129,0.1)] w-full md:w-auto"
+              className="bg-primary hover:bg-primary-dark text-black font-bold py-3 px-6 rounded-full text-sm transition-all flex justify-center items-center gap-2 shadow-[0_0_20px_rgba(16,185,129,0.3)] w-full md:w-auto"
             >
               <Plus className="w-4 h-4" />
-              <span>Tambah Lahan</span>
+              <span>Tambah Lahan Baru</span>
             </button>
           )}
         </div>
@@ -2841,14 +2851,14 @@ export default function DashboardClient({ initialUser }: DashboardClientProps) {
               return (
                 <div 
                   key={lahan.id}
-                  className="bg-white/5 backdrop-blur-sm border border-white/10 rounded-2xl p-6 hover:border-primary/30 hover:bg-white/10 hover:shadow-[0_0_25px_rgba(16,185,129,0.1)] transition-all duration-300 flex flex-col justify-between group relative overflow-hidden shrink-0 w-[85vw] sm:w-[350px] md:w-auto snap-start"
+                  className="bg-white/5 backdrop-blur-xl border border-white/5 rounded-3xl p-6 hover:bg-white/10 hover:shadow-[0_8px_30px_rgba(0,0,0,0.5)] hover:-translate-y-1 transition-all duration-300 flex flex-col justify-between group relative overflow-hidden shrink-0 w-[85vw] sm:w-[350px] md:w-auto snap-start"
                 >
-                  <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full blur-3xl -mr-10 -mt-10 pointer-events-none group-hover:bg-primary/10 transition-colors"></div>
+                  <div className="absolute top-0 right-0 w-48 h-48 bg-primary/10 rounded-full blur-[60px] -mr-16 -mt-16 pointer-events-none group-hover:bg-primary/20 transition-all duration-500"></div>
                   <div className="relative z-10">
-                    <div className="flex justify-between items-start mb-4">
+                    <div className="flex justify-between items-start mb-6">
                       <div>
-                        <h3 className="text-white font-bold text-base leading-tight group-hover:text-primary transition-colors">{lahan.nama}</h3>
-                        <span className="text-xs text-gray-400 mt-1 block">Luas: {lahan.luas.toLocaleString('id-ID')} m²</span>
+                        <h3 className="text-white font-extrabold text-xl leading-tight group-hover:text-primary transition-colors tracking-tight">{lahan.nama}</h3>
+                        <span className="text-sm text-gray-400 mt-1 block font-medium">Luas: {lahan.luas.toLocaleString('id-ID')} m²</span>
                       </div>
                       
                       {lahan.status === 'kosong' ? (
