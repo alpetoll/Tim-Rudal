@@ -1138,8 +1138,11 @@ export default function DashboardClient({ initialUser }: DashboardClientProps) {
     ];
 
     return (
-      <div className="min-h-screen bg-bg-dark py-8 px-4">
-        <div className="max-w-3xl mx-auto bg-bg-card border border-border-medium rounded-3xl p-6 md:p-8 shadow-2xl">
+      <div className="min-h-screen bg-[#050505] py-12 px-4 relative overflow-hidden">
+        {/* Ambient background glow */}
+        <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-primary/5 rounded-full blur-[120px] pointer-events-none"></div>
+
+        <div className="max-w-3xl mx-auto bg-gradient-to-br from-white/10 to-white/[0.02] backdrop-blur-2xl border border-white/10 rounded-[32px] p-6 md:p-10 shadow-[0_20px_50px_rgba(0,0,0,0.6)] relative z-10">
           <button 
             onClick={() => {
               setCurrentView('dashboard');
@@ -1147,30 +1150,30 @@ export default function DashboardClient({ initialUser }: DashboardClientProps) {
               setActiveStep(1);
               handleResetStressTest();
             }}
-            className="inline-flex items-center gap-2 text-sm text-text-muted hover:text-text-main mb-6"
+            className="inline-flex items-center gap-2 text-xs font-semibold text-gray-400 hover:text-white bg-white/5 hover:bg-white/10 border border-white/5 px-4 py-2 rounded-full transition-all mb-8 cursor-pointer"
           >
-            <ArrowLeft className="w-4 h-4" />
+            <ArrowLeft className="w-3.5 h-3.5" />
             <span>Kembali ke Dashboard</span>
           </button>
 
-          <h2 className="text-2xl font-bold text-text-main mb-1">Cek Kelayakan Lahan Tanam</h2>
-          <p className="text-sm text-text-muted mb-6">
-            Menilai kesesuaian lahan <strong className="text-text-main">{selectedLahan.nama}</strong> berdasarkan parameter geospasial tanah dan iklim.
+          <h2 className="text-3xl font-extrabold text-white tracking-tight mb-2">Cek Kelayakan Lahan Tanam</h2>
+          <p className="text-xs text-gray-400 mb-8 leading-relaxed">
+            Menilai kesesuaian lahan <strong className="text-white font-semibold">{selectedLahan.nama}</strong> berdasarkan parameter geospasial tanah dan iklim.
             {liveWeather && (
-              <span className="block mt-1 text-primary flex items-center gap-1">
+              <span className="block mt-2 text-primary flex items-center gap-1.5 font-medium">
                 <CloudRain className="w-3.5 h-3.5" /> Terhubung dengan data cuaca live ({liveWeather.suhu}°C, {liveWeather.curahHujan} mm/bln)
               </span>
             )}
           </p>
 
           {/* SLEEK STEPPER INDICATOR */}
-          <div className="mb-8">
+          <div className="mb-10">
             <div className="flex items-center justify-between relative">
               {/* Background Line */}
-              <div className="absolute top-1/2 left-0 right-0 h-[2px] bg-white/10 -translate-y-1/2 z-0" />
+              <div className="absolute top-1/2 left-0 right-0 h-[2px] bg-white/5 -translate-y-1/2 z-0" />
               {/* Active Progress Line */}
               <div 
-                className="absolute top-1/2 left-0 h-[2px] bg-gradient-to-r from-primary to-primary-light -translate-y-1/2 z-0 transition-all duration-300"
+                className="absolute top-1/2 left-0 h-[2px] bg-primary -translate-y-1/2 z-0 transition-all duration-300"
                 style={{ width: `${((activeStep - 1) / (steps.length - 1)) * 100}%` }}
               />
               
@@ -1187,16 +1190,16 @@ export default function DashboardClient({ initialUser }: DashboardClientProps) {
                           setActiveStep(s.number);
                         }
                       }}
-                      className={`w-8 h-8 rounded-full flex items-center justify-center text-xs font-bold transition-all duration-300 border ${
-                        isCompleted ? 'bg-primary border-primary text-text-inverse shadow-md shadow-primary/20' :
-                        isActive ? 'bg-bg-card border-primary text-primary ring-4 ring-primary/20 scale-110' :
-                        'bg-bg-dark border-white/10 text-text-muted'
+                      className={`w-9 h-9 rounded-full flex items-center justify-center text-xs font-bold transition-all duration-300 border cursor-pointer ${
+                        isCompleted ? 'bg-primary border-primary text-black shadow-md shadow-primary/20' :
+                        isActive ? 'bg-[#050505] border-primary text-primary ring-4 ring-primary/10 scale-110 font-black' :
+                        'bg-[#0c0c0c] border-white/10 text-gray-500 hover:border-white/20'
                       }`}
                     >
                       {isCompleted ? '✓' : s.number}
                     </button>
-                    <span className={`text-[10px] font-semibold mt-2 hidden sm:inline ${
-                      isActive ? 'text-primary' : isCompleted ? 'text-text-main' : 'text-text-muted'
+                    <span className={`text-[10px] font-extrabold mt-2.5 hidden sm:inline uppercase tracking-wider ${
+                      isActive ? 'text-primary' : isCompleted ? 'text-white' : 'text-gray-500'
                     }`}>
                       {s.label}
                     </span>
@@ -1219,15 +1222,15 @@ export default function DashboardClient({ initialUser }: DashboardClientProps) {
                   transition={{ duration: 0.2 }}
                   className="space-y-6"
                 >
-                  <div className="bg-bg-dark border border-border-medium rounded-2xl p-5">
+                  <div className="bg-white/5 border border-white/5 rounded-3xl p-6 shadow-xl">
                     
                     {/* DROPDOWN KATEGORI */}
-                    <label className="block text-xs font-semibold text-text-muted uppercase tracking-wider mb-3">Pilih Kategori</label>
+                    <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-3">Pilih Kategori</label>
                     <div className="relative mb-6">
                       <button
                         type="button"
                         onClick={() => setIsKategoriDropdownOpen(!isKategoriDropdownOpen)}
-                        className={`w-full bg-bg-dark border border-white/10 rounded-xl px-4 py-3 text-left focus:outline-none focus:border-primary transition-all text-sm flex justify-between items-center ${selectedKategori ? 'text-white font-bold' : 'text-text-muted font-normal'}`}
+                        className={`w-full bg-black/40 border border-white/10 rounded-2xl px-4 py-3 text-left focus:outline-none focus:border-primary transition-all text-sm flex justify-between items-center cursor-pointer ${selectedKategori ? 'text-white font-bold' : 'text-gray-400 font-normal'}`}
                       >
                         <span>{selectedKategori || 'Pilih Kategori...'}</span>
                         <ChevronDown className={`w-4 h-4 transform transition-transform duration-200 ${isKategoriDropdownOpen ? 'rotate-180' : ''}`} />
@@ -1236,7 +1239,7 @@ export default function DashboardClient({ initialUser }: DashboardClientProps) {
                       {isKategoriDropdownOpen && (
                         <>
                           <div className="fixed inset-0 z-40" onClick={() => setIsKategoriDropdownOpen(false)} />
-                          <div className="absolute z-50 mt-2 w-full bg-bg-card border border-border-medium rounded-xl shadow-2xl p-2 space-y-1">
+                          <div className="absolute z-50 mt-2 w-full bg-zinc-950/95 border border-white/10 rounded-2xl shadow-2xl p-2 space-y-1 backdrop-blur-xl">
                             <button
                               type="button"
                               onClick={() => {
@@ -1244,8 +1247,8 @@ export default function DashboardClient({ initialUser }: DashboardClientProps) {
                                 setIsKategoriDropdownOpen(false);
                                 setSelectedCropId('');
                               }}
-                              className={`w-full text-left px-3 py-2 rounded-lg text-xs transition-all ${
-                                selectedKategori === '' ? 'bg-primary/20 border border-primary text-white font-bold' : 'hover:bg-white/5 text-text-muted hover:text-text-main'
+                              className={`w-full text-left px-4 py-2.5 rounded-xl text-xs transition-all cursor-pointer ${
+                                selectedKategori === '' ? 'bg-primary/20 border border-primary/30 text-white font-bold' : 'hover:bg-white/5 text-gray-400 hover:text-white'
                               }`}
                             >
                               Semua Kategori
@@ -1259,8 +1262,8 @@ export default function DashboardClient({ initialUser }: DashboardClientProps) {
                                   setIsKategoriDropdownOpen(false);
                                   setSelectedCropId('');
                                 }}
-                                className={`w-full text-left px-3 py-2 rounded-lg text-xs transition-all ${
-                                  kat === selectedKategori ? 'bg-primary/20 border border-primary text-white font-bold' : 'hover:bg-white/5 text-text-muted hover:text-text-main'
+                                className={`w-full text-left px-4 py-2.5 rounded-xl text-xs transition-all cursor-pointer ${
+                                  kat === selectedKategori ? 'bg-primary/20 border border-primary/30 text-white font-bold' : 'hover:bg-white/5 text-gray-400 hover:text-white'
                                 }`}
                               >
                                 {kat}
@@ -1272,12 +1275,12 @@ export default function DashboardClient({ initialUser }: DashboardClientProps) {
                     </div>
 
                     {/* DROPDOWN KOMODITAS */}
-                    <label className="block text-xs font-semibold text-text-muted uppercase tracking-wider mb-3">Pilih Komoditas Tanaman</label>
+                    <label className="block text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-3">Pilih Komoditas Tanaman</label>
                     <div className="relative">
                       <button
                         type="button"
                         onClick={() => setIsCropDropdownOpen(!isCropDropdownOpen)}
-                        className={`w-full bg-bg-dark border border-white/10 rounded-xl px-4 py-3 text-left focus:outline-none focus:border-primary transition-all text-sm flex justify-between items-center ${activeCrop ? 'text-white font-bold' : 'text-text-muted font-normal'}`}
+                        className={`w-full bg-black/40 border border-white/10 rounded-2xl px-4 py-3 text-left focus:outline-none focus:border-primary transition-all text-sm flex justify-between items-center cursor-pointer ${activeCrop ? 'text-white font-bold' : 'text-gray-400 font-normal'}`}
                       >
                         <span>
                           {activeCrop ? `${activeCrop.nama} ${activeCrop.nama_latin ? `(${activeCrop.nama_latin})` : ''}` : 'Pilih Komoditas Tanaman...'}
@@ -1288,17 +1291,17 @@ export default function DashboardClient({ initialUser }: DashboardClientProps) {
                       {isCropDropdownOpen && (
                         <>
                           <div className="fixed inset-0 z-40" onClick={() => { setIsCropDropdownOpen(false); setCropSearchQuery(''); }} />
-                          <div className="absolute z-50 mt-2 w-full bg-bg-card border border-border-medium rounded-xl shadow-2xl p-3 space-y-2">
+                          <div className="absolute z-50 mt-2 w-full bg-zinc-950/95 border border-white/10 rounded-2xl shadow-2xl p-4 space-y-3 backdrop-blur-xl">
                             <div className="relative">
                               <input
                                 type="text"
                                 placeholder="Cari komoditas..."
                                 value={cropSearchQuery}
                                 onChange={(e) => setCropSearchQuery(e.target.value)}
-                                className="w-full bg-bg-dark border border-white/10 rounded-lg pl-9 pr-4 py-2 text-white focus:outline-none focus:border-primary transition-all text-xs"
+                                className="w-full bg-black/40 border border-white/10 rounded-xl pl-9 pr-4 py-2.5 text-white focus:outline-none focus:border-primary transition-all text-xs"
                                 autoFocus
                               />
-                              <Search className="absolute left-3 top-2.5 w-3.5 h-3.5 text-text-muted" />
+                              <Search className="absolute left-3 top-3 w-3.5 h-3.5 text-gray-400" />
                             </div>
                             <div className="max-h-60 overflow-y-auto space-y-1 custom-scrollbar">
                               {filteredCrops.length > 0 ? (
@@ -1312,10 +1315,10 @@ export default function DashboardClient({ initialUser }: DashboardClientProps) {
                                       setCropSearchQuery('');
                                       handleResetStressTest();
                                     }}
-                                    className={`w-full text-left px-3 py-2 rounded-lg text-xs transition-all flex flex-col ${
+                                    className={`w-full text-left px-3 py-2 rounded-lg text-xs transition-all flex flex-col cursor-pointer ${
                                       crop.id === selectedCropId
-                                        ? 'bg-primary/20 border border-primary text-white font-bold'
-                                        : 'hover:bg-white/5 text-text-muted hover:text-text-main'
+                                        ? 'bg-primary/20 border border-primary/30 text-white font-bold'
+                                        : 'hover:bg-white/5 text-gray-400 hover:text-white'
                                     }`}
                                   >
                                     <span className="font-bold">{crop.nama}</span>
@@ -1323,7 +1326,7 @@ export default function DashboardClient({ initialUser }: DashboardClientProps) {
                                   </button>
                                 ))
                               ) : (
-                                <div className="text-center py-4 text-xs text-text-muted">Komoditas tidak ditemukan</div>
+                                <div className="text-center py-4 text-xs text-gray-400">Komoditas tidak ditemukan</div>
                               )}
                             </div>
                           </div>
@@ -1344,7 +1347,7 @@ export default function DashboardClient({ initialUser }: DashboardClientProps) {
                           setActiveStep(2);
                         }
                       }}
-                      className="w-full sm:w-auto px-6 py-3 rounded-xl bg-primary hover:bg-primary-dark text-text-inverse font-bold text-sm transition-all text-center flex items-center justify-center gap-2 shadow-lg shadow-primary/20 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-primary disabled:shadow-none"
+                      className="w-full sm:w-auto px-8 py-3.5 rounded-full bg-primary hover:bg-primary-dark text-black font-bold text-xs tracking-wider uppercase transition-all text-center flex items-center justify-center gap-2 shadow-[0_0_20px_rgba(16,185,129,0.3)] disabled:opacity-50 disabled:cursor-not-allowed disabled:shadow-none cursor-pointer"
                     >
                       <span>Analisis Kelayakan Lahan</span>
                       <ArrowRight className="w-4 h-4" />
@@ -1363,8 +1366,8 @@ export default function DashboardClient({ initialUser }: DashboardClientProps) {
                   transition={{ duration: 0.2 }}
                   className="space-y-6"
                 >
-                  <div className="flex flex-col items-center justify-center p-6 bg-bg-dark border border-border-light rounded-2xl">
-                    <span className="text-xs font-semibold text-text-muted uppercase tracking-wider mb-2">Skor Kecocokan</span>
+                  <div className="flex flex-col items-center justify-center p-8 bg-white/5 border border-white/5 rounded-3xl shadow-xl">
+                    <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest mb-3">Skor Kecocokan</span>
                     
                     {/* Gauge */}
                     <div className="relative w-40 h-40">
@@ -1406,16 +1409,16 @@ export default function DashboardClient({ initialUser }: DashboardClientProps) {
                         />
                       </svg>
                       <div className="absolute inset-0 flex flex-col items-center justify-center text-center">
-                        <span className="text-3xl font-extrabold text-white">{score}%</span>
+                        <span className="text-4xl font-extrabold text-white tracking-tight">{score}%</span>
                         {potentialScore > score && (
-                          <span className="text-[9px] text-primary-light font-bold mt-0.5">Potensi: {potentialScore}%</span>
+                          <span className="text-[9px] text-primary-light font-extrabold mt-1 tracking-wider uppercase">Potensi: {potentialScore}%</span>
                         )}
                       </div>
                     </div>
 
-                    <div className="mt-4 text-center">
-                      <span className={`px-3 py-1 rounded-full text-xs font-extrabold border ${
-                        score >= 75 ? 'bg-primary-dark/20 text-primary border-primary/20' :
+                    <div className="mt-6 text-center">
+                      <span className={`px-4 py-1.5 rounded-full text-xs font-bold border uppercase tracking-wider ${
+                        score >= 75 ? 'bg-primary/10 text-primary border-primary/20' :
                         score >= 50 ? 'bg-amber-500/10 text-amber-500 border-amber-500/20' :
                         'bg-red-500/10 text-red-500 border-red-500/20'
                       }`}>
@@ -1425,30 +1428,30 @@ export default function DashboardClient({ initialUser }: DashboardClientProps) {
                   </div>
 
                   {/* Constraint summary & Climate change positioning */}
-                  <div className="bg-bg-dark border border-border-light rounded-2xl p-5 space-y-4">
-                    <h4 className="font-bold text-xs uppercase tracking-wider text-text-muted">Ringkasan Kendala Utama</h4>
+                  <div className="bg-white/5 border border-white/5 rounded-3xl p-6 space-y-4 shadow-xl">
+                    <h4 className="font-bold text-[10px] uppercase tracking-widest text-gray-400">Ringkasan Kendala Utama</h4>
                     {mainConstraint ? (
                       <div className="space-y-3">
-                        <p className="text-sm font-semibold text-text-main leading-relaxed">
+                        <p className="text-sm font-semibold text-white leading-relaxed">
                           {mainConstraint}
                         </p>
                         {isClimateAnomaly && (
-                          <span className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-bold bg-red-500/10 text-red-400 border border-red-500/20">
+                          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[10px] font-extrabold bg-red-500/10 text-red-400 border border-red-500/20 uppercase tracking-wider">
                             <AlertTriangle className="w-3.5 h-3.5 text-red-400 shrink-0" />
                             <span>Dipengaruhi Anomali Iklim</span>
                           </span>
                         )}
                       </div>
                     ) : (
-                      <p className="text-sm text-text-muted">Selamat! Parameter lingkungan terdeteksi sangat cocok dengan kebutuhan varietas tanaman ini.</p>
+                      <p className="text-xs text-gray-300 leading-relaxed">Selamat! Parameter lingkungan terdeteksi sangat cocok dengan kebutuhan varietas tanaman ini.</p>
                     )}
                   </div>
 
                   {/* Simulasi Musim Sulit Section */}
-                  <div className="bg-bg-dark border border-border-light rounded-2xl p-5 space-y-4 mt-6">
-                    <div className="flex flex-col">
-                      <h4 className="font-bold text-sm text-text-main">Simulasi Musim Sulit</h4>
-                      <span className="text-xs text-text-muted">Bagaimana jika iklim berubah ekstrem?</span>
+                  <div className="bg-white/5 border border-white/5 rounded-3xl p-6 space-y-4 mt-6 shadow-xl">
+                    <div className="flex flex-col mb-2">
+                      <h4 className="font-bold text-sm text-white">Simulasi Musim Sulit</h4>
+                      <span className="text-xs text-gray-400">Bagaimana jika iklim berubah ekstrem?</span>
                     </div>
 
                     {/* Skenario Pilihan */}
@@ -1465,10 +1468,10 @@ export default function DashboardClient({ initialUser }: DashboardClientProps) {
                                 setSelectedScenario(scenario);
                                 setIsStressTestModalOpen(true);
                               }}
-                              className={`flex-1 py-3 px-4 rounded-xl border font-bold text-xs transition-all text-center flex items-center justify-center gap-2 cursor-pointer ${
+                              className={`flex-1 py-3.5 px-4 rounded-2xl border font-bold text-xs transition-all text-center flex items-center justify-center gap-2 cursor-pointer ${
                                 isSelected 
                                   ? 'bg-primary/20 border-primary text-white' 
-                                  : 'bg-bg-card border-white/10 hover:border-primary/50 text-text-main hover:bg-primary/5'
+                                  : 'bg-black/30 border-white/5 hover:border-primary/40 text-gray-300 hover:text-white hover:bg-white/5'
                               }`}
                             >
                               <div className="flex items-center gap-1.5 justify-center">
@@ -1492,31 +1495,31 @@ export default function DashboardClient({ initialUser }: DashboardClientProps) {
                           initial={{ opacity: 0, height: 0 }}
                           animate={{ opacity: 1, height: 'auto' }}
                           exit={{ opacity: 0, height: 0 }}
-                          className="bg-bg-card border border-border-medium rounded-xl p-4 space-y-3 overflow-hidden"
+                          className="bg-black/40 border border-white/10 rounded-2xl p-5 space-y-4 overflow-hidden"
                         >
                           <div className="space-y-1">
-                            <h5 className="font-bold text-xs uppercase tracking-wider text-text-muted">Konfirmasi Simulasi</h5>
-                            <p className="text-xs text-text-main leading-relaxed">{selectedScenario.deskripsi}</p>
+                            <h5 className="font-bold text-[10px] uppercase tracking-widest text-gray-400">Konfirmasi Simulasi</h5>
+                            <p className="text-xs text-white leading-relaxed">{selectedScenario.deskripsi}</p>
                           </div>
-                          <div className="bg-bg-dark border border-border-light rounded-xl p-3 flex justify-between items-center text-xs">
+                          <div className="bg-black/30 border border-white/5 rounded-2xl p-4 flex justify-between items-center text-xs">
                             <div>
-                              <span className="text-[10px] text-text-muted block uppercase tracking-wider font-semibold">Modifikasi Suhu</span>
+                              <span className="text-[10px] text-gray-400 block uppercase tracking-wider font-semibold">Modifikasi Suhu</span>
                               <strong className="text-orange-400 font-bold">{selectedScenario.delta_suhu > 0 ? `+${selectedScenario.delta_suhu}` : selectedScenario.delta_suhu} °C</strong>
                             </div>
                             <div className="w-[1px] h-8 bg-white/10" />
                             <div>
-                              <span className="text-[10px] text-text-muted block uppercase tracking-wider font-semibold">Modifikasi Curah Hujan</span>
+                              <span className="text-[10px] text-gray-400 block uppercase tracking-wider font-semibold">Modifikasi Curah Hujan</span>
                               <strong className="text-blue-400 font-bold">{selectedScenario.delta_curah_hujan_persen > 0 ? `+${selectedScenario.delta_curah_hujan_persen}` : selectedScenario.delta_curah_hujan_persen} %</strong>
                             </div>
                           </div>
-                          <div className="flex gap-2 justify-end pt-2">
+                          <div className="flex gap-3 justify-end pt-2">
                             <button
                               type="button"
                               onClick={() => {
                                 setIsStressTestModalOpen(false);
                                 setSelectedScenario(null);
                               }}
-                              className="px-3 py-1.5 rounded-lg border border-border-medium hover:bg-white/5 text-text-muted text-xs font-bold transition-all cursor-pointer"
+                              className="px-4 py-2 rounded-full border border-white/10 hover:bg-white/5 text-gray-400 hover:text-white text-xs font-bold transition-all cursor-pointer"
                             >
                               Batal
                             </button>
@@ -1524,7 +1527,7 @@ export default function DashboardClient({ initialUser }: DashboardClientProps) {
                               type="button"
                               onClick={() => handleExecuteStressTest(activeCrop, score)}
                               disabled={isSimulating}
-                              className="px-3 py-1.5 rounded-lg bg-orange-600 hover:bg-orange-700 text-white text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer shadow-lg shadow-orange-600/20"
+                              className="px-4 py-2 rounded-full bg-orange-600 hover:bg-orange-700 text-white text-xs font-bold transition-all flex items-center gap-1.5 cursor-pointer shadow-lg shadow-orange-600/20"
                             >
                               {isSimulating ? 'Menjalankan...' : 'Jalankan Simulasi'}
                             </button>
@@ -1544,44 +1547,44 @@ export default function DashboardClient({ initialUser }: DashboardClientProps) {
                         >
                           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                             {/* Kondisi Normal */}
-                            <div className="bg-[#2e7d32]/10 border border-[#2e7d32]/30 rounded-2xl p-4 space-y-2">
-                              <span className="text-[10px] text-[#2e7d32] font-extrabold uppercase tracking-wider block">Kondisi Normal</span>
+                            <div className="bg-emerald-500/10 border border-emerald-500/20 rounded-2xl p-4 space-y-2">
+                              <span className="text-[10px] text-emerald-400 font-extrabold uppercase tracking-widest block">Kondisi Normal</span>
                               <div className="flex justify-between items-baseline">
-                                <strong className="text-2xl font-extrabold text-[#2e7d32]">{score}%</strong>
+                                <strong className="text-2xl font-extrabold text-emerald-400">{score}%</strong>
                                 <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${
-                                  score >= 75 ? 'bg-primary-dark/20 text-primary border border-primary/20' :
+                                  score >= 75 ? 'bg-primary/20 text-primary border border-primary/20' :
                                   score >= 50 ? 'bg-amber-500/10 text-amber-500 border border-amber-500/20' :
                                   'bg-red-500/10 text-red-500 border border-red-500/20'
                                 }`}>
                                   {score >= 75 ? 'S1' : score >= 50 ? 'S2' : 'N'}
                                 </span>
                               </div>
-                              <div className="text-xs text-text-muted space-y-1 pt-2 border-t border-white/5">
+                              <div className="text-xs text-gray-400 space-y-1 pt-2 border-t border-white/5">
                                 <div className="flex justify-between">
                                   <span>Suhu:</span>
-                                  <span className="text-text-main">{liveWeather ? liveWeather.suhu : selectedLahan.suhu} °C</span>
+                                  <span className="text-white">{liveWeather ? liveWeather.suhu : selectedLahan.suhu} °C</span>
                                 </div>
                                 <div className="flex justify-between">
                                   <span>Curah Hujan:</span>
-                                  <span className="text-text-main">{liveWeather ? liveWeather.curahHujan : selectedLahan.curahHujan} mm/bln</span>
+                                  <span className="text-white">{liveWeather ? liveWeather.curahHujan : selectedLahan.curahHujan} mm/bln</span>
                                 </div>
                               </div>
                             </div>
 
                             {/* Kondisi Skenario */}
-                            <div className="bg-orange-600/10 border border-orange-500/30 rounded-2xl p-4 space-y-2">
-                              <span className="text-[10px] text-orange-400 font-extrabold uppercase tracking-wider block">Skenario {selectedScenario.nama_skenario.split('(')[0].trim()}</span>
+                            <div className="bg-orange-600/10 border border-orange-500/20 rounded-2xl p-4 space-y-2">
+                              <span className="text-[10px] text-orange-400 font-extrabold uppercase tracking-widest block">Skenario {selectedScenario.nama_skenario.split('(')[0].trim()}</span>
                               <div className="flex justify-between items-baseline">
                                 <strong className="text-2xl font-extrabold text-orange-400">{stressTestResult.skor}%</strong>
                                 <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${
-                                  stressTestResult.skor >= 75 ? 'bg-primary-dark/20 text-primary border border-primary/20' :
+                                  stressTestResult.skor >= 75 ? 'bg-primary/20 text-primary border border-primary/20' :
                                   stressTestResult.skor >= 50 ? 'bg-amber-500/10 text-amber-500 border border-amber-500/20' :
                                   'bg-red-500/10 text-red-500 border border-red-500/20'
                                 }`}>
                                   {stressTestResult.skor >= 75 ? 'S1' : stressTestResult.skor >= 50 ? 'S2' : 'N'}
                                 </span>
                               </div>
-                              <div className="text-xs text-text-muted space-y-1 pt-2 border-t border-white/5">
+                              <div className="text-xs text-gray-400 space-y-1 pt-2 border-t border-white/5">
                                 {(() => {
                                   const modified = applyScenarioDelta(
                                     liveWeather ? { ...selectedLahan, suhu: liveWeather.suhu, curahHujan: liveWeather.curahHujan } : selectedLahan,
@@ -1591,11 +1594,11 @@ export default function DashboardClient({ initialUser }: DashboardClientProps) {
                                     <>
                                       <div className="flex justify-between">
                                         <span>Suhu:</span>
-                                        <span className="text-text-main">{modified.suhu} °C</span>
+                                        <span className="text-white">{modified.suhu} °C</span>
                                       </div>
                                       <div className="flex justify-between">
                                         <span>Curah Hujan:</span>
-                                        <span className="text-text-main">{modified.curahHujan} mm/bln</span>
+                                        <span className="text-white">{modified.curahHujan} mm/bln</span>
                                       </div>
                                     </>
                                   );
@@ -1609,22 +1612,22 @@ export default function DashboardClient({ initialUser }: DashboardClientProps) {
                             const diff = score - stressTestResult.skor;
                             if (diff > 0) {
                               return (
-                                <div className="bg-red-500/10 border border-red-500/20 text-red-400 text-xs font-semibold rounded-xl p-3 flex items-center gap-1.5">
-                                  <AlertTriangle className="w-4 h-4 shrink-0" />
+                                <div className="bg-red-500/10 border border-red-500/20 text-red-400 text-xs font-semibold rounded-2xl p-4 flex items-center gap-2 shadow-lg">
+                                  <AlertTriangle className="w-5 h-5 shrink-0 text-red-500" />
                                   <span>Penurunan skor {diff} poin — lahan ini rentan terhadap {selectedScenario.nama_skenario.split('(')[0].trim()}</span>
                                 </div>
                               );
                             } else if (diff < 0) {
                               return (
-                                <div className="bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-semibold rounded-xl p-3 flex items-center gap-1.5">
-                                  <Sparkles className="w-4 h-4 shrink-0" />
+                                <div className="bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs font-semibold rounded-2xl p-4 flex items-center gap-2 shadow-lg">
+                                  <Sparkles className="w-5 h-5 shrink-0 text-emerald-400" />
                                   <span>Peningkatan skor {Math.abs(diff)} poin — kondisi ini justru menguntungkan komoditas ini!</span>
                                 </div>
                               );
                             } else {
                               return (
-                                <div className="bg-amber-500/10 border border-amber-500/20 text-amber-500 text-xs font-semibold rounded-xl p-3 flex items-center gap-1.5">
-                                  <AlertTriangle className="w-4 h-4 shrink-0 text-amber-500" />
+                                <div className="bg-amber-500/10 border border-amber-500/20 text-amber-500 text-xs font-semibold rounded-2xl p-4 flex items-center gap-2 shadow-lg">
+                                  <AlertTriangle className="w-5 h-5 shrink-0 text-amber-500" />
                                   <span>Skor kelayakan stabil pada {score}%, namun kondisi ekstrem {selectedScenario.nama_skenario.split('(')[0].trim()} tetap berisiko menimbulkan tekanan iklim (climate stress) pada tanaman dalam jangka panjang. Sangat disarankan menerapkan adaptasi di bawah.</span>
                                 </div>
                               );
@@ -1632,9 +1635,9 @@ export default function DashboardClient({ initialUser }: DashboardClientProps) {
                           })()}
 
                           {/* Rekomendasi Adaptasi */}
-                          <div className="bg-bg-card border border-border-medium rounded-xl p-4 space-y-2">
-                            <span className="text-xs font-extrabold text-text-main block">Rekomendasi Adaptasi</span>
-                            <div className="text-xs text-text-muted space-y-1.5 leading-relaxed">
+                          <div className="bg-black/20 border border-white/5 rounded-2xl p-5 space-y-3">
+                            <span className="text-xs font-extrabold text-white block uppercase tracking-wider">Rekomendasi Adaptasi</span>
+                            <div className="text-xs text-gray-300 space-y-2 leading-relaxed">
                               {(() => {
                                 const temp = selectedScenario.delta_suhu;
                                 const rainPercent = selectedScenario.delta_curah_hujan_persen;
@@ -1661,10 +1664,10 @@ export default function DashboardClient({ initialUser }: DashboardClientProps) {
                                 }
 
                                 return (
-                                  <div className="space-y-1.5">
+                                  <div className="space-y-2">
                                     {recomms.map((rec, i) => (
                                       <div key={i} className="flex gap-2">
-                                        <span className="text-primary font-bold">•</span>
+                                        <span className="text-primary font-extrabold">•</span>
                                         <span>{rec}</span>
                                       </div>
                                     ))}
@@ -1685,21 +1688,21 @@ export default function DashboardClient({ initialUser }: DashboardClientProps) {
                             <button
                               type="button"
                               onClick={() => handleStressTestDecision('tetap_tanam')}
-                              className="flex-1 py-3 px-4 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold transition-all text-center cursor-pointer shadow-lg shadow-emerald-600/20"
+                              className="flex-1 py-3 px-4 rounded-full bg-primary hover:bg-primary-dark text-black text-xs font-bold transition-all text-center cursor-pointer shadow-lg shadow-primary/20"
                             >
                               Tetap Tanam Komoditas Ini
                             </button>
                             <button
                               type="button"
                               onClick={() => handleStressTestDecision('pilih_alternatif')}
-                              className="flex-1 py-3 px-4 rounded-xl bg-teal-950/40 hover:bg-teal-900/60 border border-teal-500/30 text-teal-300 text-xs font-bold transition-all text-center cursor-pointer shadow-lg shadow-teal-950/20"
+                              className="flex-1 py-3 px-4 rounded-full bg-teal-950/40 hover:bg-teal-900/60 border border-teal-500/30 text-teal-300 text-xs font-bold transition-all text-center cursor-pointer shadow-lg shadow-teal-950/20"
                             >
                               Pilih Alternatif
                             </button>
                             <button
                               type="button"
                               onClick={handleResetStressTest}
-                              className="py-3 px-5 rounded-xl border border-border-medium hover:bg-white/5 text-text-muted text-xs font-bold transition-all text-center cursor-pointer"
+                              className="py-3 px-5 rounded-full border border-white/10 hover:bg-white/5 text-gray-400 hover:text-white text-xs font-bold transition-all text-center cursor-pointer"
                             >
                               Uji Skenario Lain
                             </button>
@@ -1722,24 +1725,24 @@ export default function DashboardClient({ initialUser }: DashboardClientProps) {
                   className="space-y-6"
                 >
                   {evalResult.details && evalResult.details.length > 0 ? (
-                    <div className="bg-bg-dark border border-border-light rounded-2xl p-5 shadow-inner">
-                      <h4 className="font-bold text-text-main text-sm mb-4 flex items-center gap-2">
+                    <div className="bg-white/5 border border-white/5 rounded-3xl p-6 shadow-xl">
+                      <h4 className="font-bold text-white text-sm mb-4 flex items-center gap-2">
                         <Activity className="w-4.5 h-4.5 text-primary" />
                         <span>Detail Perbandingan Parameter</span>
                       </h4>
-                      <p className="text-[10px] text-text-muted mb-4 flex items-center gap-1">
-                        <Lightbulb className="w-3.5 h-3.5 text-amber-500 shrink-0" />
+                      <p className="text-[10px] text-gray-400 mb-5 flex items-center gap-1.5">
+                        <Lightbulb className="w-4 h-4 text-amber-400 shrink-0" />
                         <span>Klik pada baris parameter untuk melihat penjelasan detail.</span>
                       </p>
                       
-                      <div className="overflow-x-auto rounded-xl border border-white/5">
+                      <div className="overflow-x-auto rounded-2xl border border-white/5">
                         <table className="w-full text-left text-xs border-collapse">
                           <thead>
-                            <tr className="bg-white/5 border-b border-white/10 text-[10px] uppercase font-bold text-text-muted">
-                              <th className="p-3">Parameter</th>
-                              <th className="p-3">Aktual</th>
-                              <th className="p-3">Batas Ideal</th>
-                              <th className="p-3 text-right">Status</th>
+                            <tr className="bg-white/5 border-b border-white/10 text-[10px] uppercase font-bold text-gray-400 tracking-wider">
+                              <th className="p-3.5">Parameter</th>
+                              <th className="p-3.5">Aktual</th>
+                              <th className="p-3.5">Batas Ideal</th>
+                              <th className="p-3.5 text-right">Status</th>
                             </tr>
                           </thead>
                           <tbody className="divide-y divide-white/5">
@@ -1761,23 +1764,23 @@ export default function DashboardClient({ initialUser }: DashboardClientProps) {
                                     onClick={() => setExpandedRow(isExpanded ? null : detail.parameter)}
                                     className="hover:bg-white/5 transition-colors cursor-pointer"
                                   >
-                                    <td className="p-3 font-bold text-text-main flex items-center gap-1.5">
+                                    <td className="p-3.5 font-bold text-white flex items-center gap-2">
                                       <span>{detail.label}</span>
-                                      <ChevronDown className={`w-3.5 h-3.5 text-text-muted transition-transform duration-200 ${isExpanded ? 'rotate-180' : ''}`} />
+                                      <ChevronDown className={`w-3.5 h-3.5 text-gray-500 transition-transform duration-200 ${isExpanded ? 'rotate-180' : ''}`} />
                                     </td>
-                                    <td className="p-3 text-text-muted font-medium">{detail.actual}</td>
-                                    <td className="p-3 text-text-muted font-medium">{detail.ideal}</td>
-                                    <td className="p-3 text-right">
-                                      <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${ratingBadgeColor}`}>
+                                    <td className="p-3.5 text-gray-300 font-medium">{detail.actual}</td>
+                                    <td className="p-3.5 text-gray-300 font-medium">{detail.ideal}</td>
+                                    <td className="p-3.5 text-right">
+                                      <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-extrabold ${ratingBadgeColor}`}>
                                         {detail.rating}
                                       </span>
                                     </td>
                                   </tr>
                                   
                                   {isExpanded && (
-                                    <tr className="bg-white/[0.02]">
-                                      <td colSpan={4} className="p-3 border-t border-white/[0.02]">
-                                        <p className="text-[11px] text-text-muted leading-relaxed font-medium">
+                                    <tr className="bg-white/[0.01]">
+                                      <td colSpan={4} className="p-4 border-t border-white/5">
+                                        <p className="text-[11px] text-gray-400 leading-relaxed font-medium">
                                           {parameterExplanations[detail.parameter] || 'Parameter penting untuk menentukan pertumbuhan tanaman.'}
                                         </p>
                                       </td>
@@ -1791,7 +1794,7 @@ export default function DashboardClient({ initialUser }: DashboardClientProps) {
                       </div>
                     </div>
                   ) : (
-                    <div className="text-center py-8 text-xs text-text-muted">Detail parameter tidak tersedia.</div>
+                    <div className="text-center py-8 text-xs text-gray-400">Detail parameter tidak tersedia.</div>
                   )}
                 </motion.div>
               )}
@@ -1807,40 +1810,40 @@ export default function DashboardClient({ initialUser }: DashboardClientProps) {
                   className="space-y-6"
                 >
                   <div className="space-y-4">
-                    <h4 className="font-bold text-text-main text-sm flex items-center gap-2">
+                    <h4 className="font-bold text-white text-sm flex items-center gap-2">
                       <AlertTriangle className="w-4.5 h-4.5 text-amber-500" />
                       <span>Rencana Perawatan & Mitigasi Taktis</span>
                     </h4>
 
-                    <div className="space-y-2">
+                    <div className="space-y-3">
                       {/* Category Suhu */}
-                      <div className="bg-bg-dark border border-border-light rounded-xl overflow-hidden">
+                      <div className="bg-white/5 border border-white/5 rounded-2xl overflow-hidden shadow-md">
                         <button
                           type="button"
                           onClick={() => setActiveCategory(activeCategory === 'Suhu' ? '' : 'Suhu')}
-                          className="w-full flex items-center justify-between p-4 font-bold text-xs text-text-main hover:bg-white/5 transition-colors text-left"
+                          className="w-full flex items-center justify-between p-4 font-bold text-xs text-white hover:bg-white/5 transition-colors text-left cursor-pointer"
                         >
                           <span className="flex items-center gap-2">
                             <ThermometerSun className="w-4 h-4 text-orange-400" />
                             <span>1. Suhu, Iklim & Kebutuhan Air</span>
                           </span>
-                          <ChevronDown className={`w-4 h-4 text-text-muted transition-transform duration-200 ${activeCategory === 'Suhu' ? 'rotate-180' : ''}`} />
+                          <ChevronDown className={`w-4 h-4 text-gray-500 transition-transform duration-200 ${activeCategory === 'Suhu' ? 'rotate-180' : ''}`} />
                         </button>
                         {activeCategory === 'Suhu' && (
-                          <div className="p-4 border-t border-white/5 bg-white/[0.01] space-y-4 text-xs text-text-muted">
-                            <div className="bg-bg-card p-3 rounded-lg border border-border-medium flex justify-between items-center">
+                          <div className="p-5 border-t border-white/5 bg-black/10 space-y-4 text-xs text-gray-300">
+                            <div className="bg-black/30 p-4 rounded-xl border border-white/5 flex justify-between items-center">
                               <div>
-                                <span className="text-[10px] text-text-muted block mb-0.5 uppercase tracking-wider font-semibold">Estimasi Air Harian</span>
-                                <strong className="text-text-main text-xs">{(evalResult.kebutuhanAirDaily * selectedLahan.luas).toLocaleString('id-ID')} Liter/Hari</strong>
+                                <span className="text-[10px] text-gray-400 block mb-0.5 uppercase tracking-wider font-semibold">Estimasi Air Harian</span>
+                                <strong className="text-white text-sm">{(evalResult.kebutuhanAirDaily * selectedLahan.luas).toLocaleString('id-ID')} Liter/Hari</strong>
                               </div>
-                              <span className="text-[10px] text-gray-500">({evalResult.kebutuhanAirDaily} L/m²)</span>
+                              <span className="text-[10px] text-gray-500 font-medium">({evalResult.kebutuhanAirDaily} L/m²)</span>
                             </div>
                             {suhuIklimItems.length > 0 ? (
-                              <div className="space-y-3">
+                              <div className="space-y-4">
                                 {suhuIklimItems.map((item, idx) => (
                                   <div key={idx} className="space-y-1">
-                                    <span className="font-semibold text-text-main">{item.label}</span>
-                                    <p className="leading-relaxed">{item.text}</p>
+                                    <span className="font-bold text-white block">{item.label}</span>
+                                    <p className="leading-relaxed text-gray-400">{item.text}</p>
                                   </div>
                                 ))}
                               </div>
@@ -1855,26 +1858,26 @@ export default function DashboardClient({ initialUser }: DashboardClientProps) {
                       </div>
 
                       {/* Category Drainase */}
-                      <div className="bg-bg-dark border border-border-light rounded-xl overflow-hidden">
+                      <div className="bg-white/5 border border-white/5 rounded-2xl overflow-hidden shadow-md">
                         <button
                           type="button"
                           onClick={() => setActiveCategory(activeCategory === 'Drainase' ? '' : 'Drainase')}
-                          className="w-full flex items-center justify-between p-4 font-bold text-xs text-text-main hover:bg-white/5 transition-colors text-left"
+                          className="w-full flex items-center justify-between p-4 font-bold text-xs text-white hover:bg-white/5 transition-colors text-left cursor-pointer"
                         >
                           <span className="flex items-center gap-2">
                             <Droplet className="w-4 h-4 text-blue-400" />
                             <span>2. Sistem Drainase Lahan</span>
                           </span>
-                          <ChevronDown className={`w-4 h-4 text-text-muted transition-transform duration-200 ${activeCategory === 'Drainase' ? 'rotate-180' : ''}`} />
+                          <ChevronDown className={`w-4 h-4 text-gray-500 transition-transform duration-200 ${activeCategory === 'Drainase' ? 'rotate-180' : ''}`} />
                         </button>
                         {activeCategory === 'Drainase' && (
-                          <div className="p-4 border-t border-white/5 bg-white/[0.01] space-y-3 text-xs text-text-muted">
+                          <div className="p-5 border-t border-white/5 bg-black/10 space-y-3 text-xs text-gray-300">
                             {drainaseItems.length > 0 ? (
-                              <div className="space-y-3">
+                              <div className="space-y-4">
                                 {drainaseItems.map((item, idx) => (
                                   <div key={idx} className="space-y-1">
-                                    <span className="font-semibold text-text-main">{item.label}</span>
-                                    <p className="leading-relaxed">{item.text}</p>
+                                    <span className="font-bold text-white block">{item.label}</span>
+                                    <p className="leading-relaxed text-gray-400">{item.text}</p>
                                   </div>
                                 ))}
                               </div>
@@ -1889,27 +1892,27 @@ export default function DashboardClient({ initialUser }: DashboardClientProps) {
                       </div>
 
                       {/* Category Tanah */}
-                      <div className="bg-bg-dark border border-border-light rounded-xl overflow-hidden">
+                      <div className="bg-white/5 border border-white/5 rounded-2xl overflow-hidden shadow-md">
                         <button
                           type="button"
                           onClick={() => setActiveCategory(activeCategory === 'Tanah' ? '' : 'Tanah')}
-                          className="w-full flex items-center justify-between p-4 font-bold text-xs text-text-main hover:bg-white/5 transition-colors text-left"
+                          className="w-full flex items-center justify-between p-4 font-bold text-xs text-white hover:bg-white/5 transition-colors text-left cursor-pointer"
                         >
                           <span className="flex items-center gap-2">
                             <Sprout className="w-4 h-4 text-emerald-400" />
                             <span>3. Tanah, pH & Siklus Pemupukan</span>
                           </span>
-                          <ChevronDown className={`w-4 h-4 text-text-muted transition-transform duration-200 ${activeCategory === 'Tanah' ? 'rotate-180' : ''}`} />
+                          <ChevronDown className={`w-4 h-4 text-gray-500 transition-transform duration-200 ${activeCategory === 'Tanah' ? 'rotate-180' : ''}`} />
                         </button>
                         {activeCategory === 'Tanah' && (
-                          <div className="p-4 border-t border-white/5 bg-white/[0.01] space-y-4 text-xs text-text-muted">
+                          <div className="p-5 border-t border-white/5 bg-black/10 space-y-4 text-xs text-gray-300">
                             <div className="space-y-2">
-                              <span className="text-[10px] text-text-main block uppercase tracking-wider font-extrabold flex items-center gap-1.5">
-                                <Calendar className="w-3.5 h-3.5 text-primary" /> Rencana Jadwal Pemupukan
+                              <span className="text-[10px] text-white block uppercase tracking-wider font-extrabold flex items-center gap-2 mb-3">
+                                <Calendar className="w-4 h-4 text-primary" /> Rencana Jadwal Pemupukan
                               </span>
-                              <div className="space-y-1.5 pl-1.5 border-l border-primary/30">
+                              <div className="space-y-2 pl-2 border-l-2 border-primary/30">
                                 {evalResult.siklusPemupukan.map((step, i) => (
-                                  <div key={i} className="flex gap-2 text-text-muted">
+                                  <div key={i} className="flex gap-2 text-gray-400">
                                     <span className="text-primary font-bold">•</span>
                                     <span>{step}</span>
                                   </div>
@@ -1917,11 +1920,11 @@ export default function DashboardClient({ initialUser }: DashboardClientProps) {
                               </div>
                             </div>
                             {tanahItems.length > 0 && (
-                              <div className="space-y-3 pt-3 border-t border-white/5">
+                              <div className="space-y-4 pt-4 border-t border-white/5">
                                 {tanahItems.map((item, idx) => (
                                   <div key={idx} className="space-y-1">
-                                    <span className="font-semibold text-text-main">{item.label}</span>
-                                    <p className="leading-relaxed">{item.text}</p>
+                                    <span className="font-bold text-white block">{item.label}</span>
+                                    <p className="leading-relaxed text-gray-400">{item.text}</p>
                                   </div>
                                 ))}
                               </div>
@@ -1931,26 +1934,26 @@ export default function DashboardClient({ initialUser }: DashboardClientProps) {
                       </div>
 
                       {/* Category Lereng */}
-                      <div className="bg-bg-dark border border-border-light rounded-xl overflow-hidden">
+                      <div className="bg-white/5 border border-white/5 rounded-2xl overflow-hidden shadow-md">
                         <button
                           type="button"
                           onClick={() => setActiveCategory(activeCategory === 'Lereng' ? '' : 'Lereng')}
-                          className="w-full flex items-center justify-between p-4 font-bold text-xs text-text-main hover:bg-white/5 transition-colors text-left"
+                          className="w-full flex items-center justify-between p-4 font-bold text-xs text-white hover:bg-white/5 transition-colors text-left cursor-pointer"
                         >
                           <span className="flex items-center gap-2">
                             <MapIcon className="w-4 h-4 text-lime-400" />
                             <span>4. Kemiringan Lereng & Erosi</span>
                           </span>
-                          <ChevronDown className={`w-4 h-4 text-text-muted transition-transform duration-200 ${activeCategory === 'Lereng' ? 'rotate-180' : ''}`} />
+                          <ChevronDown className={`w-4 h-4 text-gray-500 transition-transform duration-200 ${activeCategory === 'Lereng' ? 'rotate-180' : ''}`} />
                         </button>
                         {activeCategory === 'Lereng' && (
-                          <div className="p-4 border-t border-white/5 bg-white/[0.01] space-y-3 text-xs text-text-muted">
+                          <div className="p-5 border-t border-white/5 bg-black/10 space-y-3 text-xs text-gray-300">
                             {lerengItems.length > 0 ? (
-                              <div className="space-y-3">
+                              <div className="space-y-4">
                                 {lerengItems.map((item, idx) => (
                                   <div key={idx} className="space-y-1">
-                                    <span className="font-semibold text-text-main">{item.label}</span>
-                                    <p className="leading-relaxed">{item.text}</p>
+                                    <span className="font-bold text-white block">{item.label}</span>
+                                    <p className="leading-relaxed text-gray-400">{item.text}</p>
                                   </div>
                                 ))}
                               </div>
@@ -1980,8 +1983,8 @@ export default function DashboardClient({ initialUser }: DashboardClientProps) {
                 >
                   {/* Alternatives (Grouped into 3 categories: Green, Yellow, Red) */}
                   {evalResult.skor < 90 && alternatifList.filter(a => a.tanaman.id !== selectedCropId).length > 0 && (
-                    <div className="bg-bg-dark border border-border-light rounded-2xl p-5 space-y-4 shadow-md">
-                      <h4 className="font-bold text-text-main text-sm flex items-center gap-2 border-b border-white/5 pb-2.5">
+                    <div className="bg-white/5 border border-white/5 rounded-3xl p-6 space-y-4 shadow-xl">
+                      <h4 className="font-bold text-white text-sm flex items-center gap-2 border-b border-white/5 pb-3">
                         <TrendingUp className="w-4.5 h-4.5 text-primary" />
                         <span>Analisis Alternatif Komoditas Lainnya</span>
                       </h4>
@@ -1997,7 +2000,7 @@ export default function DashboardClient({ initialUser }: DashboardClientProps) {
                               id: 'ijo', 
                               label: 'Sesuai (Skor 80-100)', 
                               items: ijoItems, 
-                              badgeColor: 'text-green-500 bg-green-500/10',
+                              badgeColor: 'text-green-400 bg-green-500/10',
                               borderColor: 'hover:border-green-500/40',
                               scoreColor: 'text-green-400 bg-green-500/10 border-green-500/20',
                               buttonColor: 'bg-green-500/10 hover:bg-green-500/20 text-green-400 border-green-500/20'
@@ -2006,7 +2009,7 @@ export default function DashboardClient({ initialUser }: DashboardClientProps) {
                               id: 'kuning', 
                               label: 'Cukup Sesuai / Marginal (Skor 50-79)', 
                               items: kuningItems, 
-                              badgeColor: 'text-yellow-500 bg-yellow-500/10',
+                              badgeColor: 'text-yellow-400 bg-yellow-500/10',
                               borderColor: 'hover:border-yellow-500/40',
                               scoreColor: 'text-yellow-400 bg-yellow-500/10 border-yellow-500/20',
                               buttonColor: 'bg-yellow-500/10 hover:bg-yellow-500/20 text-yellow-400 border-yellow-500/20'
@@ -2015,7 +2018,7 @@ export default function DashboardClient({ initialUser }: DashboardClientProps) {
                               id: 'merah', 
                               label: 'Tidak Direkomendasikan (Skor < 50)', 
                               items: merahItems, 
-                              badgeColor: 'text-red-500 bg-red-500/10',
+                              badgeColor: 'text-red-400 bg-red-500/10',
                               borderColor: 'hover:border-red-500/40',
                               scoreColor: 'text-red-400 bg-red-500/10 border-red-500/20',
                               buttonColor: 'bg-red-500/10 hover:bg-red-500/20 text-red-400 border-red-500/20'
@@ -2023,19 +2026,19 @@ export default function DashboardClient({ initialUser }: DashboardClientProps) {
                           ].filter(g => g.items.length > 0);
 
                           return altGroups.map(group => (
-                            <div key={group.id} className="border border-border-medium rounded-xl overflow-hidden shadow-sm">
+                            <div key={group.id} className="border border-white/5 rounded-2xl overflow-hidden shadow-sm bg-black/10">
                               <button
                                 type="button"
                                 onClick={() => setOpenAltGroup(openAltGroup === group.id ? '' : group.id)}
-                                className="w-full flex items-center justify-between p-3.5 bg-bg-card hover:bg-white/5 transition-colors text-left"
+                                className="w-full flex items-center justify-between p-4 bg-white/5 hover:bg-white/10 transition-colors text-left cursor-pointer"
                               >
-                                <span className="font-semibold text-xs text-text-main">
+                                <span className="font-semibold text-xs text-white">
                                   {group.label} 
-                                  <span className={`${group.badgeColor} px-2 py-0.5 rounded-full ml-2 text-[10px] font-bold`}>
+                                  <span className={`${group.badgeColor} px-2.5 py-0.5 rounded-full ml-2 text-[10px] font-extrabold border border-white/5`}>
                                     {group.items.length} opsi
                                   </span>
                                 </span>
-                                <ChevronDown className={`w-4 h-4 text-text-muted transition-transform duration-200 ${openAltGroup === group.id ? 'rotate-180' : ''}`} />
+                                <ChevronDown className={`w-4 h-4 text-gray-500 transition-transform duration-200 ${openAltGroup === group.id ? 'rotate-180' : ''}`} />
                               </button>
                               
                               <AnimatePresence>
@@ -2044,17 +2047,17 @@ export default function DashboardClient({ initialUser }: DashboardClientProps) {
                                     initial={{ height: 0, opacity: 0 }}
                                     animate={{ height: 'auto', opacity: 1 }}
                                     exit={{ height: 0, opacity: 0 }}
-                                    className="bg-bg-dark border-t border-border-medium overflow-hidden"
+                                    className="bg-black/30 border-t border-white/5 overflow-hidden"
                                   >
-                                    <div className="p-3 space-y-2 max-h-[400px] overflow-y-auto custom-scrollbar">
+                                    <div className="p-4 space-y-2.5 max-h-[400px] overflow-y-auto custom-scrollbar">
                                       {group.items.map(alt => (
-                                        <div key={alt.tanaman.id} className={`flex items-center justify-between p-3 bg-bg-card border border-border-medium rounded-xl text-xs ${group.borderColor} hover:shadow-md transition-all`}>
+                                        <div key={alt.tanaman.id} className={`flex items-center justify-between p-4 bg-white/5 border border-white/5 rounded-2xl text-xs ${group.borderColor} hover:shadow-md transition-all`}>
                                           <div className="space-y-1">
-                                            <strong className="text-text-main text-sm block">{alt.tanaman.nama}</strong>
-                                            <span className="text-text-muted block text-[10px]">Estimasi panen: {alt.tanaman.siklus_tanam_days || 120} hari</span>
+                                            <strong className="text-white text-sm block">{alt.tanaman.nama}</strong>
+                                            <span className="text-gray-400 block text-[10px]">Estimasi panen: {alt.tanaman.siklus_tanam_days || 120} hari</span>
                                           </div>
                                           <div className="flex items-center gap-4">
-                                            <span className={`${group.scoreColor} font-semibold px-2 py-1 rounded border`}>Kecocokan: {alt.evaluasi.skor}%</span>
+                                            <span className={`${group.scoreColor} font-semibold px-2.5 py-1 rounded-full border text-[10px] uppercase tracking-wider`}>Kecocokan: {alt.evaluasi.skor}%</span>
                                             <button
                                               type="button"
                                               onClick={() => {
@@ -2062,7 +2065,7 @@ export default function DashboardClient({ initialUser }: DashboardClientProps) {
                                                 setActiveStep(1);
                                                 handleResetStressTest();
                                               }}
-                                              className={`${group.buttonColor} shadow-sm border font-bold py-1.5 px-3 rounded-lg transition-all text-xs cursor-pointer`}
+                                              className={`${group.buttonColor} shadow-sm border font-bold py-1.5 px-4 rounded-full transition-all text-xs cursor-pointer`}
                                             >
                                               Pilih
                                             </button>
@@ -2081,7 +2084,7 @@ export default function DashboardClient({ initialUser }: DashboardClientProps) {
                   )}
 
                   {/* Final Confirmation Buttons */}
-                  <div className="flex gap-4 border-t border-border-light pt-6 mt-8">
+                  <div className="flex flex-col sm:flex-row gap-4 border-t border-white/10 pt-6 mt-8">
                     <button 
                       onClick={() => {
                         setCurrentView('dashboard');
@@ -2089,17 +2092,17 @@ export default function DashboardClient({ initialUser }: DashboardClientProps) {
                         setActiveStep(1);
                         handleResetStressTest();
                       }}
-                      className="flex-1 py-3.5 px-4 rounded-xl border border-border-medium hover:bg-border-light text-text-muted font-bold text-sm transition-all text-center"
+                      className="flex-1 py-3.5 px-6 rounded-full border border-white/10 hover:bg-white/5 text-gray-300 hover:text-white font-bold text-xs tracking-wider uppercase transition-all text-center cursor-pointer"
                     >
                       Batalkan
                     </button>
 
                     <button 
                       onClick={() => handleConfirmTanam(selectedCropId, evalResult.saranMitigasi)}
-                      className={`flex-1 py-3.5 px-4 rounded-xl font-bold text-sm transition-all text-center ${
+                      className={`flex-1 py-3.5 px-6 rounded-full font-bold text-xs tracking-wider uppercase transition-all text-center cursor-pointer ${
                         evalResult.layak 
-                          ? 'bg-primary hover:bg-primary-dark text-text-inverse shadow-lg shadow-primary/20' 
-                          : 'bg-orange-600 hover:bg-orange-700 text-text-inverse shadow-lg shadow-orange-600/20'
+                          ? 'bg-primary hover:bg-primary-dark text-black shadow-[0_0_20px_rgba(16,185,129,0.3)]' 
+                          : 'bg-orange-600 hover:bg-orange-700 text-white shadow-[0_0_20px_rgba(234,88,12,0.3)]'
                       }`}
                     >
                       {evalResult.layak ? 'Konfirmasi Tanam' : 'Paksa Tanam (Gunakan Mitigasi)'}
@@ -2111,11 +2114,11 @@ export default function DashboardClient({ initialUser }: DashboardClientProps) {
 
             {/* STEPPER FOOTER BUTTONS (Back/Next for internal steps 2, 3, 4) */}
             {activeStep > 1 && activeStep < 5 && (
-              <div className="flex gap-4 border-t border-border-light pt-6 mt-8">
+              <div className="flex flex-col sm:flex-row gap-4 border-t border-white/10 pt-6 mt-8">
                 <button
                   type="button"
                   onClick={() => setActiveStep(activeStep - 1)}
-                  className="flex-1 py-3 px-4 rounded-xl border border-border-medium hover:bg-white/5 text-text-muted font-bold text-sm transition-all flex items-center justify-center gap-2"
+                  className="flex-1 py-3.5 px-6 rounded-full border border-white/10 hover:bg-white/5 text-gray-300 hover:text-white font-bold text-xs tracking-wider uppercase transition-all flex items-center justify-center gap-2 cursor-pointer"
                 >
                   <ChevronLeft className="w-4 h-4" />
                   <span>Kembali</span>
@@ -2123,7 +2126,7 @@ export default function DashboardClient({ initialUser }: DashboardClientProps) {
                 <button
                   type="button"
                   onClick={() => setActiveStep(activeStep + 1)}
-                  className="flex-1 py-3 px-4 rounded-xl bg-primary hover:bg-primary-dark text-text-inverse font-bold text-sm transition-all text-center flex items-center justify-center gap-2"
+                  className="flex-1 py-3.5 px-6 rounded-full bg-primary hover:bg-primary-dark text-black font-bold text-xs tracking-wider uppercase transition-all text-center flex items-center justify-center gap-2 shadow-[0_0_20px_rgba(16,185,129,0.3)] cursor-pointer"
                 >
                   <span>Lanjutkan</span>
                   <ChevronRight className="w-4 h-4" />
