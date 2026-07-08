@@ -242,14 +242,37 @@ export default function KalenderTanam({ savedLahans, cropsDbList }: KalenderTana
                            selectedEval.status === 'kurang-optimal' ? 'Kurang Optimal (Butuh Mitigasi)' :
                            'Sangat Berisiko (Sebaiknya Hindari)'}
                         </h4>
-                        <p className="text-xs opacity-90 leading-relaxed">
-                          Skor Kelayakan Akhir: <strong>{selectedEval.score}/100</strong>
-                        </p>
+                        {/* Dominant Skor Kelayakan Akhir */}
+                        <div className="mb-2 mt-1.5 flex items-baseline gap-2">
+                          <span className="text-[10px] uppercase tracking-wider opacity-85 font-bold text-gray-300">Skor Kelayakan Akhir:</span>
+                          <strong className="text-2xl font-black tracking-tight">{selectedEval.score}/100</strong>
+                        </div>
                         
                         {selectedEval.landScore !== undefined && (
-                          <div className="text-[11px] opacity-80 space-y-0.5 border-t border-white/10 pt-1.5 mt-1.5">
-                            <div>• Skor Kesesuaian Lahan: <strong>{selectedEval.landScore}/100</strong></div>
-                            <div>• Skor Kelayakan Cuaca (Harian): <strong>{selectedEval.weatherScore}/100</strong></div>
+                          <div className="text-[11px] opacity-90 space-y-1.5 border-t border-white/10 pt-2 mt-2 font-medium">
+                            {/* Sub-skor 1: Kesesuaian Lahan */}
+                            <div className="flex items-center gap-1.5 relative group cursor-help text-white/80 hover:text-white transition-colors">
+                              <span>├─ Kesesuaian Lahan (fisik/tanah):</span>
+                              <strong className="text-white">{selectedEval.landScore}/100</strong>
+                              <span className="text-[9px] opacity-60">ⓘ</span>
+                              
+                              {/* Tooltip */}
+                              <div className="absolute left-0 bottom-full mb-1.5 w-64 p-2.5 bg-zinc-900 border border-zinc-700/50 text-[10px] text-zinc-300 rounded-lg shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50 leading-relaxed normal-case font-normal">
+                                Skor ini menghitung kombinasi parameter fisik lahan (tanah, curah hujan bulanan rata-rata, suhu tahunan, drainase, kemiringan) yang bersifat tetap.
+                              </div>
+                            </div>
+
+                            {/* Sub-skor 2: Kelayakan Cuaca */}
+                            <div className="flex items-center gap-1.5 relative group cursor-help text-white/80 hover:text-white transition-colors">
+                              <span>└─ Kelayakan Cuaca (kondisi harian):</span>
+                              <strong className="text-white">{selectedEval.weatherScore}/100</strong>
+                              <span className="text-[9px] opacity-60">ⓘ</span>
+
+                              {/* Tooltip */}
+                              <div className="absolute left-0 bottom-full mb-1.5 w-64 p-2.5 bg-zinc-900 border border-zinc-700/50 text-[10px] text-zinc-300 rounded-lg shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50 leading-relaxed normal-case font-normal">
+                                Skor ini menghitung kelayakan kondisi cuaca harian (suhu harian & curah hujan harian) pada tanggal tanam yang dipilih.
+                              </div>
+                            </div>
                           </div>
                         )}
                         
@@ -461,13 +484,37 @@ export default function KalenderTanam({ savedLahans, cropsDbList }: KalenderTana
                            selectedEval.status === 'kurang-optimal' ? 'Kurang Optimal (Butuh Mitigasi)' :
                            'Sangat Berisiko (Sebaiknya Hindari)'}
                         </h4>
-                        <p className="text-sm opacity-90 leading-relaxed">
-                          Skor Kelayakan Akhir: <strong>{selectedEval.score}/100</strong>
-                        </p>
+                        {/* Dominant Skor Kelayakan Akhir */}
+                        <div className="mb-3 mt-1.5 flex items-baseline gap-2">
+                          <span className="text-[10px] uppercase tracking-wider opacity-85 font-bold text-gray-300">Skor Kelayakan Akhir:</span>
+                          <strong className="text-3xl font-black tracking-tight">{selectedEval.score}/100</strong>
+                        </div>
+                        
                         {selectedEval.landScore !== undefined && (
-                          <div className="text-xs opacity-80 space-y-0.5 border-t border-white/10 pt-1.5 mt-1.5">
-                            <div>• Skor Kesesuaian Lahan: <strong>{selectedEval.landScore}/100</strong></div>
-                            <div>• Skor Kelayakan Cuaca (Harian): <strong>{selectedEval.weatherScore}/100</strong></div>
+                          <div className="text-xs opacity-90 space-y-1.5 border-t border-white/10 pt-2.5 mt-2.5 font-medium">
+                            {/* Sub-skor 1: Kesesuaian Lahan */}
+                            <div className="flex items-center gap-1.5 relative group cursor-help text-white/80 hover:text-white transition-colors">
+                              <span>├─ Kesesuaian Lahan (fisik/tanah):</span>
+                              <strong className="text-white">{selectedEval.landScore}/100</strong>
+                              <span className="text-[10px] opacity-60">ⓘ</span>
+                              
+                              {/* Tooltip */}
+                              <div className="absolute left-0 bottom-full mb-1.5 w-64 p-2.5 bg-zinc-900 border border-zinc-700/50 text-[10px] text-zinc-300 rounded-lg shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50 leading-relaxed normal-case font-normal">
+                                Skor ini menghitung kombinasi parameter fisik lahan (tanah, curah hujan bulanan rata-rata, suhu tahunan, drainase, kemiringan) yang bersifat tetap.
+                              </div>
+                            </div>
+
+                            {/* Sub-skor 2: Kelayakan Cuaca */}
+                            <div className="flex items-center gap-1.5 relative group cursor-help text-white/80 hover:text-white transition-colors">
+                              <span>└─ Kelayakan Cuaca (kondisi harian):</span>
+                              <strong className="text-white">{selectedEval.weatherScore}/100</strong>
+                              <span className="text-[10px] opacity-60">ⓘ</span>
+
+                              {/* Tooltip */}
+                              <div className="absolute left-0 bottom-full mb-1.5 w-64 p-2.5 bg-zinc-900 border border-zinc-700/50 text-[10px] text-zinc-300 rounded-lg shadow-xl opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50 leading-relaxed normal-case font-normal">
+                                Skor ini menghitung kelayakan kondisi cuaca harian (suhu harian & curah hujan harian) pada tanggal tanam yang dipilih.
+                              </div>
+                            </div>
                           </div>
                         )}
                         {selectedEval.landScore !== undefined && selectedEval.landScore < 80 && (

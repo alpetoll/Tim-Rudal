@@ -53,6 +53,9 @@ export async function GET(
     const end_date = '2025-12-31';
     const climateUrl = `https://climate-api.open-meteo.com/v1/climate?latitude=${lat}&longitude=${lng}&start_date=${start_date}&end_date=${end_date}&models=MRI_AGCM3_2_S&daily=temperature_2m_mean,temperature_2m_max,precipitation_sum&timezone=Asia%2FJakarta`;
 
+    console.log('[DEBUG CLIMATE API] Koordinat dikirim:', { latitude: lat, longitude: lng });
+    console.log('[DEBUG CLIMATE API] URL:', climateUrl);
+
     const response = await fetch(climateUrl);
     if (!response.ok) {
       throw new Error(`Gagal mengambil data dari Open-Meteo Climate API: ${response.statusText}`);
@@ -65,8 +68,31 @@ export async function GET(
 
     const { time, temperature_2m_max, precipitation_sum } = climateData.daily;
 
+    // Log sample raw response (first 10 values of temperature_2m_max)
+    console.log('[DEBUG CLIMATE API] Raw response sample (10 hari pertama):', 
+      time.slice(0, 10).map((t: string, idx: number) => ({
+        date: t,
+        temp_max: temperature_2m_max[idx],
+        precipitation: precipitation_sum[idx]
+      }))
+    );
+
+    // Calculate min and max temperature found
+    let minTemp = Infinity;
+    let maxTemp = -Infinity;
+    for (let i = 0; i < temperature_2m_max.length; i++) {
+      const val = temperature_2m_max[i];
+      if (val !== undefined && val !== null) {
+        if (val < minTemp) minTemp = val;
+        if (val > maxTemp) maxTemp = val;
+      }
+    }
+    console.log('[DEBUG CLIMATE API] Rentang Suhu Terdeteksi:', { minTemp, maxTemp });
+
     // 4. Process daily data into annual aggregates
     const annualData: Record<number, { precipitation: number; extremeHeatDays: number }> = {};
+    const threshold = 33;
+    let totalExceedingDays = 0;
 
     for (let i = 0; i < time.length; i++) {
       const dateStr = time[i];
@@ -79,14 +105,21 @@ export async function GET(
         }
 
         const rain = precipitation_sum[i] || 0;
-        const maxTemp = temperature_2m_max[i] || 0;
+        const maxT = temperature_2m_max[i] || 0;
 
         annualData[year].precipitation += rain;
-        if (maxTemp > 33) {
+        if (maxT > threshold) {
           annualData[year].extremeHeatDays += 1;
+          totalExceedingDays += 1;
         }
       }
     }
+
+    console.log('[DEBUG CLIMATE API] Statistik Pemrosesan:', {
+      threshold,
+      totalExceedingDays,
+      totalDaysParsed: time.length
+    });
 
     // 5. Calculate averages for two 15-year periods
     // Early Period: 1996 - 2010 (15 years)
