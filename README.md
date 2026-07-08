@@ -1,7 +1,7 @@
 <div align="center">
   <img src="public/assets/logo.webp" alt="Logo" width="120" />
   
-  # 🌾 Smart AgriMap & Crop Suitability Analyzer
+  # Smart AgriMap & Crop Suitability Analyzer
   **Platform Pemetaan Lahan & Analisis Cerdas Kelayakan Tanam Nusantara**
 
   [![Next.js](https://img.shields.io/badge/Next.js-14-black?style=for-the-badge&logo=next.js)](https://nextjs.org/)
