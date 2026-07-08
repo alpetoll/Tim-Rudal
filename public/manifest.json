@@ -3,8 +3,8 @@
   "name": "EcoTani - Asisten Mitigasi Pertanian Geospatial",
   "icons": [
     {
-      "src": "/assets/logo.svg",
-      "type": "image/svg+xml",
+      "src": "/assets/logo.webp",
+      "type": "image/webp",
       "sizes": "any"
     }
   ],

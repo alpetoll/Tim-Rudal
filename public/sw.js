@@ -6,8 +6,8 @@ self.addEventListener('push', function (event) {
     const title = data.title || 'EcoTani';
     const options = {
       body: data.body || 'Terdeteksi cuaca ekstrem.',
-      icon: '/assets/logo.svg',
-      badge: '/assets/logo.svg',
+      icon: '/assets/logo.webp',
+      badge: '/assets/logo.webp',
       data: {
         url: data.url || '/dashboard'
       }
@@ -22,7 +22,7 @@ self.addEventListener('push', function (event) {
     event.waitUntil(
       self.registration.showNotification('Peringatan EcoTani', {
         body: text,
-        icon: '/assets/logo.svg',
+        icon: '/assets/logo.webp',
         data: { url: '/dashboard' }
       })
     );

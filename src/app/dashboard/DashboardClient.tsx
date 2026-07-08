@@ -57,6 +57,7 @@ import {
   Eye,
   EyeOff,
   Sparkles,
+  Bell,
   Lightbulb,
   Check,
   ClipboardCheck,
@@ -70,6 +71,7 @@ const PetaLahan = dynamic(() => import('@/components/PetaLahan'), { ssr: false }
 import KalenderTanam from '@/components/KalenderTanam';
 import EarlyWarning from '@/components/EarlyWarning';
 import { useNotificationSubscription } from '@/hooks/useNotificationSubscription';
+
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from 'recharts';
 
 interface DashboardClientProps {
@@ -81,8 +83,8 @@ export default function DashboardClient({ initialUser }: DashboardClientProps) {
   const [user, setUser] = useState<any>(initialUser);
   const [authLoading, setAuthLoading] = useState<boolean>(false);
 
-  const { isSubscribed, subscribe, unsubscribe } = useNotificationSubscription(user?.id);
-  const [notifLoading, setNotifLoading] = useState(false);
+  const { status: notifStatus, isSubscribed, loading: notifLoading, checkSubscriptionStatus, subscribeToPush, unsubscribe } = useNotificationSubscription(user?.id);
+  const [showPushModal, setShowPushModal] = useState(false);
 
   // --- PROFILE & BUSINESS STATES ---
   const [petaniName, setPetaniName] = useState<string>('');
@@ -539,16 +541,14 @@ export default function DashboardClient({ initialUser }: DashboardClientProps) {
       setLahans(prev => [...prev, result]);
       setCurrentView('dashboard');
       await showAlertModal('Berhasil', 'Lahan sawah berhasil disimpan!', 'success');
-      
+
       if (isFirstLahan) {
-        const confirmPush = await showConfirmModal(
-          'Aktifkan Notifikasi',
-          'Aktifkan notifikasi supaya kami bisa memberi tahu Anda kalau ada cuaca ekstrem terdeteksi di lahan Anda',
-          'Aktifkan',
-          'Nanti saja'
-        );
-        if (confirmPush) {
-          await subscribe();
+        const hasSeenModal = localStorage.getItem('ecotani_push_modal_seen');
+        if (!hasSeenModal) {
+          const currentStatus = await checkSubscriptionStatus();
+          if (currentStatus === 'not-asked') {
+            setShowPushModal(true);
+          }
         }
       }
     } else {
@@ -617,8 +617,7 @@ export default function DashboardClient({ initialUser }: DashboardClientProps) {
 
   const handleToggleNotification = async () => {
     if (notifLoading) return;
-    setNotifLoading(true);
-
+    
     try {
       if (isSubscribed) {
         const success = await unsubscribe();
@@ -628,17 +627,15 @@ export default function DashboardClient({ initialUser }: DashboardClientProps) {
           await showAlertModal('Gagal', 'Gagal menonaktifkan notifikasi push.', 'error');
         }
       } else {
-        const success = await subscribe();
+        const success = await subscribeToPush();
         if (success) {
           await showAlertModal('Diaktifkan', 'Notifikasi push berhasil diaktifkan!', 'success');
         } else {
-          await showAlertModal('Peringatan', 'Gagal mengaktifkan notifikasi push. Pastikan izin notifikasi diberikan pada browser Anda.', 'warning');
+          await showAlertModal('Peringatan', 'Gagal mengaktifkan notifikasi push. Pastikan izin notifikasi diberikan pada setelan browser Anda.', 'warning');
         }
       }
     } catch (err) {
       console.error('Error toggling push notifications:', err);
-    } finally {
-      setNotifLoading(false);
     }
   };
 
@@ -3377,6 +3374,61 @@ export default function DashboardClient({ initialUser }: DashboardClientProps) {
           <span className="hidden md:inline"> - </span>Telkom University Purwokerto <span className="text-primary font-bold mx-1">X</span> Universitas Jendral Soedirman
         </p>
       </footer>
+
+      {/* Modal Notifikasi Cuaca Pre-Prompt */}
+      <AnimatePresence>
+        {showPushModal && (
+          <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+            <motion.div 
+              initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+              className="absolute inset-0 bg-black/60 backdrop-blur-sm"
+              onClick={() => {
+                localStorage.setItem('ecotani_push_modal_seen', 'true');
+                setShowPushModal(false);
+              }}
+            />
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              className="relative bg-bg-dark border border-border-medium rounded-2xl w-full max-w-md shadow-2xl shadow-black overflow-hidden"
+            >
+              <div className="p-6 relative z-10">
+                <div className="bg-primary/20 w-16 h-16 rounded-2xl flex items-center justify-center mb-6 border border-primary/30 shadow-[0_0_15px_rgba(34,197,94,0.3)]">
+                  <Bell className="w-8 h-8 text-primary" />
+                </div>
+                <h2 className="text-xl font-bold text-text-main mb-3">Aktifkan Notifikasi Cuaca</h2>
+                <p className="text-sm text-text-muted leading-relaxed mb-8">
+                  Kami akan memberi tahu Anda langsung kalau ada cuaca ekstrem terdeteksi di lahan Anda, meskipun aplikasi sedang tidak dibuka.
+                </p>
+                
+                <div className="flex gap-3">
+                  <button
+                    onClick={() => {
+                      localStorage.setItem('ecotani_push_modal_seen', 'true');
+                      setShowPushModal(false);
+                    }}
+                    className="flex-1 py-3 px-4 rounded-xl border border-border-medium hover:bg-border-light text-text-muted font-semibold text-sm transition-all"
+                  >
+                    Nanti Saja
+                  </button>
+                  <button
+                    onClick={async () => {
+                      localStorage.setItem('ecotani_push_modal_seen', 'true');
+                      await subscribeToPush();
+                      setShowPushModal(false);
+                    }}
+                    disabled={notifLoading}
+                    className="flex-1 py-3 px-4 rounded-xl bg-primary hover:bg-primary-dark text-white font-bold text-sm transition-all shadow-lg shadow-primary/20 flex items-center justify-center"
+                  >
+                    {notifLoading ? 'Loading...' : 'Aktifkan Notifikasi'}
+                  </button>
+                </div>
+              </div>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
 
     </div>
   );

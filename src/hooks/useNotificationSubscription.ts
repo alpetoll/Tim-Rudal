@@ -18,25 +18,36 @@ function urlBase64ToUint8Array(base64String: string) {
   return outputArray;
 }
 
+export type SubscriptionStatus = 'granted' | 'denied' | 'not-asked';
+
 export function useNotificationSubscription(userId: string | undefined) {
+  const [status, setStatus] = useState<SubscriptionStatus>('not-asked');
   const [isSubscribed, setIsSubscribed] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [permission, setPermission] = useState<NotificationPermission>('default');
 
   useEffect(() => {
     if (typeof window !== 'undefined' && 'Notification' in window) {
-      setPermission(Notification.permission);
+      if (Notification.permission === 'denied') {
+        setStatus('denied');
+      }
     }
   }, []);
 
-  const checkSubscription = async () => {
-    if (!userId || typeof window === 'undefined' || !('serviceWorker' in navigator) || !('PushManager' in window)) return;
+  const checkSubscriptionStatus = async (): Promise<SubscriptionStatus> => {
+    if (!userId || typeof window === 'undefined' || !('serviceWorker' in navigator) || !('PushManager' in window)) {
+      return 'denied';
+    }
     
     try {
+      if (Notification.permission === 'denied') {
+        setStatus('denied');
+        return 'denied';
+      }
+
       const registration = await navigator.serviceWorker.ready;
       const subscription = await registration.pushManager.getSubscription();
       
-      if (subscription) {
+      if (subscription && Notification.permission === 'granted') {
         // Cek apakah subscription ada di database
         const { data, error } = await supabase
           .from('push_subscriptions')
@@ -47,29 +58,37 @@ export function useNotificationSubscription(userId: string | undefined) {
         
         if (!error && data) {
           setIsSubscribed(true);
-        } else {
-          setIsSubscribed(false);
+          setStatus('granted');
+          return 'granted';
         }
-      } else {
-        setIsSubscribed(false);
       }
+      
+      setIsSubscribed(false);
+      const currentStatus = Notification.permission === 'default' ? 'not-asked' : (Notification.permission === 'granted' ? 'not-asked' : 'denied');
+      setStatus(currentStatus);
+      return currentStatus;
     } catch (err) {
       console.error('Error checking notification subscription:', err);
+      return 'not-asked';
     }
   };
 
   useEffect(() => {
-    checkSubscription();
+    checkSubscriptionStatus();
   }, [userId]);
 
-  const subscribe = async () => {
+  const subscribeToPush = async () => {
     if (!userId) return false;
     setLoading(true);
 
     try {
       // 1. Request permission
       const perm = await Notification.requestPermission();
-      setPermission(perm);
+      if (perm === 'denied') {
+        setStatus('denied');
+        setLoading(false);
+        return false;
+      }
       if (perm !== 'granted') {
         setLoading(false);
         return false;
@@ -105,13 +124,17 @@ export function useNotificationSubscription(userId: string | undefined) {
           auth
         }, { onConflict: 'user_id,endpoint' });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Supabase Error:', error);
+        throw new Error(error.message || 'Supabase upsert failed');
+      }
 
       setIsSubscribed(true);
+      setStatus('granted');
       setLoading(false);
       return true;
-    } catch (err) {
-      console.error('Failed to subscribe to push notifications:', err);
+    } catch (err: any) {
+      console.error('Failed to subscribe to push notifications:', err.message || err, err);
       setLoading(false);
       return false;
     }
@@ -138,6 +161,7 @@ export function useNotificationSubscription(userId: string | undefined) {
       }
 
       setIsSubscribed(false);
+      setStatus('not-asked');
       setLoading(false);
       return true;
     } catch (err) {
@@ -148,10 +172,11 @@ export function useNotificationSubscription(userId: string | undefined) {
   };
 
   return {
+    status,
     isSubscribed,
     loading,
-    permission,
-    subscribe,
+    checkSubscriptionStatus,
+    subscribeToPush,
     unsubscribe
   };
 }
