@@ -85,14 +85,19 @@ export default function AuthPage() {
       }
 
       if (isRegisterMode) {
-        await showAlertModal(
-          'Pendaftaran Berhasil',
-          resData.message || 'Silakan periksa kotak masuk email Anda untuk melakukan verifikasi akun.',
-          'success'
-        );
-        setIsRegisterMode(false);
-        setAuthPassword('');
-        setAuthConfirmPassword('');
+        if (resData.session) {
+          router.refresh();
+          router.push('/dashboard');
+        } else {
+          await showAlertModal(
+            'Pendaftaran Berhasil',
+            resData.message || 'Pendaftaran berhasil! Akun Anda telah dibuat.',
+            'success'
+          );
+          setIsRegisterMode(false);
+          setAuthPassword('');
+          setAuthConfirmPassword('');
+        }
       } else {
         // Refresh router so Next.js Middleware/Server Components pick up the new cookies
         router.refresh();

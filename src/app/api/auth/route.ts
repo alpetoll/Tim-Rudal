@@ -57,9 +57,18 @@ export async function POST(request: Request) {
         return NextResponse.json({ error: error.message }, { status: 400 });
       }
 
+      if (data.session) {
+        return NextResponse.json({
+          success: true,
+          session: data.session,
+          user: data.user,
+          message: 'Pendaftaran berhasil! Anda telah masuk secara otomatis.'
+        });
+      }
+
       return NextResponse.json({
         success: true,
-        message: 'Pendaftaran berhasil! Silakan periksa email Anda untuk verifikasi atau langsung login jika konfirmasi otomatis aktif.'
+        message: 'Pendaftaran berhasil! Silakan periksa email Anda untuk verifikasi.'
       });
 
     } else if (action === 'login') {

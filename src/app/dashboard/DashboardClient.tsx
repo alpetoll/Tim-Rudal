@@ -62,7 +62,8 @@ import {
   Check,
   ClipboardCheck,
   Clock,
-  X
+  X,
+  RefreshCw
 } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -123,6 +124,42 @@ export default function DashboardClient({ initialUser }: DashboardClientProps) {
 
   const [activeTab, setActiveTab] = useState<'lahan' | 'panen'>('lahan');
   const [liveWeather, setLiveWeather] = useState<{suhu: number, curahHujan: number, currentTemp?: number, weatherDesc?: string} | null>(null);
+
+  // --- CLIMATE INSIGHT STATES ---
+  const [climateInsight, setClimateInsight] = useState<any>(null);
+  const [climateLoading, setClimateLoading] = useState<boolean>(false);
+  const [climateError, setClimateError] = useState<string>('');
+
+  const fetchClimateInsight = async (lahanId: string, forceRefresh: boolean = false) => {
+    setClimateLoading(true);
+    setClimateError('');
+    try {
+      const res = await fetch(`/api/lands/${lahanId}/climate-insight${forceRefresh ? '?refresh=true' : ''}`);
+      if (!res.ok) {
+        throw new Error('Gagal mengambil data perubahan iklim.');
+      }
+      const json = await res.json();
+      if (json.success && json.data) {
+        setClimateInsight(json.data);
+      } else {
+        throw new Error(json.error || 'Gagal memproses data perubahan iklim.');
+      }
+    } catch (err: any) {
+      console.error(err);
+      setClimateError(err.message || 'Gagal memuat insight iklim wilayah.');
+    } finally {
+      setClimateLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    if (selectedLahan && currentView === 'monitoring') {
+      fetchClimateInsight(selectedLahan.id);
+    } else {
+      setClimateInsight(null);
+      setClimateError('');
+    }
+  }, [selectedLahan?.id, currentView]);
 
   // --- HARVEST (PANEN) STATES ---
   const [beratPanen, setBeratPanen] = useState<number | ''>('');
@@ -2356,6 +2393,118 @@ export default function DashboardClient({ initialUser }: DashboardClientProps) {
               <div className="bg-amber-500/10 border border-amber-500/20 rounded-2xl p-5 text-xs text-amber-300 flex items-center gap-3 shadow-lg">
                 <Lightbulb className="w-5 h-5 text-amber-400 shrink-0" />
                 <p className="leading-relaxed">Dibandingkan rata-rata historis 5 tahun terakhir: <strong className="text-white">+1.2°C lebih panas</strong> akibat pergeseran iklim lokal.</p>
+              </div>
+
+              {/* Climate Insight Card */}
+              <div className="bg-white/5 border border-white/10 rounded-[24px] p-5 md:p-6 shadow-xl space-y-5">
+                <div className="flex justify-between items-center border-b border-white/5 pb-3">
+                  <h3 className="font-bold text-white text-sm flex items-center gap-2">
+                    <TrendingUp className="w-4.5 h-4.5 text-primary" />
+                    <span>Insight Iklim Wilayah (30 Tahun Baseline)</span>
+                  </h3>
+                  <button
+                    onClick={() => fetchClimateInsight(selectedLahan.id, true)}
+                    disabled={climateLoading}
+                    className="p-1.5 hover:bg-white/5 text-gray-400 hover:text-white rounded-lg transition-colors flex items-center gap-1 text-xs cursor-pointer"
+                    title="Perbarui Analisis"
+                  >
+                    <RefreshCw className={`w-3.5 h-3.5 ${climateLoading ? 'animate-spin' : ''}`} />
+                    <span>Perbarui</span>
+                  </button>
+                </div>
+
+                {climateLoading ? (
+                  <div className="space-y-4 animate-pulse">
+                    <div className="h-20 bg-white/5 rounded-2xl"></div>
+                    <div className="h-10 bg-white/5 rounded-xl w-3/4"></div>
+                  </div>
+                ) : climateError ? (
+                  <div className="text-xs text-red-400 bg-red-500/10 border border-red-500/20 rounded-xl p-4">
+                    {climateError}
+                  </div>
+                ) : climateInsight ? (
+                  <div className="space-y-5">
+                    {/* Stat side-by-side */}
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {/* Precipitation Stat */}
+                      <div className="bg-black/20 border border-white/5 p-4 rounded-2xl flex flex-col justify-between">
+                        <span className="text-[10px] text-gray-400 uppercase tracking-widest font-semibold">Rata-rata Curah Hujan</span>
+                        <div className="flex items-baseline gap-2 mt-2">
+                          <strong className="text-xl font-extrabold text-white tracking-tight">
+                            {Math.round(Number(climateInsight.avg_precipitation_recent_period))} mm/thn
+                          </strong>
+                          <span className={`text-[10px] font-extrabold px-2 py-0.5 rounded-full border ${
+                            Number(climateInsight.precipitation_change_percent) > 0 
+                              ? 'text-emerald-400 bg-emerald-500/10 border-emerald-500/20' 
+                              : Number(climateInsight.precipitation_change_percent) < 0
+                              ? 'text-amber-400 bg-amber-500/10 border-amber-500/20'
+                              : 'text-gray-400 bg-gray-500/10 border-gray-500/20'
+                          }`}>
+                            {Number(climateInsight.precipitation_change_percent) > 0 ? '▲' : '▼'} {Math.abs(Math.round(Number(climateInsight.precipitation_change_percent)))}%
+                          </span>
+                        </div>
+                        <p className="text-[10px] text-gray-400 mt-2 leading-relaxed">
+                          Baseline 1995-2009: {Math.round(Number(climateInsight.avg_precipitation_early_period))} mm/thn.
+                        </p>
+                      </div>
+
+                      {/* Extreme Heat Stat */}
+                      <div className="bg-black/20 border border-white/5 p-4 rounded-2xl flex flex-col justify-between">
+                        <span className="text-[10px] text-gray-400 uppercase tracking-widest font-semibold">Hari Suhu Ekstrem (&gt;33°C)</span>
+                        <div className="flex items-baseline gap-2 mt-2">
+                          <strong className="text-xl font-extrabold text-white tracking-tight">
+                            {climateInsight.extreme_heat_days_recent_period} hari/thn
+                          </strong>
+                          <span className={`text-[10px] font-extrabold px-2 py-0.5 rounded-full border ${
+                            Number(climateInsight.extreme_heat_change_percent) > 0 
+                              ? 'text-red-400 bg-red-500/10 border-red-500/20' 
+                              : Number(climateInsight.extreme_heat_change_percent) < 0
+                              ? 'text-emerald-400 bg-emerald-500/10 border-emerald-500/20'
+                              : 'text-gray-400 bg-gray-500/10 border-gray-500/20'
+                          }`}>
+                            {Number(climateInsight.extreme_heat_change_percent) > 0 ? '▲' : '▼'} {Math.abs(Math.round(Number(climateInsight.extreme_heat_change_percent)))}%
+                          </span>
+                        </div>
+                        <p className="text-[10px] text-gray-400 mt-2 leading-relaxed">
+                          Baseline 1995-2009: {climateInsight.extreme_heat_days_early_period} hari/thn.
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* Automatic Narrative Summary */}
+                    <div className="bg-primary/5 border border-primary/20 rounded-2xl p-4 text-xs text-primary-light">
+                      <p className="leading-relaxed">
+                        {(() => {
+                          const pDiff = Number(climateInsight.precipitation_change_percent);
+                          const hDiff = Number(climateInsight.extreme_heat_change_percent);
+                          const pTrend = pDiff > 5 ? 'peningkatan curah hujan' : pDiff < -5 ? 'penurunan curah hujan' : 'curah hujan yang cenderung stabil';
+                          const hTrend = hDiff > 5 ? 'penambahan hari panas ekstrem' : hDiff < -5 ? 'pengurangan hari panas ekstrem' : 'kondisi suhu ekstrem stabil';
+                          
+                          let implication = 'Implikasi untuk lahan sawah Anda terpantau aman.';
+                          if (pDiff < -5 && hDiff > 5) {
+                            implication = 'Meningkatkan risiko kekeringan dan kekosongan air tanah. Siapkan suplai air tambahan dan pertimbangkan varietas tahan kering.';
+                          } else if (pDiff > 5 && hDiff > 5) {
+                            implication = 'Meningkatkan kelembapan ekstrem dan suhu tinggi, meningkatkan risiko serangan hama penyakit. Optimalkan sirkulasi udara dan drainase sawah.';
+                          } else if (pDiff > 5) {
+                            implication = 'Risiko banjir dan genangan air meningkat pada musim hujan. Pastikan parit dan drainase sawah berfungsi optimal.';
+                          } else if (hDiff > 5) {
+                            implication = 'Suhu panas dapat mempercepat evaporasi. Jadwalkan irigasi pagi/sore hari untuk mengurangi stres panas tanaman.';
+                          }
+
+                          return `Wilayah ini menunjukkan ${pTrend} (${Math.abs(Math.round(pDiff))}% dari baseline) dan ${hTrend} (${Math.abs(Math.round(hDiff))}% dari baseline) dibanding rata-rata historis 30 tahun terakhir. ${implication}`;
+                        })()}
+                      </p>
+                    </div>
+
+                    <p className="text-[9px] text-gray-500 italic">
+                      * Data diolah dari model reanalysis iklim global (Open-Meteo Climate API), disajikan sebagai indikasi tren jangka panjang. Terakhir dianalisis: {new Date(climateInsight.calculated_at).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' })}.
+                    </p>
+                  </div>
+                ) : (
+                  <div className="text-xs text-gray-400 bg-white/5 rounded-xl p-4 text-center">
+                    Data insight iklim belum tersedia untuk lokasi ini.
+                  </div>
+                )}
               </div>
             </div>
           )}

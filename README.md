@@ -108,3 +108,14 @@ Sistem ini menggunakan *relational database* dengan tabel utama sebagai berikut:
 *Inovasi Teknologi Digital untuk Mendukung Ketahanan Pangan dan Pertanian Cerdas Masa Depan.*
 
 > *"Membawa Presisi Agroklimatologi ke Genggaman Petani."*
+
+---
+
+## ⚠️ PENTING: Pengaturan Konfirmasi Email (Authentication)
+> [!WARNING]
+> **Email confirmation dinonaktifkan sementara** pada dashboard Supabase untuk mempercepat proses development dan testing. Hal ini memungkinkan alur pendaftaran (*signup*) langsung mengarah ke dashboard tanpa perlu memverifikasi email terlebih dahulu.
+> 
+> **Sebelum merilis ke pengguna nyata (production):**
+> 1. Aktifkan kembali opsi **"Confirm email"** di Dashboard Supabase (**Authentication -> Providers -> Email**).
+> 2. Pastikan konfigurasi Vercel Deployment Protection dan redirect URL sudah disiapkan dengan benar agar tautan konfirmasi email tidak menghasilkan halaman kesalahan ketika diklik oleh pengguna.
+
