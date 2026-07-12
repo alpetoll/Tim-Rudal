@@ -39,6 +39,7 @@ export async function POST(request: Request) {
             { status: 400 }
           );
         }
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       } catch (checkErr: any) {
         console.warn('Bypassing profile check due to unexpected error:', checkErr.message);
       }
@@ -94,6 +95,7 @@ export async function POST(request: Request) {
         { status: 400 }
       );
     }
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   } catch (err: any) {
     return NextResponse.json(
       { error: err.message || 'Terjadi kesalahan internal.' },

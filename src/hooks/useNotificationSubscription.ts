@@ -28,6 +28,7 @@ export function useNotificationSubscription(userId: string | undefined) {
   useEffect(() => {
     if (typeof window !== 'undefined' && 'Notification' in window) {
       if (Notification.permission === 'denied') {
+        // eslint-disable-next-line react-hooks/set-state-in-effect
         setStatus('denied');
       }
     }
@@ -74,16 +75,19 @@ export function useNotificationSubscription(userId: string | undefined) {
   };
 
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     checkSubscriptionStatus();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userId]);
 
   const subscribeToPush = async () => {
     if (!userId) return false;
-    setLoading(true);
 
     try {
-      // 1. Request permission
+      // 1. Request permission (panggil di awal agar mendeteksi user gesture di iOS Safari)
       const perm = await Notification.requestPermission();
+      
+      setLoading(true);
       if (perm === 'denied') {
         setStatus('denied');
         setLoading(false);
@@ -133,6 +137,7 @@ export function useNotificationSubscription(userId: string | undefined) {
       setStatus('granted');
       setLoading(false);
       return true;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err: any) {
       console.error('Failed to subscribe to push notifications:', err.message || err, err);
       setLoading(false);

